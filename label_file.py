@@ -38,7 +38,7 @@ class LabelFile(object):
                 imageData = base64.b64decode(data['imageData'])
             else:
                 # relative path from label file to relative path from cwd
-                imagePath = os.path.join(cfg.image_path,
+                imagePath = os.path.join(cfg.data_dir, cfg.origin_image_dir_name,
                                          data['imagePath'])
                 with open(imagePath, 'rb') as f:
                     imageData = f.read()

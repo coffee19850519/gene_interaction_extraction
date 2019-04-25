@@ -46,7 +46,7 @@ else:
 steps_per_epoch = total_img * (1 - validation_split_ratio) // batch_size
 validation_steps = total_img * validation_split_ratio // batch_size
 
-data_dir = r'C:\Users\LSC-110\Desktop\nocks'
+data_dir = r'C:\Users\LSC-110\Desktop\cxtest\Images'
 origin_image_dir_name = r'inhibit'
 origin_txt_dir_name = r'labels'
 train_image_dir_name = r'images_%s' % train_task_id
@@ -103,7 +103,7 @@ OCR_result_path = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima 
 predict_result_path = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\predict_txt'
 result_in_json_path = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\imagetest\tolabelme_txt'
 '''
-image_path = r'D:\test\positive'
+#image_path = r'C:\Users\LSC-110\Desktop\cxtest\Images'
 OCR_result_path = r'D:\test\ocr_txt'
 predict_result_path = r'D:\test\predict_txt'
 result_in_json_path = r'D:\test\tolabelme_txt'

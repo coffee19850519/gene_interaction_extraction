@@ -18,7 +18,7 @@ from loadexcldata import load_genename_from_excl
 if __name__ == '__main__':
     # img_path = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\imagetest'
     #reference to configuration file variable values(file path)
-    img_path =cfg.image_path
+    img_path = os.path.join(cfg.data_dir, cfg.origin_image_dir_name)
     correctfolder =cfg.correct_result_path
     predictfolder =cfg.predict_result_path
     to_labelmefolder =cfg.result_in_json_path

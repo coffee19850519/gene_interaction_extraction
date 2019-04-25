@@ -272,10 +272,10 @@ def generate_inhibit(img, file_name, arrow_boxes, head_boxes):
 
 
 if __name__ == "__main__":
-    img_fold = r'D:\test\test2\image'
-    label_fold = r'D:\test\test2\label'
-    sim_fold = r'D:\test\test2\imageresult'
-    sim_json_fold = r'D:\test\test2\labelresult'
+    img_fold = r'C:\Users\LSC-110\Desktop\cxtest\Images'
+    label_fold = r'C:\Users\LSC-110\Desktop\cxtest\labeled'
+    sim_fold = r'C:\Users\LSC-110\Desktop\cxtest\results'
+    sim_json_fold = r'C:\Users\LSC-110\Desktop\cxtest\results'
     # code for individual
     # image = r'cin_00004.png'
     for image in os.listdir(img_fold):
