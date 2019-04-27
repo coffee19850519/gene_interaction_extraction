@@ -314,7 +314,7 @@ if __name__ == "__main__":
         for inhibit_shape in inhibit_shapes:
             shapes.append(inhibit_shape)
         for text_shape in text_shapes:
-            shapes.append(text_shapes)
+            shapes.append(text_shape)
 
         #save json
         label.save(os.path.join(sim_json_fold, image[:-4] + '.json'),shapes,image,None,None,None,None,{})
