@@ -46,8 +46,8 @@ else:
 steps_per_epoch = total_img * (1 - validation_split_ratio) // batch_size
 validation_steps = total_img * validation_split_ratio // batch_size
 
-data_dir = r'C:\Users\LSC-110\Desktop\cxtest\Images'
-origin_image_dir_name = r'inhibit'
+data_dir = r'C:\Users\LSC-110\Desktop\test'
+origin_image_dir_name = r'Images'
 origin_txt_dir_name = r'labels'
 train_image_dir_name = r'images_%s' % train_task_id
 train_label_dir_name = r'labels_%s' % train_task_id
