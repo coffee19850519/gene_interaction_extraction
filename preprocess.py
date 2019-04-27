@@ -308,10 +308,10 @@ def load_json_label(json_path):
                 del category,coord
             elif shape['shape_type'] == 'polygon':
                 category = label_data.generate_category(shape)
-                category_list.append(category)
                 # if np.array(shape['points']).size != 8:
                 #     print('file:'+json_path+' label:' +str(shape['label']) )
                 coords_list.append(np.array(shape['points']).reshape((4,2)))
+                category_list.append(category)
                 del category
             else:
                 print('we have other shape type:'+ str(shape['shape_type']))
