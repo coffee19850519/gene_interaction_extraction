@@ -316,7 +316,7 @@ def load_json_label(json_path):
             else:
                 print('we have other shape type:'+ str(shape['shape_type']))
         except:
-            print('%s includes invalid '%json_path)
+            print('%s includes invalid annotation'%json_path)
     del  label_data
     return category_list, coords_list, file_name
 
