@@ -201,42 +201,50 @@ def find_vertex_for_detected_arrow_by_distance(img, candidates, head_box):
       receptor_point = np.mean(head_box, axis=0, dtype=np.int32)
   if len(out_head) < 1:
       # activate_point= np.array([0,0],dtype = np.int32);
-      #under this circumstance, the line is dash line
-      activate_point = None
-      activate_slope = None
+      #under this circumstance, the line is a dash line
+      activator_point = None
+      activator_neighbor = None
+      #activate_slope = None
       receptor_point = None
-      receptor_slope = None
+      receptor_neighbor = None
+      #receptor_slope = None
   elif len(out_head) == 1:
-      #connected line is straight
-      activate_point = out_head[0]
-      activate_slope = slope(activate_point, receptor_point)
-      receptor_slope = activate_slope
+      #connected line is straight line
+      activator_point = out_head[0]
+      # activate_slope = slope(activate_point, receptor_point)
+      # receptor_slope = activate_slope
+      activator_neighbor = None
+      receptor_neighbor = None
+
   elif len(out_head) == 2:
       # find first connected key-point for calculating slope
       first_point, first_index = find_nearest_point(receptor_point,out_head)
-      receptor_slope = slope(receptor_point, first_point)
+      #receptor_slope = slope(receptor_point, first_point)
       out_head.pop(first_index)
-      activate_point = out_head[0]
-      activate_slope = slope(first_point, activate_point)
+      activator_point = out_head[0]
+      #activate_slope = slope(first_point, activate_point)
+      activator_neighbor = first_point
+      receptor_neighbor = first_point
   else:
       # find first connected key-point for calculating slope
       first_point, first_index  = find_nearest_point(receptor_point,                                                   out_head)
-      receptor_slope = slope(receptor_point, first_point)
+      #receptor_slope = slope(receptor_point, first_point)
       out_head.pop(first_index)
+      receptor_neighbor = first_point
       # from receptor point to find the nearest point until end point
-      activate_point = first_point.copy()
+      activator_point = first_point.copy()
 
       while (len(out_head) > 1):
-        activate_point, activate_index = find_nearest_point(activate_point,
+        activator_point, activate_index = find_nearest_point(activator_point,
                                                             out_head)
         out_head.pop(activate_index)
       # the last point is the farest point to receptor point
-      first_point = activate_point
-      activate_point = out_head[0]
-      activate_slope = slope(first_point, activate_point)
+      first_point = activator_point
+      activator_point = out_head[0]
+      #activate_slope = slope(first_point, activate_point)
+      activator_neighbor = first_point
   del in_head, out_head
-  return activate_point,activate_slope, receptor_point, receptor_slope
-
+  return activator_point,activator_neighbor, receptor_point, activator_point
 
 
 def mean_neighbor_pixels(img, center_point, neighbor_size):
@@ -266,8 +274,9 @@ def scoring_all_candidates(img, binary_img, startor, candidates):
     candidate_num = len(candidates)
     candidate_list = candidates.copy()
 
-    closest_point, closest_idx = find_nearest_point(startor, candidates)
-    startor_slope = slope(closest_point, startor)
+    receptor_neighbor, closest_idx = find_nearest_point(startor, candidates)
+    #startor_slope = slope(closest_point, startor)
+
 
     while(len(selected_list) < candidate_num + 1):
         current_point = (selected_list[len(selected_list) - 1]['x'],
@@ -432,9 +441,10 @@ def scoring_all_candidates(img, binary_img, startor, candidates):
     # cv2.imwrite('contour' + str(cnt_index) + '_key_candidates.png', img)
     del candidate_table,vertex_candidates,img
     chosen_point = vertex_candidate_coords.head(1)[['x', 'y']].values[0]
-    closest_point, closest_idx = find_nearest_point(chosen_point, candidates)
-    chosen_slope = slope(chosen_point, closest_point)
-    return chosen_point,startor_slope,chosen_slope
+    activator_neighbor, closest_idx = find_nearest_point(chosen_point,
+                                                        candidates)
+    #chosen_slope = slope(chosen_point, closest_point)
+    return chosen_point,activator_neighbor,receptor_neighbor
 
 def find_vertex_for_detected_arrow(img,binary_img, img_file, candidates, \
                                                  head_box):
@@ -469,15 +479,13 @@ def find_vertex_for_detected_arrow(img,binary_img, img_file, candidates, \
     #cv2.circle(aggregate_img, tuple(receptor_point), 2,(255, 0, 0),
     # thickness=-1)
 
-    activate_point, receptor_slope, activate_slope  = scoring_all_candidates(
-        aggregate_img,
-                                                        binary_img,
-                                                  receptor_point,
-                                                  out_head)
+    activator_point, activator_neighbor,receptor_neighbor  = \
+      scoring_all_candidates(
+        aggregate_img, binary_img, receptor_point, out_head)
 
     del aggregate_img,detected_path, in_head,out_head
 
-    return activate_point, activate_slope, receptor_point, receptor_slope
+    return activator_point, activator_neighbor, receptor_point, receptor_neighbor
 
 def find_all_arrows( img_file, label_file):
     origin_img = cv2.imread(img_file)
@@ -494,8 +502,8 @@ def find_all_arrows( img_file, label_file):
     detected_list = []
     activator_list=[]
     receptor_list=[]
-    activator_slope_list = []
-    receptor_slope_list = []
+    activator_neighbor_list = []
+    receptor_neighbor_list = []
 
     for arrow_shape in arrow_shapes:
         head_box = arrow_shape['points']
@@ -549,29 +557,30 @@ def find_all_arrows( img_file, label_file):
 
           if same_num > 1:
               #exist overlapping arrows
-              activator, activator_slope, receptor, receptor_slope = \
+              activator_point, activator_neighbor, receptor_point, \
+              receptor_neighbor = \
                 find_vertex_for_detected_arrow(origin_img, binary_img,
                                                                    img_file,
                                                                    vertex_candidates,
                                                                    head_box)
           else:
               # straight forward way
-              activator, activator_slope, receptor, receptor_slope = \
+              activator_point, activator_neighbor, receptor_point, receptor_neighbor = \
                 find_vertex_for_detected_arrow_by_distance(binary_img,
                                                            vertex_candidates,
                                                            head_box)
           del vertex_candidates
 
-          activator_list.append(activator)
-          receptor_list.append(receptor)
-          activator_slope_list.append(activator_slope)
-          receptor_slope_list.append(receptor_slope)
+          activator_list.append(activator_point)
+          receptor_list.append(receptor_point)
+          activator_neighbor_list.append(activator_neighbor)
+          receptor_neighbor_list.append(receptor_neighbor)
 
 
     # cv2.imwrite(img_file[:-4]+'_detected.png', origin_img)
     del img,origin_img,detected_list
-    return activator_list, activator_slope_list, receptor_list, \
-           receptor_slope_list, text_shapes, arrow_shapes
+    return activator_list, activator_neighbor_list, receptor_list, \
+           receptor_neighbor_list, text_shapes, arrow_shapes
 
 def find_all_inhibits(img_file, label_file):
     origin_img = cv2.imread(img_file)
@@ -589,8 +598,8 @@ def find_all_inhibits(img_file, label_file):
     detected_list = []
     activator_list = []
     receptor_list = []
-    activator_slope_list = []
-    receptor_slope_list = []
+    activator_neighbor_list = []
+    receptor_neighbor_list = []
 
     for inhibit in inhibit_shapes:
         head_box = inhibit['points']
@@ -644,29 +653,29 @@ def find_all_inhibits(img_file, label_file):
 
             if same_num > 1:
                 # exist overlapping arrows
-                activator, activator_slope, receptor, receptor_slope = \
+                activator_point, activator_neighbor, receptor_point, receptor_neighbor = \
                   find_vertex_for_detected_arrow(origin_img, binary_img,
                                                                      img_file,
                                                                      vertex_candidates,
                                                                      head_box)
             else:
                 # straight forward way
-                activator, activator_slope, receptor, receptor_slope = \
+                activator_point, activator_neighbor, receptor_point, receptor_neighbor = \
                     find_vertex_for_detected_arrow_by_distance(binary_img,
                                                                vertex_candidates,
                                                                head_box)
             del vertex_candidates
 
-            activator_list.append(activator)
-            receptor_list.append(receptor)
-            activator_slope_list.append(activator_slope)
-            receptor_slope_list.append(receptor_slope)
+            activator_list.append(activator_point)
+            receptor_list.append(receptor_point)
+            activator_neighbor_list.append(activator_neighbor)
+            receptor_neighbor_list.append(receptor_neighbor)
 
 
     # cv2.imwrite(img_file[:-4]+'_detected.png', origin_img)
     del img, origin_img, detected_list
-    return activator_list, activator_slope_list, receptor_list, \
-           receptor_slope_list, text_shapes, inhibit_shapes
+    return activator_list, activator_neighbor_list, receptor_list, \
+           receptor_neighbor_list, text_shapes, inhibit_shapes
 
 
 
