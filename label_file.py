@@ -110,8 +110,9 @@ class LabelFile(object):
     def get_all_genes(self):
         gene_names = []
         for shape in self.shapes:
-            _,_,gene_name = str(shape['labels']).partition('gene:')
-            gene_names.append(gene_name)
+            if shape['label'].find() == 0:
+                _,_,gene_name = str(shape['labels']).partition('gene:')
+                gene_names.append(gene_name)
         return gene_names
 
     def generate_category(self, shape):
