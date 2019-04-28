@@ -274,11 +274,12 @@ def generate_inhibit(img, file_name, arrow_boxes, head_boxes):
   inhibit_box_list = []
   for box_idx in range(0, len(arrow_boxes)):
     try:
-      box = draw_inhibit_in_arrow_box(simulation_img, file_name, arrow_boxes[
-        box_idx], head_boxes[box_idx])
-      inhibit_box_list.append(box)
+        box = draw_inhibit_in_arrow_box(simulation_img, file_name, arrow_boxes[
+          box_idx], head_boxes[box_idx])
+        inhibit_box_list.append(box)
     except:
-      inhibit_box_list.append(None)
+        print('%s this image may have invalid box annotations!' % file_name)
+        inhibit_box_list.append(None)
   return simulation_img, inhibit_box_list
 
 
@@ -306,14 +307,15 @@ def simulate_inhibit_perimg(img_fold, image, sim_json_fold, ceiling_ratio):
   # replace arrow_shapes with inhibit_shapes
   for arrow_shape in arrow_shapes:
     for idx in range(0, len(head_boxes)):
-      test1 = arrow_shape['points']
-      test2 = head_boxes[idx]
-      if arrow_shape['points'] == head_boxes[idx]:
-        arrow_shape['points'] = bounding_box_list[idx].tolist()
-        arrow_shape['label'] = str(arrow_shape['label']).replace('activate',
-                                                                 'inhibit')
-        arrow_shape['shape_type'] = 'polygon'
-        break
+      # test1 = arrow_shape['points']
+      # test2 = head_boxes[idx]
+      if arrow_shape['points'] == head_boxes[idx] and \
+          bounding_box_list[idx] is not None:
+          arrow_shape['points'] = bounding_box_list[idx].tolist()
+          arrow_shape['label'] = str(arrow_shape['label']).replace('activate',
+                                                                   'inhibit')
+          arrow_shape['shape_type'] = 'polygon'
+          break
 
   # shapes=arrow+inhibit+text
   shapes = []
@@ -330,8 +332,8 @@ def simulate_inhibit_perimg(img_fold, image, sim_json_fold, ceiling_ratio):
 
 #
 if __name__ == "__main__":
-   img_fold = r'C:\Users\LSC-110\Desktop\cxtest\Images'
+   img_fold = r'C:\Users\LSC-110\Desktop\cxtest\test_img'
    sim_json_fold = r'C:\Users\LSC-110\Desktop\cxtest\test_sim'
-   image = r'cin_00008.png'
+   image = r'_pmc_articles_instance_3887408_bin_leu2013184f1.jpg'
    simulate_inhibit_perimg(img_fold,image,sim_json_fold, 0.5)
 #
