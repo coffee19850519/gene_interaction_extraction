@@ -3,15 +3,13 @@ import json
 import os.path
 import cfg
 
-
-
 class LabelFileError(Exception):
     pass
 
 class LabelFile(object):
-
+    
     suffix = '.json'
-
+    
     def __init__(self, filename=None):
         self.shapes = ()
         self.imagePath = None
@@ -19,7 +17,7 @@ class LabelFile(object):
         if filename is not None:
             self.load(filename)
         self.filename = filename
-
+    
     def load(self, filename):
         keys = [
             'imageData',
@@ -32,33 +30,38 @@ class LabelFile(object):
             'imageWidth',
         ]
         try:
-            with open(filename, 'rb') as f:
+            with open(filename, 'r') as f:
                 data = json.load(f)
+            
             if data['imageData'] is not None:
                 imageData = base64.b64decode(data['imageData'])
             else:
                 # relative path from label file to relative path from cwd
-                imagePath = os.path.join(cfg.data_dir, cfg.origin_image_dir_name,
-                                         data['imagePath'])
-                with open(imagePath, 'r') as f:
-                    imageData = f.read()
+                #imagePath = os.path.join(cfg.data_dir, cfg.origin_image_dir_name,
+                #                         data['imagePath'])
+                #parent_path = os.path.dirname(filename)
+                #imagePath = os.path.join(parent_path, data['imagePath'])
+                #with open(imagePath, 'r') as f:
+                #    imageData = f.read()
+                imageData=None
+            
             flags = data.get('flags')
             imagePath = data['imagePath']
             lineColor = data['lineColor']
             fillColor = data['fillColor']
-
+            
             shapes = []
             for s in data['shapes']:
                 shapes.append(s)
-
+            
         except Exception as e:
             raise LabelFileError(e)
-
+        
         otherData = {}
         for key, value in data.items():
             if key not in keys:
                 otherData[key] = value
-
+        
         # Only replace data after everything is loaded.
         self.flags = flags
         self.shapes = shapes
@@ -68,7 +71,7 @@ class LabelFile(object):
         self.fillColor = fillColor
         self.filename = filename
         self.otherData = otherData
-
+    
     def save(
         self,
         filename,
@@ -76,13 +79,13 @@ class LabelFile(object):
         imagePath,
         imageHeight,
         imageWidth,
-
+        
         lineColor=None,
         fillColor=None,
         otherData=None,
         flags=None,
     ):
-
+        
         if otherData is None:
             otherData = {}
         if flags is None:
@@ -106,15 +109,16 @@ class LabelFile(object):
             self.filename = filename
         except Exception as e:
             raise LabelFileError(e)
-
+    
     def get_all_genes(self):
         gene_names = []
         for shape in self.shapes:
-            if shape['label'].find() == 0:
-                _,_,gene_name = str(shape['labels']).partition('gene:')
-                gene_names.append(gene_name)
+           if shape['labels'].find('gene:')==0:
+               _,_,gene_name = str(shape['labels']).partition('gene:')
+               gene_names.append(gene_name)
+        
         return gene_names
-
+    
     def generate_category(self, shape):
         category = ''
         # if shape['label'].find('arrow') != -1 or shape['label'].find(
@@ -127,7 +131,7 @@ class LabelFile(object):
         else:
           category = 'text'
         return category
-
+    
     def get_all_boxes_for_category(self, category_name):
         text_boxes = []
         for shape in self.shapes:
@@ -141,10 +145,10 @@ class LabelFile(object):
         if self.generate_category(shape) == category_name:
           text_boxes.append(shape)
       return text_boxes
-
-
-
-
+    
+    
+    
+    
     @staticmethod
     def isLabelFile(filename):
         return os.path.splitext(filename)[1].lower() == LabelFile.suffix
