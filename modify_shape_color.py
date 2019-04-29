@@ -8,7 +8,7 @@ def get_new_json(filepath, key):
     colorarrow = [255, 0, 0, 128]
     colorinhibit = [0, 255, 0, 128]
     colorgene = [0, 0, 0, 128]
-    with open(filepath, 'rb') as f:
+    with open(filepath, 'r') as f:
         json_data = json.load(f)
         i = 0
         a = json_data['shapes']
@@ -44,7 +44,8 @@ if __name__ == '__main__':
     # key = sys.argv[1]
     # value = int(sys.argv[2])
     # json_path = sys.argv[3]
-    jsonpath=r'D:\test\training model\wrong'
+    jsonpath=r'C:\Users\LSC-110\Desktop\Fei'
     for jsonfile in os.listdir(jsonpath):
-        m_json_data = get_new_json(os.path.join(jsonpath,jsonfile), 'line_color')
-        rewrite_json_file(os.path.join(jsonpath,jsonfile), m_json_data)
+        if os.path.splitext(jsonfile)[-1] == '.json':
+            m_json_data = get_new_json(os.path.join(jsonpath,jsonfile), 'line_color')
+            rewrite_json_file(os.path.join(jsonpath,jsonfile), m_json_data)
