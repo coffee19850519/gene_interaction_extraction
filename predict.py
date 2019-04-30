@@ -153,12 +153,17 @@ def predict(east_detect,
                         del txt_item
                     elif idx == 2:
                         #nock
-                        # quad_draw.line([tuple(geo[0]),
-                        #                 tuple(geo[1]),
-                        #                 tuple(geo[2]),
-                        #                 tuple(geo[3]),
-                        #                 tuple(geo[0])], width=3, fill='blue')
-                        pass
+                        quad_draw.line([tuple(geo[0]),
+                                        tuple(geo[1]),
+                                        tuple(geo[2]),
+                                        tuple(geo[3]),
+                                        tuple(geo[0])], width=3, fill='blue')
+                        rescaled_geo_list = np.reshape(
+                            rescaled_geo.astype(np.int32), (8,)).tolist()
+                        txt_item = ','.join(map(str, rescaled_geo_list))
+                        txt_item = 'nock' + '\t' + txt_item
+                        txt_items.append(txt_item + '\n')
+                        del txt_item
                     elif idx == 3:
                         #arrow
                         convert_bounding_box(geo)
@@ -194,8 +199,8 @@ def predict(east_detect,
                 elif not quiet:
                     print('quad invalid with vertex num less then 4.')
             del activation_pixels
-        # im.save(img_path + '_act.jpg')
-        # quad_im.save(img_path + '_predict.jpg')
+        im.save(img_path + '_act.jpg')
+        quad_im.save(img_path + '_predict.jpg')
     del im,quad_im,draw,quad_draw,img
     return txt_items
 
@@ -383,7 +388,7 @@ if __name__ == '__main__':
     #threshold = float(args.threshold)
     #print(img_path, threshold)
     # img_path = r'C:\Users\LSC-110\Desktop\test'
-    img_path = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\imagetest'
+    img_path = r'C:\Users\LSC-110\Desktop\Images'
     east = East()
     east_detect = east.east_network()
     east_detect.load_weights(cfg.saved_model_weights_file_path)
@@ -400,8 +405,8 @@ if __name__ == '__main__':
     num_pd_gene_total = 0
     num_gt_gene_total = 0
 
-    from OCR import OCR
-    from correct_gene_names import postprocessing_OCR
+    # from OCR import OCR
+    # from correct_gene_names import postprocessing_OCR
     # from evaluation import calculate_detection_metrics,calculate_gene_match_metrics
     # from label_file import LabelFile
 
@@ -410,36 +415,38 @@ if __name__ == '__main__':
             continue
         predict_gene_box = predict(east_detect, os.path.join(img_path,
                                        image_file), quiet=False)
-        with open(os.path.join(r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data', image_file[:-4] + '.txt'),
+        with open(os.path.join(r'C:\Users\LSC-110\Desktop\Images', image_file[:-4] + '.txt'),
                       'w') as result_fp:
                 result_fp.writelines(predict_gene_box)
 
-        # do OCR, also help filter some
-        OCR_result = OCR(img_path, image_file, predict_gene_box)
-        with open(os.path.join(img_path, image_file[:-4] + "_OCR.txt"), 'r') as test_fp:
-            OCR_results = test_fp.readlines()
-        with open(r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\dictionary.txt',
-                  'r') as dictionary_fp:
-            word_dictionary = dictionary_fp.readlines()
 
-        # post-processing for gene names
-    #     gene_names = postprocessing_OCR(OCR_results, word_dictionary,
+
+    #     # do OCR, also help filter some
+    #     OCR_result = OCR(img_path, image_file, predict_gene_box)
+    #     with open(os.path.join(img_path, image_file[:-4] + "_OCR.txt"), 'r') as test_fp:
+    #         OCR_results = test_fp.readlines()
+    #     with open(r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\dictionary.txt',
+    #               'r') as dictionary_fp:
+    #         word_dictionary = dictionary_fp.readlines()
+    #
+    #     # post-processing for gene names
+    # #     gene_names = postprocessing_OCR(OCR_results, word_dictionary,
+    # #                                      predict_gene_box)
+    #     coord=[]
+    #     for idx in range(len(OCR_results)):
+    #         ocr_result, str_coord = str(OCR_results[idx]).strip().split('\t')
+    #         OCR_results[idx] = ocr_result.upper()
+    #         coord.append(str_coord+'\n')
+    #     corrections = postprocessing_OCR(OCR_results, word_dictionary,
     #                                      predict_gene_box)
-        coord=[]
-        for idx in range(len(OCR_results)):
-            ocr_result, str_coord = str(OCR_results[idx]).strip().split('\t')
-            OCR_results[idx] = ocr_result.upper()
-            coord.append(str_coord+'\n')
-        corrections = postprocessing_OCR(OCR_results, word_dictionary,
-                                         predict_gene_box)
-        file = open(os.path.join(img_path, image_file[:-4] + "_correct.txt"), 'w')
-        for idx in range(len(corrections)):
-            a = corrections[idx]
-            b = coord[idx]
-            s = ''.join(a).strip('\n') + '\t' + str(b)
-            file.write(s)
-            file.write('\n')
-        file.close()
-        # with open(os.path.join(img_path,image_file[:-4] + '_correction.txt'), 'w') as res_fp:
-        #     res_fp.writelines(corrections)
-        del corrections,predict_gene_box, OCR_results,word_dictionary
+    #     file = open(os.path.join(img_path, image_file[:-4] + "_correct.txt"), 'w')
+    #     for idx in range(len(corrections)):
+    #         a = corrections[idx]
+    #         b = coord[idx]
+    #         s = ''.join(a).strip('\n') + '\t' + str(b)
+    #         file.write(s)
+    #         file.write('\n')
+    #     file.close()
+    #     # with open(os.path.join(img_path,image_file[:-4] + '_correction.txt'), 'w') as res_fp:
+    #     #     res_fp.writelines(corrections)
+    #    del corrections,predict_gene_box, OCR_results,word_dictionary
