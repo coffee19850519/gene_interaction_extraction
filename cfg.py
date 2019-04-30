@@ -20,7 +20,7 @@ lambda_side_vertex_code_loss = 1.0
 lambda_side_vertex_coord_loss = 1.0
 
 
-total_img = 120
+total_img = 2516
 validation_split_ratio = 0.25
 
 #max_train_img_size = int(train_task_id[-4:])
@@ -46,7 +46,7 @@ else:
 steps_per_epoch = total_img * (1 - validation_split_ratio) // batch_size
 validation_steps = total_img * validation_split_ratio // batch_size
 
-data_dir = r'C:\Users\LSC-110\Desktop\test'
+data_dir = r'C:\Users\LSC-110\Desktop\pubmed'
 origin_image_dir_name = r'Images'
 origin_txt_dir_name = r'labels'
 train_image_dir_name = r'images_%s' % train_task_id
@@ -74,7 +74,7 @@ if not os.path.exists('saved_model'):
     os.mkdir('saved_model')
 
 
-saved_model_weights_file_path = r'saved_model\east_model_weights.h5'
+saved_model_weights_file_path = r'saved_model\model_weights.h5'
 
 
 text_pixel_threshold = 0.8
