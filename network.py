@@ -51,6 +51,16 @@ class East:
             str(cfg.feature_layers_range)
         if i == 1:
             return self.backbone_architecture[i]
+        elif i == 5:
+            concat = Concatenate(axis=-1)(
+                [self.gradually_merge(i - 1), self.backbone_architecture[i]])
+            bn1 = BatchNormalization()(concat)
+            conv_1 = Conv2D(32, 1,
+                            activation='relu', padding='same', )(bn1)
+            bn2 = BatchNormalization()(conv_1)
+            conv_3 = Conv2D(32, 3,
+                            activation='relu', padding='same', )(bn2)
+            return conv_3
         else:
             concat = Concatenate(axis=-1)([self.gradually_merge(i - 1), self.backbone_architecture[i]])
             bn1 = BatchNormalization()(concat)

@@ -29,9 +29,9 @@ max_predict_img_size = max_train_img_size#int(train_task_id[-4:])  # 2400
 assert max_train_img_size in [512, 736, 1024, 1280, 1536, 1792, 2048], \
     'max_train_img_size must in [1024, 1280, 1536, 1792, 2048]'
 if max_train_img_size == 512:
-    batch_size = 20
-elif max_train_img_size == 736:
     batch_size = 10
+elif max_train_img_size == 736:
+    batch_size = 8
 elif max_train_img_size == 1024:
     batch_size = 5
 elif max_train_img_size == 1280:
@@ -62,7 +62,7 @@ shrink_side_ratio = 0.8
 epsilon = 1e-4
 
 num_channels = 3
-feature_layers_range = range(5, 1, -1)
+feature_layers_range = range(5, 0, -1)
 # feature_layers_range = range(3, 0, -1)
 feature_layers_num = len(feature_layers_range)
 # pixel_size = 4

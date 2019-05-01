@@ -67,7 +67,8 @@ if __name__ == '__main__':
   #   cfg.show_act_image_dir_name = r'show_act_images_%s' % cfg.train_task_id
   #   cfg.val_fname = 'val_%s.txt' % cfg.train_task_id
   #   cfg.train_fname = 'train_%s.txt' % cfg.train_task_id
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+    os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
+    os.environ["CUDA_VISIBLE_DEVICES"] = '1'
     train_model()
 
 

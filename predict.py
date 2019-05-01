@@ -7,7 +7,7 @@ import cfg,os
 from label import point_inside_of_quad
 from network import East
 from preprocess import resize_image
-#from nms import nms
+import cv2
 
 
 def softmax(x):
@@ -153,6 +153,8 @@ def predict(east_detect,
                         del txt_item
                     elif idx == 2:
                         #nock
+                        #geo =convert_bounding_box(geo)
+                        rescaled_geo = geo / [scale_ratio_w, scale_ratio_h]
                         quad_draw.line([tuple(geo[0]),
                                         tuple(geo[1]),
                                         tuple(geo[2]),
@@ -166,7 +168,7 @@ def predict(east_detect,
                         del txt_item
                     elif idx == 3:
                         #arrow
-                        convert_bounding_box(geo)
+                        #geo = convert_bounding_box(geo)
                         rescaled_geo = geo / [scale_ratio_w, scale_ratio_h]
 
                         quad_draw.line([tuple(geo[0]),
@@ -307,6 +309,9 @@ def convert_bounding_box(geo):
     geo[2, 1] = max_y
     geo[3, 0] = max_x
     geo[3, 1] = min_y
+
+
+
 
 
 def nms(predict,
