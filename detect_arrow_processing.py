@@ -244,7 +244,7 @@ def find_vertex_for_detected_arrow_by_distance(img, candidates, head_box):
       #activate_slope = slope(first_point, activate_point)
       activator_neighbor = first_point
   del in_head, out_head
-  return activator_point,activator_neighbor, receptor_point, activator_point
+  return activator_point,activator_neighbor, receptor_point, receptor_neighbor
 
 
 def mean_neighbor_pixels(img, center_point, neighbor_size):
