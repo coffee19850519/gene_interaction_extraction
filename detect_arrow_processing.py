@@ -142,23 +142,20 @@ def slope(point1, point2):
         return None
 
 
-def find_nearest_point(point, candidates):
-    dis = []
-    for candidate in candidates:
-        distance = get_distance_between_two_points(point,candidate)
-        dis.append(distance)
-    point_idx = dis.index(min(dis))
-    del dis
-    return candidates[point_idx],point_idx
+def find_nearest_point(arrow_region,text_regions):
+    dists = []
+    for text_r in text_regions:
+      dist = dist_center(arrow_region, text_r)
+      dists.append(dist)
+
+    nearest_index = np.argmin(dists)
+    return nearest_index
 
 
 def get_distance_between_two_points(point1, point2):
 
     return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
-#2019/3/7
-def dist_center(point1, point2):
-  QP = [point1[0] - point2[0], point1[1] - point2[1]]
-  return np.sqrt(QP[0] ** 2 + QP[1] ** 2)
+
 #2019/3/7
 def find_nearest_text(arrow_region, text_regions,sp):
   dists = []
@@ -678,102 +675,89 @@ def find_all_inhibits(img_file, label_file):
            receptor_neighbor_list, text_shapes, inhibit_shapes
 
 
-
-    #return activator, receptor
-#update by Weiwei Wang 2019/4/4
-# def find_all_arrows( img_file, label_file):
-#     origin_img = cv2.imread(img_file)
-#     label = LabelFile(label_file)
-#     arrow_shapes = label.get_all_shapes_for_category('arrow')
-#     text_shapes = label.get_all_shapes_for_category('text')
-#     img = origin_img.copy()
-#     erase_all_text(img, img_file, text_shapes)
-#     candidate_contours = detect_all_contours(img, img_file)
-#     activator_list = []
-#     receptor_list= []
-#     for arrow_shape in arrow_shapes:
-#       head_box = arrow_shape['points']
-#       # generate a random color
-#       r = random.randint(0, 255)
-#       g = random.randint(0, 255)
-#       b = random.randint(0, 255)
-#       #draw the box of arrow
-#       cv2.rectangle(origin_img, tuple(head_box[0]), tuple(head_box[1]), (r,g,b), \
-#                     thickness=2)
-#       cnt_idx = match_head_and_arrow_contour(img, head_box, candidate_contours)
-#                                              #,detected_list)
-#       if cnt_idx != -1:
-#         #match successfully, then draw the arrow
-#
-#         contex_candidates = cv2.convexHull(candidate_contours[cnt_idx],
-#                                      returnPoints = True)
-#
-#         #cv2.drawContours(origin_img, hull, -1, (255, 0, 0), thickness=5)
-#         activator, receptor = find_contex_for_detected_arrow(contex_candidates,
-#                                                      head_box)
-#         # detected_arrow=np.vstack([activator,receptor])
-#         # detected_arrow=detected_arrow.tolist()
-#         activator=activator.tolist()
-#         receptor=receptor.tolist()
-#         cv2.circle(origin_img, tuple(activator), 5, (r,g,b), thickness= -1)
-#         cv2.circle(origin_img, tuple(receptor), 5, (r,g,b), thickness= -1)
-#         #detected_list.append(cnt_idx)
-#         activator_list.append(activator)
-#         receptor_list.append(receptor)
-#     cv2.imwrite(img_file[:-4]+'_detected.png', origin_img)
-#     del img,origin_img
-#
-#     return activator_list,receptor_list,text_shapes,arrow_shapes
+def dist(vx, vy, x, y, point):
+  QP = [point[0] - x, point[1] - y]
+  v = [vx, vy]
+  h = np.linalg.norm(np.cross(QP, v) / np.linalg.norm(v))
+  return h
 
 
+def dist_center(point1, point2):
+  QP = [point1[0] - point2[0], point1[1] - point2[1]]
+  return np.sqrt(QP[0] ** 2 + QP[1] ** 2)
 
+def find_best_text(arrow_region, text_regions, arrow_neighbor):
+  x = arrow_region[0]
+  y = arrow_region[1]
+  vx = arrow_region[0] - arrow_neighbor[0]
+  vy = arrow_region[1] - arrow_neighbor[1]
+  dist_merge = []
+  dist_cs = []
+  dist_ls = []
+  for text_r in text_regions:
+    dist_c = dist_center(arrow_region, text_r)
+    dist_l = dist(vx, vy, x, y, text_r)
+    dist_cs.append(dist_c)
+    dist_ls.append(dist_l)
+    dist_merge.append(dist_c + dist_l)
 
+  nearest_index = np.argmin(dist_merge)
+  return nearest_index
 
 
 # update by Weiwei Wang 2019/4/4
-def pair_gene(activator_list,receptor_list,text_shapes,img_file):
-    origin_img = cv2.imread(img_file)
-    sp = origin_img.shape
+def pair_gene(activator_list,activator_neighbor_list,receptor_list,
+              receptor_neighbor_list,text_shapes,img_file):
+    #origin_img = cv2.imread(img_file)
+    #sp = origin_img.shape
     text_regions = []
-    text_genename=[]
-    relationships=[]
+    text_genename = []
+    relationships = []
+    #connect_regions = []
     for text_shape in text_shapes:
-        text_regions.append(text_shape['points'])
-        text_genename.append(text_shape['label'])
-    for idx in range(0,len(activator_list)):
-        activator=activator_list[idx]
-        receptor=receptor_list[idx]
-        r = random.randint(0, 255)
-        g = random.randint(0, 255)
-        b = random.randint(0, 255)
-        # if (activator==np.array([0,0],dtype = np.int32)).all() is False:
-        if activator is not None:
-            nearest_activator_index = find_nearest_text(activator, text_regions,sp)
-            nearest_receptor_index=find_nearest_text(receptor,text_regions,sp)
+      text_regions.append(text_shape['points'])
+      text_genename.append(text_shape['label'])
 
-            if nearest_activator_index is not None and nearest_receptor_index is not None and nearest_receptor_index!=nearest_activator_index:
-                activator_geo=text_regions[nearest_activator_index]
-                activator_gene = text_genename[nearest_activator_index]
-                receptor_geo=text_regions[nearest_receptor_index]
-                receptor_gene = text_genename[nearest_receptor_index]
-                relationship='activate:'+activator_gene.split(':',1)[1]+'|'+receptor_gene.split(':',1)[1]
-                cv2.rectangle(origin_img, (activator_geo[0][0], activator_geo[0][1]),
-                              (activator_geo[2][0], activator_geo[2][1]),
-                              (r, g, b), thickness=2)
-                cv2.rectangle(origin_img, (receptor_geo[0][0], receptor_geo[0][1]),
-                              (receptor_geo[2][0], receptor_geo[2][1]),
-                              (r, g, b), thickness=2)
-                cv2.circle(origin_img, tuple(activator), 5, (r, g, b), thickness=-1)
-                cv2.circle(origin_img, tuple(receptor), 5, (r, g, b), thickness=-1)
-            else:
-                relationship = 'activate:'
-        else:
-            relationship='activate:'
-        relationships.append(relationship)
-    print(relationships)
-    del origin_img
+    text_centers = [((x[0][0] + x[1][0]) / 2, (x[0][1] + x[1][1]) / 2) for x in
+                    text_regions]
+    for idx in range(0, len(
+        activator_list)):  # detect relationships for all the acivators
+      activator = activator_list[idx]
+      activator_neighbor = activator_neighbor_list[idx]
+      receptor = receptor_list[idx]
+      receptor_neighbor = receptor_neighbor_list[idx]
+
+      # if (activator==np.array([0,0],dtype = np.int32)).all() is False:
+      if activator_neighbor is None:
+        activator_neighbor = receptor
+
+      if receptor_neighbor is None:
+        receptor_neighbor = activator
+
+      best_activator_index = find_best_text(activator, text_centers,
+                                            activator_neighbor)
+      best_receptor_index = find_best_text(receptor, text_centers,
+                                           receptor_neighbor)
+      print("for idx:" + str(idx) + " best_activator_index is " + str(
+        best_activator_index) + " best_receptor_index is" + str(
+        best_receptor_index) + "\n")
+      if best_activator_index is not None and best_receptor_index is not None and best_receptor_index != best_activator_index:
+        activator_geo = text_regions[best_activator_index]
+        activator_gene = text_genename[best_activator_index]
+        receptor_geo = text_regions[best_receptor_index]
+        receptor_gene = text_genename[best_receptor_index]
+        relationship = 'activate:' + activator_gene.split(':', 1)[1] + '|' + \
+                       receptor_gene.split(':', 1)[1]
+        print(relationship)
+        # connect_regions.append(([receptor_geo[0][0], receptor_geo[0][1],
+        #                          receptor_geo[1][0], receptor_geo[1][1]],
+        #                         [activator_geo[0][0], activator_geo[0][1],
+        #                          activator_geo[1][0], activator_geo[1][1]]))
+      else:
+        relationship = 'activate:'
+
+      relationships.append(relationship)
     return relationships
-
 #
 # def find_all_arrows( img_file, label_file):
 #     #import pair gene relationship json files path

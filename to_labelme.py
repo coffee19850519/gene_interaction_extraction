@@ -6,12 +6,13 @@ import re
 import numpy as np
 
 
-def to_labelme(predict_path,ocr_path,to_labelmefolder):
-
-    tempDict3 = {}
+def to_labelme(image_file,predict_path,ocr_path,to_labelmefolder):
+    colorarrow = [255, 0, 0, 128]
+    colorinhibit = [0, 255, 0, 128]
+    colorgene = [0, 0, 0, 128]
     shapes = []
     #分隔文件名和扩展名
-    fname,fename=os.path.split(predict_path)
+    file_name,file_ext=os.path.splitext(image_file)
     # annotation by CX:2019/4/4
     # f = open(os.path.join(to_labelmefolder,fename[:-8])+'.json', 'a', encoding="utf-8")
     #读取predict后的txt取出arror信息
@@ -23,7 +24,7 @@ def to_labelme(predict_path,ocr_path,to_labelmefolder):
             shape, str_coords = str(pre_each).strip().split('\t')
             if shape== 'arrow':
                 tempDict['label'] = 'activate:'
-                tempDict['line_color'] = None
+                tempDict['line_color'] = colorarrow
                 tempDict['fill_color'] = None
                 A=str_coords.replace('[','')
                 A=A.replace(']','')
@@ -53,7 +54,7 @@ def to_labelme(predict_path,ocr_path,to_labelmefolder):
                 pass
             elif shape=='nock':
                 tempDict['label'] = 'inhibit:'
-                tempDict['line_color'] = None
+                tempDict['line_color'] = colorinhibit
                 tempDict['fill_color'] = None
                 A = str_coords.replace('[', '')
                 A = A.replace(']', '')
@@ -88,9 +89,9 @@ def to_labelme(predict_path,ocr_path,to_labelmefolder):
         for OCR_each in OCR_results:
             tempDict = {}
             points = []
-            shape, str_coords = str(OCR_each).strip().split('\t')
+            idx, shape, str_coords = str(OCR_each).strip().split('\t')
             tempDict['label'] = 'gene:'+shape
-            tempDict['line_color'] = None
+            tempDict['line_color'] = colorgene
             tempDict['fill_color'] = None
             A=str_coords.replace('[','')
             A=A.replace(']','')
@@ -134,7 +135,10 @@ def to_labelme(predict_path,ocr_path,to_labelmefolder):
     # print(tempJson)
     #call save function 2019/4/4
     label= LabelFile()
-    label.save(os.path.join(to_labelmefolder,fename[:-8])+'.json',shapes,fename[:-4],None,None,None,None,{})
+    label.save(os.path.join(to_labelmefolder,file_name+'.json'),
+               shapes,
+               image_file,
+               None,None,None,None,{})
         ########################################
         # coords = np.array(str(str_coords).strip().split(','),np.int32).reshape((4, 2))
 

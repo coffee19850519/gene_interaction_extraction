@@ -112,22 +112,30 @@ class LabelFile(object):
       raise LabelFileError(e)
 
   def get_all_genes(self):
-    gene_names = []
-    for shape in self.shapes:
-      if shape['labels'].find('gene:') == 0:
-        _, _, gene_name = str(shape['labels']).partition('gene:')
-        gene_names.append(gene_name)
+      gene_names = []
+      for shape in self.shapes:
+        if shape['label'].find('gene:') == 0:
+          _, _, gene_name = str(shape['label']).partition('gene:')
+          gene_names.append(gene_name)
+      return gene_names
 
-    return gene_names
+  def get_all_relations(self):
+      relations = []
+      for shape in self.shapes:
+        if shape['label'].find('|') >= 0:
+          relation = str(shape['label'])
+          relations.append(relation)
+      return relations
+
 
   def generate_category(self, shape):
     category = ''
     # if shape['label'].find('arrow') != -1 or shape['label'].find(
     #     '<activate>') != -1 or shape['label'] == 'action:':
-    if shape['label'].find('activate') != -1:
+    if shape['label'].split(':')[0] == 'activate':
       # arrow
       category = 'arrow'
-    elif shape['label'].find('inhibit') != -1:
+    elif shape['label'].split(':')[0] == 'inhibit':
       category = 'nock'
     else:
       category = 'text'

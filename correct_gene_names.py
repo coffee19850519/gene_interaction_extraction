@@ -127,14 +127,14 @@ from loadexcldata import load_genename_from_excl
 #     return map_result_to_dictionary(word, word_dictionary, bonding_box)
 
 
-def map_result_to_dictionary(test_results, user_words):
+def map_result_to_dictionary(test_results, user_words, cutoff_threshold):
 
     results = []
     for test in test_results:
         if test == '':
             results.append('[]\n')
             continue
-        correction=process.extractOne(test,user_words,processor=default_processor,scorer=fuzz.QRatio,score_cutoff=95)
+        correction=process.extractOne(test,user_words,processor=default_processor,scorer=fuzz.QRatio,score_cutoff=cutoff_threshold)
         if correction is not None:
             results.append(correction[0])
         else:

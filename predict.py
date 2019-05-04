@@ -201,8 +201,8 @@ def predict(east_detect,
                 elif not quiet:
                     print('quad invalid with vertex num less then 4.')
             del activation_pixels
-        im.save(img_path + '_act.jpg')
-        quad_im.save(img_path + '_predict.jpg')
+        #im.save(img_path + '_act.jpg')
+        #quad_im.save(img_path + '_predict.jpg')
     del im,quad_im,draw,quad_draw,img
     return txt_items
 
@@ -420,7 +420,7 @@ if __name__ == '__main__':
             continue
         predict_gene_box = predict(east_detect, os.path.join(img_path,
                                        image_file), quiet=False)
-        with open(os.path.join(r'C:\Users\LSC-110\Desktop\Images', image_file[:-4] + '.txt'),
+        with open(os.path.join(img_path, image_file[:-4] + '.txt'),
                       'w') as result_fp:
                 result_fp.writelines(predict_gene_box)
 

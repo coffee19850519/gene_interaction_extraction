@@ -4,12 +4,11 @@ import numpy as np
 #!/usr/bin/python2.6
 # -*- coding: utf-8 -*-
 
-def OCR(image_path, image_file, text_regions_coords):
+def OCR(image_path, image_file, subimage_path, text_regions_coords):
     image_array = cv2.imread(os.path.join(image_path, image_file))
     results = []
     coord = []
     idx = 0
-    subimage_path=cfg.OCR_subimage_path
     for text_coord in text_regions_coords:
         shape, str_coords = str(text_coord).strip().split('\t')
         coords = np.array(str(str_coords).strip().split(','),
@@ -68,13 +67,15 @@ def OCR(image_path, image_file, text_regions_coords):
                 #results.append('\n')
 
             else:
-                text_regions_coords.remove(text_coord)
+                coords = coords.tolist()
+                results.append('OCR Failed')
+                coord.append(coords)
             del textImage
         except Exception as err:
             print('Exception: ', err)
     print(results)
     # file = open(text_image_file + "_OCR.txt",'w')  change to next row by Xin
-    file = open(cfg.OCR_result_path+'\\'+image_file[:-4]+"_OCR.txt", 'w')
+    #file = open(cfg.OCR_result_path+'\\'+image_file[:-4]+"_OCR.txt", 'w')
 
     #file.writelines(results)
     #for result in results:
@@ -84,11 +85,11 @@ def OCR(image_path, image_file, text_regions_coords):
         b=coord[idx]
         ocr_result=''.join(a).replace('\n','').replace('\t','')
         ocr_results.append(ocr_result)
-        s = ''.join(a).replace('\n','').replace('\t','')+'\t'+str(b)
-        # s = a.strip('\n') + '\t' + str(b)
-        file.write(s)
-        file.write('\n')
-    file.close()
+        # s = ''.join(a).replace('\n','').replace('\t','')+'\t'+str(b)
+    #     # s = a.strip('\n') + '\t' + str(b)
+    #     file.write(s)
+    #     file.write('\n')
+    # file.close()
 
     return ocr_results,coord
 
@@ -97,17 +98,6 @@ def OCR(image_path, image_file, text_regions_coords):
 
 # def ocr_text_from_image(text_img_file, output):
 def ocr_text_from_image(text_img_file,idx):
-
-
-    # regist pytesseract path
-    # pytesseract.pytesseract.tesseract_cmd = cfg.TERSSERACT_PATH
-    #
-    # call tersseract to reconize text
-    # result = pytesseract.image_to_string(region_array, lang='eng',
-    #                                    config=cfg.TERSSERACT_CONFIG)
-
-    #comm = "tesseract \"" + text_img_file + str(idx) + "_resized_image_" + str(
-    #    cfg.OCR_SCALE) + ".png\"" + " \"" + text_img_file + "\" --oem 0 --psm 3 -l eng bazaar"
     comm = "tesseract \"" + text_img_file +"\\" +  str(idx) + ".png\"" + " \"" + text_img_file + "\" --oem 0 --psm 3 -l eng digits"
     # 0 is the Legacy
     status = subprocess.getoutput(comm)
@@ -122,10 +112,10 @@ def ocr_text_from_image(text_img_file,idx):
             # # result = temp_file.readlines()[:-1]
             # file.close()
             # temp_file.close()
-            result=temp_file.readlines()[:-1]
+            results =temp_file.readlines()[:-1]
             temp_file.close()
     else:
-        result = []
+        results = []
 
-    return result
+    return results
 
