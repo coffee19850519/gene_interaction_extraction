@@ -6,8 +6,7 @@ from keras.applications.vgg16 import preprocess_input
 import cfg,os
 from label import point_inside_of_quad
 from network import East
-from preprocess import resize_image
-import cv2
+
 
 
 def softmax(x):
@@ -34,6 +33,24 @@ def cut_text_line(geo, scale_ratio_w, scale_ratio_h, im_array, img_path, s):
     sub_im.save(img_path + '_subim%d.jpg' % s)
 
 
+def resize_image(im):
+    max_img_size = 32 * max ( im.width // 32 , im.height // 32 )
+    im_width = np.minimum ( im.width , max_img_size )
+    if im_width == max_img_size < im.width:
+        im_height = int ( (im_width / im.width) * im.height )
+    else:
+        im_height = im.height
+    o_height = np.minimum ( im_height , max_img_size )
+    if o_height == max_img_size < im_height:
+        o_width = int ( (o_height / im_height) * im_width )
+    else:
+        o_width = im_width
+    d_wight = o_width - (o_width % 32)
+    d_height = o_height - (o_height % 32)
+    return d_wight , d_height
+
+
+
 def predict(east_detect,
             img_path,
             text_pixel_threshold = cfg.text_pixel_threshold,
@@ -46,7 +63,7 @@ def predict(east_detect,
             quiet = False):
 
     img = image.load_img(img_path)
-    d_wight, d_height = resize_image(img, cfg.max_predict_img_size)
+    d_wight, d_height = resize_image(img)
     img = img.resize((d_wight, d_height), Image.NEAREST).convert('RGB')
     img = image.img_to_array(img)
     img = preprocess_input(img, mode='tf')
@@ -61,7 +78,7 @@ def predict(east_detect,
     txt_items = []
     with Image.open(img_path) as im:
         im_array = image.img_to_array(im.convert('RGB'))
-        d_wight, d_height = resize_image(im, cfg.max_predict_img_size)
+        d_wight, d_height = resize_image(im)
         scale_ratio_w = d_wight / im.width
         scale_ratio_h = d_height / im.height
         im = im.resize((d_wight, d_height), Image.NEAREST).convert('RGB')
@@ -204,11 +221,11 @@ def predict(east_detect,
         #im.save(img_path + '_act.jpg')
         #quad_im.save(img_path + '_predict.jpg')
     del im,quad_im,draw,quad_draw,img
-    return txt_items
+    return txt_items, y[:, :, :1]
 
 def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
     img = image.load_img(img_path)
-    d_wight, d_height = resize_image(img, cfg.max_predict_img_size)
+    d_wight, d_height = resize_image(img)
     scale_ratio_w = d_wight / img.width
     scale_ratio_h = d_height / img.height
     img = img.resize((d_wight, d_height), Image.NEAREST).convert('RGB')
@@ -217,6 +234,7 @@ def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
     x = np.expand_dims(img, axis=0)
     y = east_detect.predict(x)
     y = np.squeeze(y, axis=0)
+
     #activate the output layer
     y[:, :, :4] = softmax(y[:, :, :4])
     y[:, :, 4:6] = sigmoid(y[:, :, 4:6])
