@@ -33,9 +33,15 @@ def cut_text_line(geo, scale_ratio_w, scale_ratio_h, im_array, img_path, s):
     sub_im.save(img_path + '_subim%d.jpg' % s)
 
 
-def resize_image(im):
+def resize_image(im, max_train_size):
+
+
     max_img_size = 32 * max ( im.width // 32 , im.height // 32 )
+    if max_img_size > 2 * max_train_size:
+        max_img_size = 2 * max_train_size
     im_width = np.minimum ( im.width , max_img_size )
+
+
     if im_width == max_img_size < im.width:
         im_height = int ( (im_width / im.width) * im.height )
     else:
@@ -411,7 +417,7 @@ if __name__ == '__main__':
     #threshold = float(args.threshold)
     #print(img_path, threshold)
     # img_path = r'C:\Users\LSC-110\Desktop\test'
-    img_path = r'C:\Users\LSC-110\Desktop\Images'
+    img_path = r'C:\Users\LSC-110\Desktop\data\positive'
     east = East()
     east_detect = east.east_network()
     east_detect.load_weights(cfg.saved_model_weights_file_path)
@@ -420,7 +426,7 @@ if __name__ == '__main__':
     # with open(cfg.dictionary_file,'r') as dict_fp:
     #     word_dictionary = dict_fp.readlines()
 
-    # declaim some variances for computing final assessment
+    # claim some variances for computing final assessment
     pos_correct_detect_total = 0
     num_pd_detect_total = 0
     num_gt_detect_total = 0
@@ -440,7 +446,7 @@ if __name__ == '__main__':
                                        image_file), quiet=False)
         with open(os.path.join(img_path, image_file[:-4] + '.txt'),
                       'w') as result_fp:
-                result_fp.writelines(predict_gene_box)
+                result_fp.writelines(str(predict_gene_box))
 
 
 
