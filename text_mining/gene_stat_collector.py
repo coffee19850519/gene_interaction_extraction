@@ -1,6 +1,5 @@
 from collections import Counter
 import sentence_interpreter
-from easygene import standard_name
 from fuzzywuzzy.fuzz import ratio
 
 threshold = 70

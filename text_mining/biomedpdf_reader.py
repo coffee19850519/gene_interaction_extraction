@@ -24,6 +24,6 @@ class BioMedPdfReader:
 
 if __name__ == '__main__':
     biomed_reader = BioMedPdfReader()
-    counts = biomed_reader.get_gene_pair_cooccurrence_counts('../PapersForTextMining/NSCLC_pathways/Apigenin potentiates TRAIL therapy of non-small cell lung cancer via upregulating DR4_DR5 expression in a p53-dependent manner.pdf')
+    counts = biomed_reader.get_gene_pair_cooccurrence_counts('apigeninExample.pdf')
     print(counts)
     print(gene_stat_collector.get_pair_counts(counts, [('TRAL', 'TRAL'), ('p53', 'DR'), ('TRAL', 'HSP26'), ('DR1', 'DR1')]))
