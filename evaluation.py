@@ -1,23 +1,26 @@
 import numpy as np
 from shapely.geometry import Polygon
-import cfg,os
+import cfg
+import os
 from label_file import LabelFile
+from matplotlib import pyplot as plt
 
 
 def intersection(g, p):
-    if len(g) !=4:
+    if len(g) != 4:
         if len(g) == 2:
-          #convert it into 8-dimension
-          p1=[g[0][0],g[0][1]]
-          p2=[g[1][0],g[0][1]]
-          p3=[g[1][0],g[1][1]]
-          p4=[g[0][0],g[1][1]]
-          g=[p1,p2,p3,p4]
-          print('ground truth polygon dimension is 4, its type:' + str(type(g)))
+            # convert it into 8-dimension
+            p1 = [g[0][0], g[0][1]]
+            p2 = [g[1][0], g[0][1]]
+            p3 = [g[1][0], g[1][1]]
+            p4 = [g[0][0], g[1][1]]
+            g = [p1, p2, p3, p4]
+            # print('ground truth polygon dimension is 4, its type:' + str(type(
+            # g)))
         else:
-          print('ground truth polygon dimension is incompatible')
-          return 0
-    if  len(p) != 4:
+            print('ground truth polygon dimension is incompatible')
+            return 0
+    if len(p) != 4:
         print('predicted polygon demension is incompatible')
         return 0
 
@@ -26,76 +29,116 @@ def intersection(g, p):
     if not g.is_valid or not p.is_valid:
         return 0
     inter = Polygon(g).intersection(Polygon(p)).area
-    # union = g.area + p.area - inter
+    union = g.area + p.area - inter
     if g.area == 0:
         return 0
     else:
-        return inter/g.area
+        # return inter/union
+        return inter / g.area
 
 
-def calculate_detection_metrics(gt_boxes, pd_boxes, threshold):
-    pos_correct = 0
-    pos_error = 0
-    num_gt = len(gt_boxes)
-    num_pd = len(pd_boxes)
-    if len(pd_boxes)==0 and len(gt_boxes)==0:
-        precision=1
-        recall=1
-    elif len(pd_boxes)==0 and len(gt_boxes)!=0:
-        precision = 0
-        recall = 0
-    elif len(pd_boxes) != 0 and len(gt_boxes) == 0:
-        precision=0
-        recall=0
-    else:
-        for predict_box in pd_boxes:
-            IoU = []
-            for gt in gt_boxes:
-              IoU.append(intersection(gt,predict_box))
-            best_match = max(IoU)
-            if best_match >= threshold:
-              # target one label successfully
-              pos_correct = pos_correct + 1
-              # remove the match label from ground truth
-              list(gt_boxes).pop(IoU.index(best_match))
-            else:
-              # fail to target any label
-              pos_error = pos_error + 1
-            del  IoU
-            if len(gt_boxes) == 0:
-              #all labels have been matched
-              pos_error = pos_error + num_pd - 1 - list(pd_boxes).index(predict_box)
-              break
+def calculate_correction_number_by_json(gt_shapes, pd_shapes, IoU_threshold):
+    correct_text_box = 0
+    correct_arrow_box = 0
+    correct_inhibit_box = 0
+    correct_gene_recognition = 0
+    incorrect_gene_recognition = 0
+    correct_arrow_recognition = 0
+    correct_inhibit_recognition = 0
+    correct_neg_gene_recognition = 0
+    idx_list = np.arange(len(pd_shapes)).tolist()
+    all = {}
 
-    #calculate the metrics
-        precision = float(pos_correct) / num_pd
-        recall = float(pos_correct) / num_gt
-    return precision,recall,pos_correct,num_pd,num_gt
+    for gt_idx in range(len(gt_shapes)):
+        # find a best matching predict box for current gt_shape
+        matched_IoU = {}
+        for pd_idx in range(0, len(pd_shapes)):
+            current_IoU = intersection(gt_shapes[gt_idx]['points'],
+                                       pd_shapes[pd_idx]['points'])
+
+            # pick un-matched pd_shape with higher IoU as candidates
+            if current_IoU >= IoU_threshold and \
+                    pd_shapes[pd_idx]['alias'] != 'matched':
+                matched_IoU.update({pd_idx: current_IoU})
+                all.update({pd_idx: current_IoU})
+                if pd_idx in idx_list:
+                    idx_list.remove(pd_idx)
+
+        # no prediction can match current gt_shape:
+        if len(matched_IoU) == 0:
+            del matched_IoU
+            continue
+
+        # sort matched_IoU
+        candidates = sorted(matched_IoU.items(), key=lambda d: d[1], reverse=True)
+        del matched_IoU
+
+        for candidate in candidates:
+            candidate_idx = candidate[0]
+            pd_category, pd_context = pd_shapes[candidate_idx]['label'].split(':', 1)
+            gt_category, gt_context = gt_shapes[gt_idx]['label'].split(':', 1)
+            pd_category = pd_category.strip()
+            pd_context = pd_context.strip()
+            gt_category = gt_category.strip()
+            gt_context = gt_context.strip()
+
+            if pd_category == gt_category or (pd_category == 'gene' and
+                                              (gt_category == 'compound' or gt_category == 'location'
+                                               or gt_category == 'ref_function' or gt_category == 'Title'
+                                               or gt_category == 'other')):
+
+                # match category successfully
+                gt_shapes[gt_idx]['alias'] = 'matched'
+                pd_shapes[candidate_idx]['alias'] = 'matched'
+                if gt_category == 'activate':
+                    correct_arrow_box = correct_arrow_box + 1
+                    if pd_context.upper() == gt_context.upper():
+                        correct_arrow_recognition = correct_arrow_recognition + 1
+                elif gt_category == 'inhibit':
+                    correct_inhibit_box = correct_inhibit_box + 1
+                    if pd_context.upper() == gt_context.upper():
+                        correct_inhibit_recognition = \
+                            correct_inhibit_recognition + 1
+                elif gt_category == 'gene':
+                    correct_text_box = correct_text_box + 1
+                    if pd_context.upper() == gt_context.upper():
+                        correct_gene_recognition = correct_gene_recognition + 1
+                    else:
+                        incorrect_gene_recognition = incorrect_gene_recognition + 1
+                break
+
+        # all predicted objects can not target at this gt_shape
+        gt_shapes[gt_idx]['alias'] = 'matched'
+
+    for idx in idx_list:
+        if pd_shapes[idx]['label'].split(':', 1)[1] == "*\t*\t*\t*\t*" and pd_shapes[idx]['alias'] != 'matched':
+            correct_neg_gene_recognition += 1
+
+    return correct_text_box, correct_arrow_box, correct_inhibit_box, \
+        correct_gene_recognition, correct_arrow_recognition, correct_inhibit_recognition, \
+        correct_neg_gene_recognition
+
 
 def calculate_gene_match_metrics(gt_list, pd_list):
     pos_correct = 0
     pos_error = 0
     num_gt = len(gt_list)
     num_pd = len(pd_list)
-    if len(pd_list)==0 and len(gt_list)==0:
-        precision=1
-        recall=1
-    elif len(pd_list)==0 and len(gt_list)!=0:
+    if len(pd_list) == 0 and len(gt_list) == 0:
+        precision = 1
+        recall = 1
+    elif len(pd_list) == 0 and len(gt_list) != 0:
         precision = 0
         recall = 0
     elif len(pd_list) != 0 and len(gt_list) == 0:
-        precision=0
-        recall=0
+        precision = 1
+        recall = 0
     else:
-        for predict_gene in pd_list:
-            match = False
-            for gt in gt_list:
-                if predict_gene in gt:
-                  pos_correct = pos_correct + 1
-                  match = True
-                  break
-            if not match:
-              pos_error = pos_error + 1
+        for gt_gene in gt_list:
+            for predict_gene in pd_list:
+                if gt_gene == predict_gene or \
+                        gt_gene in predict_gene.split('\t'):
+                    pos_correct = pos_correct + 1
 
         # calculate the metrics
         precision = float(pos_correct) / num_pd
@@ -103,16 +146,25 @@ def calculate_gene_match_metrics(gt_list, pd_list):
     return precision, recall, pos_correct, num_pd, num_gt
 
 
-def caculate_all_metrics(img_path, ground_truth_path,
-                                   predict_result_path,
-                                   evaluation_result_path,
-                                   detection_threshold):
+def filter_interaction_without_gene(relation_list, gene_name_gt):
+    relation_list_with_gene = []
+    for relation in relation_list:
+        gene1, gene2 = relation.split(':')[1].split('|')
+        if gene1 in gene_name_gt and \
+                gene2 in gene_name_gt:
+            relation_list_with_gene.append(relation)
+    del relation_list
+    return relation_list_with_gene
+
+
+def calculate_all_metrics_by_json(detection_threshold):
 
     # declaim some variances for computing final assessment
     pos_genebox_correct_detect_total = 0
     num_genebox_pd_detect_total = cfg.epsilon
     num_genebox_gt_detect_total = cfg.epsilon
     pos_correct_gene_total = 0
+    neg_correct_gene_total = 0
     num_pd_gene_total = cfg.epsilon
     num_gt_gene_total = cfg.epsilon
     pos_arrowbox_correct_detect_total = 0
@@ -121,155 +173,198 @@ def caculate_all_metrics(img_path, ground_truth_path,
     pos_inhibitbox_correct_detect_total = 0
     num_inhibitbox_pd_detect_total = cfg.epsilon
     num_inhibitbox_gt_detect_total = cfg.epsilon
-    pos_relation_correct_detect_total = 0
-    num_relation_pd_detect_total = cfg.epsilon
-    num_relation_gt_detect_total = cfg.epsilon
-    # load ground truthlabels
-    with open(os.path.join(evaluation_result_path, 'evaluate.txt'),
-              'a') as result_fp:
-      result_fp.write(
-          str.format(
-            '%s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t'
-            ' %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s\n')
-          % (
-            'imagename', 'genebox_recall','genebox_precision',
-            'arrowbox_recall','arrowbox_precision', 'inhibitbox_recall', 'inhibitbox_precision',
-            'gene_recall','gene_precision','relation_recall','relation_precision',
-            'genebox_correct_num', 'genebox_pd_num', 'genebox_gt_num', 'arrowbox_correct_num',
-            'arrowbox_pd_num', 'arrowbox_gt_num','inhibitbox_correct_num',
-            'inhibitbox_pd_num', 'inhibitbox_gt_num', 'gene_correct_num', 'gene_pd_num','gene_gt_num', 'relation_correct_num',
-            'relation_pd_num', 'relation_gt_num'))
+    pos_activate_correct_total = 0
+    pos_inhibit_correct_total = 0
 
-
-    for image_file in os.listdir(img_path):
-      # label = LabelFile(os.path.join(path+r'\gt', image_file[:-4] + '.json'))
-      image_name, image_ext = os.path.splitext(image_file)
-      try:
-          label = LabelFile(
-            os.path.join(ground_truth_path, image_name + '.json'))
-      except:
-          print('we do not have ground truth for this input yet')
-
-      # load ground truth genelabels
-      gene_box_gt = label.get_all_boxes_for_category('text')
-      gene_name_gt = label.get_all_genes()
-      # load ground truth arrow labels
-      arrow_box_gt = label.get_all_boxes_for_category('arrow')
-      # load ground truth relationship
-      relation_name_gt = label.get_all_relations()
-      # load ground truth inhibit labels
-      inhibit_box_gt = label.get_all_boxes_for_category('nock')
-      # load predict labels
-      #     labelp=LabelFile(os.path.join(path+r'\pt',image_file[:-4]+'.json'))
-      labelp = LabelFile(os.path.join(predict_result_path, image_file[:-4] + '.json'))
-      # load predict gene labels
-      predict_gene_box = labelp.get_all_boxes_for_category('text')
-      # load predict arrow labels
-      predict_arrow_box = labelp.get_all_boxes_for_category('arrow')
-      # load predict relationship
-      relation_names = labelp.get_all_relations()
-
-      # load predict inhibit labels
-      predict_inhibit_box = labelp.get_all_boxes_for_category('nock')
-      # load predict genenames
-      gene_names = labelp.get_all_genes()
-      # evaluate the result of detection
-      # evaluate the result of gene box detection
-      precision_genebox_detect, recall_genebox_detect, pos_genebox_correct_detect, num_genebox_pd_detect, \
-      num_genebox_gt_detect = calculate_detection_metrics(gene_box_gt,
-                                                          predict_gene_box, detection_threshold)
-      # evaluate the gene name recognition
-      precision_gene, recall_gene, pos_correct_gene, num_pd_gene, num_gt_gene = \
-        calculate_gene_match_metrics(gene_name_gt, gene_names)
-      # evaluate the arrow box recognition
-      precision_arrowbox_detect, recall_arrowbox_detect, pos_arrowbox_correct_detect, num_arrowbox_pd_detect, \
-      num_arrowbox_gt_detect = calculate_detection_metrics(arrow_box_gt,
-                                                           predict_arrow_box, detection_threshold)
-      # evaluate the inhibit box recognition
-      precision_inhibitbox_detect, recall_inhibitbox_detect, pos_inhibitbox_correct_detect, num_inhibitbox_pd_detect, \
-      num_inhibitbox_gt_detect = calculate_detection_metrics(inhibit_box_gt,
-                                                             predict_inhibit_box,
-                                                             detection_threshold)
-      # evaluate the gene relation recognition
-      precision_relation, recall_relation, pos_correct_relation, num_pd_relation, num_gt_relation = \
-        calculate_gene_match_metrics(relation_name_gt, relation_names)
-      # save assessment to file
-      with open(os.path.join(evaluation_result_path, 'evaluate.txt'),
-                'a') as result_fp:
+    # load ground truth labels
+    with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(int(detection_threshold * 100)) + ".txt"),
+              'w') as result_fp:
         result_fp.write(
             str.format(
-              '%s \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f\t %f \t %f \t %f \t %f \t %f \t'
-              ' %f \t %f \t %f \t %f \t %f\t %f \t %f \t %f \t %f \t %f\n')
+                '%s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \n')
+            % ('imagename', 'genebox_recall', 'genebox_precision',
+               'arrowbox_recall', 'arrowbox_precision', 'inhibitbox_recall',
+               'inhibitbox_precision', 'gene_recall', 'gene_precision', 'gene_ocr_accuracy',
+               'arrow_recall', 'arrow_precision', 'inhibit_recall',
+               'inhibit_precision'))
 
-            % (label.filename,  recall_genebox_detect,
-               precision_genebox_detect, recall_arrowbox_detect, precision_arrowbox_detect, \
-               recall_inhibitbox_detect, precision_inhibitbox_detect, \
-               recall_gene,precision_gene,recall_relation,precision_relation, \
-               pos_genebox_correct_detect, num_genebox_pd_detect,num_genebox_gt_detect, \
-               pos_arrowbox_correct_detect, num_arrowbox_pd_detect,  num_arrowbox_gt_detect,\
-               pos_inhibitbox_correct_detect, num_inhibitbox_pd_detect, num_inhibitbox_gt_detect,
-                pos_correct_gene, num_pd_gene, num_gt_gene,
-               pos_correct_relation,
-               num_pd_relation, num_gt_relation))
-      # accumulate
-      # genebox
-      pos_genebox_correct_detect_total += pos_genebox_correct_detect
-      num_genebox_pd_detect_total += num_genebox_pd_detect
-      num_genebox_gt_detect_total += num_genebox_gt_detect
-      # genenames
-      pos_correct_gene_total += pos_correct_gene
-      num_pd_gene_total += num_pd_gene
-      num_gt_gene_total += num_gt_gene
-      # arrow
-      pos_arrowbox_correct_detect_total += pos_arrowbox_correct_detect
-      num_arrowbox_pd_detect_total += num_arrowbox_pd_detect
-      num_arrowbox_gt_detect_total += num_arrowbox_gt_detect
-      # inhibit
-      pos_inhibitbox_correct_detect_total += pos_inhibitbox_correct_detect
-      num_inhibitbox_pd_detect_total += num_inhibitbox_pd_detect
-      num_inhibitbox_gt_detect_total += num_inhibitbox_gt_detect
-      # relation
-      pos_relation_correct_detect_total += pos_correct_relation
-      num_relation_pd_detect_total += num_pd_relation
-      num_relation_gt_detect_total += num_gt_relation
+    for image_file in os.listdir(cfg.image_folder):
+        # label = LabelFile(os.path.join(path + r'\gt', image_file[:-4] + '.json'))
+        image_name, image_ext = os.path.splitext(image_file)
+        if image_ext != ".json":
+            continue
+        print(image_file)
+        try:
+            label_gt = LabelFile(
+                os.path.join(cfg.ground_truth_folder, image_name + '.json'))
+        except():
+            print('we do not have ground truth for this input yet')
+            continue
 
-    del predict_gene_box, gene_names, label, labelp, gene_box_gt, \
-      gene_name_gt, precision_genebox_detect, recall_genebox_detect, pos_genebox_correct_detect, \
-      num_genebox_pd_detect, num_genebox_gt_detect, precision_gene, \
-      recall_gene, pos_correct_gene, num_pd_gene, num_gt_gene, precision_inhibitbox_detect, recall_inhibitbox_detect, \
-      pos_inhibitbox_correct_detect, num_inhibitbox_pd_detect, \
-      num_inhibitbox_gt_detect, precision_relation, recall_relation, pos_correct_relation, num_pd_relation, num_gt_relation
+        try:
+            label_pd = LabelFile(os.path.join(cfg.predict_folder, image_name + '.json'))
+        except():
+            print('we cannot open current predicted json file')
+            continue
+
+        pos_genebox_correct_detect, pos_arrowbox_correct_detect, \
+            pos_inhibitbox_correct_detect, pos_correct_gene, pos_correct_arrow, \
+            pos_correct_inhibit, neg_correct_gene = calculate_correction_number_by_json(label_gt.shapes,
+                                                                                        label_pd.shapes,
+                                                                                        detection_threshold)
+
+        # these variants might be divided, so they cannot be zero
+        current_gt_text_num = label_gt.text_num + cfg.epsilon
+        current_gt_arrow_num = label_gt.arrow_num + cfg.epsilon
+        current_gt_inhibit_num = label_gt.inhibit_num + cfg.epsilon
+        current_gt_gene_num = len(label_gt.get_all_genes()) + cfg.epsilon
+
+        current_pd_text_num = label_pd.text_num + cfg.epsilon
+        current_pd_arrow_num = label_pd.arrow_num + cfg.epsilon
+        current_pd_inhibit_num = label_pd.inhibit_num + cfg.epsilon
+        current_pd_gene_num = len(label_pd.get_all_genes()) + cfg.epsilon
+
+        # calculate the metrics
+        recall_genebox_detect = pos_genebox_correct_detect / current_gt_text_num
+        precision_genebox_detect = pos_genebox_correct_detect / current_pd_text_num
+        recall_arrowbox_detect = pos_arrowbox_correct_detect / current_gt_arrow_num
+        precision_arrowbox_detect = pos_arrowbox_correct_detect / current_pd_arrow_num
+        recall_inhibitbox_detect = pos_inhibitbox_correct_detect / current_gt_inhibit_num
+        precision_inhibitbox_detect = pos_inhibitbox_correct_detect / current_pd_inhibit_num
+        recall_gene = pos_correct_gene / current_gt_gene_num
+        precision_gene = pos_correct_gene / current_pd_gene_num
+        accuracy_gene = (pos_correct_gene + neg_correct_gene) / current_pd_gene_num
+        recall_arrow = pos_correct_arrow / current_gt_arrow_num
+        precision_arrow = pos_correct_arrow / current_pd_arrow_num
+        recall_inhibit = pos_correct_inhibit / current_gt_inhibit_num
+        precision_inhibit = pos_correct_inhibit / current_pd_inhibit_num
+
+        # save assessment of current prediction to file
+        with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(int(detection_threshold * 100)) + ".txt"),
+                  'a') as result_fp:
+            result_fp.write(
+                str.format(
+                    '%s \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f\t %f \t %f \n')
+                % (label_pd.filename, recall_genebox_detect, precision_genebox_detect,
+                   recall_arrowbox_detect, precision_arrowbox_detect,
+                   recall_inhibitbox_detect, precision_inhibitbox_detect,
+                   recall_gene, precision_gene, accuracy_gene, recall_arrow, precision_arrow,
+                   recall_inhibit, precision_inhibit))
+
+        # accumulate
+        # gene box
+        pos_genebox_correct_detect_total += pos_genebox_correct_detect
+        num_genebox_pd_detect_total += current_pd_text_num
+        num_genebox_gt_detect_total += current_gt_text_num
+
+        # gene names
+        pos_correct_gene_total += pos_correct_gene
+        neg_correct_gene_total += neg_correct_gene
+        num_pd_gene_total += current_pd_gene_num
+        num_gt_gene_total += current_gt_gene_num
+
+        # arrow
+        pos_arrowbox_correct_detect_total += pos_arrowbox_correct_detect
+        num_arrowbox_pd_detect_total += current_pd_arrow_num
+        num_arrowbox_gt_detect_total += current_gt_arrow_num
+
+        # inhibit
+        pos_inhibitbox_correct_detect_total += pos_inhibitbox_correct_detect
+        num_inhibitbox_pd_detect_total += current_pd_inhibit_num
+        num_inhibitbox_gt_detect_total += current_gt_inhibit_num
+
+        # activate recognition
+        pos_activate_correct_total += pos_correct_arrow
+
+        # inhibit recognition
+        pos_inhibit_correct_total += pos_correct_inhibit
+
+        del label_gt, label_pd, current_gt_text_num, current_gt_arrow_num, \
+            current_gt_inhibit_num, current_gt_gene_num, current_pd_text_num, \
+            current_pd_arrow_num, current_pd_inhibit_num, current_pd_gene_num, \
+            pos_genebox_correct_detect, pos_arrowbox_correct_detect, \
+            pos_inhibitbox_correct_detect, pos_correct_gene, pos_correct_arrow, \
+            pos_correct_inhibit
 
     # calculate the overall metrics
     overall_genebox_precision_detect = pos_genebox_correct_detect_total / num_genebox_pd_detect_total
     overall_genebox_recall_detect = pos_genebox_correct_detect_total / num_genebox_gt_detect_total
     overall_precision_gene = pos_correct_gene_total / num_pd_gene_total
     overall_recall_gene = pos_correct_gene_total / num_gt_gene_total
+    overall_accuracy_gene = (pos_correct_gene_total + neg_correct_gene_total) / num_pd_gene_total
     overall_arrowbox_precision_detect = pos_arrowbox_correct_detect_total / num_arrowbox_pd_detect_total
     overall_arrowbox_recall_detect = pos_arrowbox_correct_detect_total / num_arrowbox_gt_detect_total
     overall_inhibitbox_precision_detect = pos_inhibitbox_correct_detect_total / num_inhibitbox_pd_detect_total
     overall_inhibitbox_recall_detect = pos_inhibitbox_correct_detect_total / num_inhibitbox_gt_detect_total
-    overall_relation_precision_detect = pos_relation_correct_detect_total / num_relation_pd_detect_total
-    overall_relation_recall_detect = pos_relation_correct_detect_total / num_relation_gt_detect_total
-    with open(os.path.join(evaluation_result_path, 'evaluate.txt'),
+    overall_precision_arrow = pos_activate_correct_total / num_arrowbox_pd_detect_total
+    overall_recall_arrow = pos_activate_correct_total / num_arrowbox_gt_detect_total
+    overall_precision_inhibit = pos_inhibit_correct_total / num_inhibitbox_pd_detect_total
+    overall_recall_inhibit = pos_inhibit_correct_total / num_inhibitbox_gt_detect_total
+
+    with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(int(detection_threshold * 100)) + ".txt"),
               'a') as result_fp:
-      result_fp.write(
-          str.format(
-            '%s \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f\t %f \t %f \t %f \t %f \t %f \t'
-            ' %f \t %f \t %f \t %f \t %f\t %f \t %f \t %f \t %f \t %f \n')
-          % ('total evaluation', overall_genebox_recall_detect,overall_genebox_precision_detect,
-             overall_arrowbox_recall_detect, overall_arrowbox_precision_detect,
-             overall_inhibitbox_recall_detect, overall_inhibitbox_precision_detect,
-             overall_recall_gene, overall_precision_gene,
-             overall_relation_recall_detect,overall_relation_precision_detect,pos_genebox_correct_detect_total,
-             num_genebox_pd_detect_total, num_genebox_gt_detect_total,
-             pos_arrowbox_correct_detect_total,
-             num_arrowbox_pd_detect_total, num_arrowbox_gt_detect_total,
-             pos_inhibitbox_correct_detect_total,
-             num_inhibitbox_pd_detect_total, num_inhibitbox_gt_detect_total,
-             pos_correct_gene_total, num_pd_gene_total, num_gt_gene_total,
-             pos_relation_correct_detect_total,num_relation_pd_detect_total,
-             num_relation_gt_detect_total))
+        result_fp.write(
+            str.format(
+                '%s \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f\t %f \t %f \n')
+            % ('total evaluation',
+               overall_genebox_recall_detect,
+               overall_genebox_precision_detect,
+               overall_arrowbox_recall_detect,
+               overall_arrowbox_precision_detect,
+               overall_inhibitbox_recall_detect,
+               overall_inhibitbox_precision_detect,
+               overall_recall_gene,
+               overall_precision_gene,
+               overall_accuracy_gene,
+               overall_recall_arrow,
+               overall_precision_arrow,
+               overall_recall_inhibit,
+               overall_precision_inhibit))
 
 
+def draw_curve(gene_list, arrow_list, inhibit_list):
+    mean = np.mean([gene_list, arrow_list, inhibit_list], axis=0)
+    genex = gene_list[:, 0]
+    geney = gene_list[:, 1]
+    arrowx = arrow_list[:, 0]
+    arrowy = arrow_list[:, 1]
+    inhibitx = inhibit_list[:, 0]
+    inhibity = inhibit_list[:, 1]
+    meanx = mean[:, 0]
+    meany = mean[:, 1]
+    plt.figure()
+    plot1, = plt.plot(genex, geney, color="r", linewidth=1, marker="o")
+    plot2, = plt.plot(arrowx, arrowy, color="g", linewidth=1, marker="+")
+    plot3, = plt.plot(inhibitx, inhibity, color="b", linewidth=1, marker="x")
+    plot4, = plt.plot(meanx, meany, color="y", linewidth=1, marker="*")
+    plt.xlim([0, 1])
+    # plt.xticks(np.linspace(0.2, 0.9, 15))
+    plt.xticks(np.linspace(0, 1, 21))
+    plt.xlabel("Recall", fontsize="x-large")
 
+    # set Y axis
+    plt.ylim([0, 1.05])
+    # plt.yticks(np.linspace(0.2, 1.0, 17))
+    plt.yticks(np.linspace(0, 1.0, 21))
+    plt.ylabel("Precision", fontsize="x-large")
+
+    # set figure information
+    plt.title("Precision --- Recall", fontsize="x-large")
+    plt.legend([plot1, plot2, plot3, plot4], ("Gene", "Arrow", "Inhibit", "Mean"), loc="lower right", numpoints=1)
+    plt.grid(True)
+
+    # draw the chart
+    plt.show()
+
+
+if __name__ == '__main__':
+    # ground_truth_folder = r'C:\Users\LSC-110\Desktop\ground_truth'
+    # img_folder = r'C:\Users\LSC-110\Desktop\Images'
+    # predict_folder = r'C:\Users\LSC-110\Desktop\results'
+    # ground_truth_folder = r'C:\Users\hefe\Desktop\history\ground_truth'
+
+    if cfg.ground_truth_folder and os.path.exists(cfg.ground_truth_folder):  # evaluate
+        for value in cfg.detection_thresholds:
+            calculate_all_metrics_by_json(value)
+
+# end of file

@@ -1,17 +1,19 @@
 import os
 
 
-#train_task_id = '3T'+str(choice([1024, 1280, 1536, 1792, 2048]))
+# train_task_id = '3T' + str(choice([1024, 1280, 1536, 1792, 2048]))
 max_train_img_size = 736
 train_task_id = '3T' +str(max_train_img_size)
 DEBUG = True
 
-#train_task_id = '3T1500'
+# train_task_id = '3T1500'
 initial_epoch = 0
 epoch_num = 200
 lr = 1e-4
 decay = 5e-5
-# clipvalue = 0.5  # default 0.5, 0 means no clip
+
+# clip_value = 0.5  # default 0.5, 0 means no clip
+
 patience = 40
 load_weights = True
 lambda_inside_score_loss = 3.0
@@ -23,8 +25,8 @@ lambda_side_vertex_coord_loss = 1.0
 total_img = 2516
 validation_split_ratio = 0.25
 
-#max_train_img_size = int(train_task_id[-4:])
-max_predict_img_size = max_train_img_size#int(train_task_id[-4:])  # 2400
+# max_train_img_size = int(train_task_id[-4:])
+max_predict_img_size = max_train_img_size  # int(train_task_id[-4:])  # 2400
 
 assert max_train_img_size in [512, 736, 1024, 1280, 1536, 1792, 2048], \
     'max_train_img_size must in [1024, 1280, 1536, 1792, 2048]'
@@ -55,6 +57,7 @@ show_gt_image_dir_name = r'show_gt_images_%s' % train_task_id
 show_act_image_dir_name = r'show_act_images_%s' % train_task_id
 val_fname = 'val_%s.txt' % train_task_id
 train_fname = 'train_%s.txt' % train_task_id
+
 # in paper it's 0.3, maybe to large to this problem
 shrink_ratio = 0.2
 # pixels between 0.2 and 0.6 are side pixels
@@ -63,6 +66,7 @@ epsilon = 1e-4
 
 num_channels = 3
 feature_layers_range = range(5, 0, -1)
+
 # feature_layers_range = range(3, 0, -1)
 feature_layers_num = len(feature_layers_range)
 # pixel_size = 4
@@ -73,13 +77,11 @@ locked_layers = True
 if not os.path.exists('saved_model'):
     os.mkdir('saved_model')
 
-
 saved_model_weights_file_path = r'saved_model\model_weights.h5'
 
-
-text_pixel_threshold = 0.8
-action_pixel_threshold = 0.9
-text_side_vertex_pixel_threshold = 0.8
+text_pixel_threshold = 0.8  # text foreground & background score
+action_pixel_threshold = 0.8  # relation foreground & background score
+text_side_vertex_pixel_threshold = 0.85
 action_side_vertex_pixel_threshold = 0.85
 text_trunc_threshold = 0.2
 nock_trunc_threshold = 0.05
@@ -87,28 +89,39 @@ arrow_trunc_threshold = 0.9
 
 predict_cut_text_line = False
 predict_write2txt = True
+crop_width = 736
+crop_height = 736
 
-dictionary_file = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\dictionary.xlsx'
+# OCR configurations
+home_folder = r'C:\Users\hefe\Desktop\quatre_tete'  # home folder
+image_folder = os.path.join(home_folder, "images")
+ground_truth_folder = image_folder
+predict_folder = os.path.join(home_folder, "predict")
+failed_folder = os.path.join(home_folder, "failed")
+previous_dictionary_path = ''  # none if not needed
 
-#OCR configuration
-TERSSERACT_PATH = r'D:\python\Scripts\pytesseract.exe'
-TERSSERACT_CONFIG = '-l eng+equ+osd  --oem 1 --psm 3 bazaar'
-crop_image_path = r''
-OCR_SCALE = 10
-OCR_OFFSET = 2
-#pipline configuration
-'''
-image_path = r'D:\test'
-OCR_result_path = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\imagetest\ocr_txt'
-predict_result_path = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\predict_txt'
-result_in_json_path = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\imagetest\tolabelme_txt'
-'''
-#image_path = r'C:\Users\LSC-110\Desktop\cxtest\Images'
-OCR_result_path = r'D:\test\ocr_txt'
-predict_result_path = r'D:\test\predict_txt'
-result_in_json_path = r'D:\test\tolabelme_txt'
-#OCR path
-OCR_subimage_path=r'D:\subimage'
-correct_result_path=r'D:\test\correct_txt'
-#pair gene relation saved in Json file
-final_json_path=r'D:\test\pair_gene_json_test'
+log_file = os.path.join(predict_folder, "log.txt")
+dictionary_path = os.path.join(predict_folder, "gene_dictionary.xlsx")
+word_file = os.path.join(predict_folder, "word_cloud.txt")  # word cloud
+all_results_file = os.path.join(predict_folder, "all_results.txt")
+
+step_size = 15  # should perfectly divide 255
+num_steps = 3  # num of steps to check
+num_sub_steps = 3  # should perfectly divide step size
+sub_step = step_size / num_sub_steps
+
+candidate_threshold = 20  # do not show corrected_results if fuzz_ratio < candidate_threshold
+threshold = 70  # do not proceed to next range unless best_fuzz_ratio > threshold
+early_stop_threshold = 100  # for patience
+
+patience_2 = 10  # stop if x consecutive bests >= threshold
+patience = 3  # stop if x bests >= early_stop_threshold
+
+vertical_ratio_thresh = 1.5  # rotate 90c and 90cc if height / width >= vertical_ratio_thresh
+detection_thresholds = [.1, .25, .5, .75]  # for evaluation
+
+padding = 50  # for deskew
+OCR_SCALE = 5  # for resizing image
+OCR_OFFSET = 0
+
+# end of file
