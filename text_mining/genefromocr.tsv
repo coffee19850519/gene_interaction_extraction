@@ -1,0 +1,691 @@
+					
+pdf_12_Apigenin_11_219.png					
+ 					
+240: 	"HO, "	RHO 	80		
+235: 	"HO, "	RHO 	80		
+230: 	"HO, "	RHO 	80		
+225: 	"HO, "	RHO 	80		
+220: 	"HO, "	RHO 	80		
+215: 	"HO, "	RHO 	80		
+210: 	"HO, "	RHO 	80		
+205: 	"HO, "	RHO 	80		
+fail: 	0.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+240: 	OO 	FOXO 	67		
+235: 	OO 	FOXO 	67		
+230: 	OO 	FOXO 	67		
+225: 	OO 	FOXO 	67		
+220: 	OO 	FOXO 	67		
+215: 	OO 	FOXO 	67		
+210: 	OO 	FOXO 	67		
+205: 	OO 	FOXO 	67		
+fail: 	1.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+235: 	TRAIL 	SNAIL 	60		
+230: 	TRAIL 	SNAIL 	60		
+225: 	TRAIL 	SNAIL 	60		
+220: 	TRAIL 	SNAIL 	60		
+215: 	TRAIL 	SNAIL 	60		
+210: 	TRAIL 	SNAIL 	60		
+205: 	TRAIL 	SNAIL 	60		
+200: 	TRAIL 	SNAIL 	60		
+fail: 	2.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+235: 	APIGENIN 	APIGENIN 	100		
+230: 	{ Ã‚Â° APIGENIN 	APIGENIN 	84		
+225: 	I E APIGENIN 	APIGENIN 	80		
+220: 	I Ã‚Â° APIGENIN 	APIGENIN 	76		
+215: 	{ Ã‚Â° APIGENIN 	APIGENIN 	84		
+210: 	{ Ã‚Â° APIGENIN 	APIGENIN 	84		
+205: 	1 Ã‚Â° APIGENIN 	APIGENIN 	76		
+200: 	I Ã‚Â° APIGENIN 	APIGENIN 	76		
+					
+hist: 	3.png 	APIGENIN 	100	235	APIGENIN
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+235: 	DR4 	DR4 	100		
+230: 	DR4 	DR4 	100		
+225: 	DR4 	DR4 	100		
+					
+hist: 	4.png 	DR4 	100	235	DR4
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+235: 	DRS 	RAS 	67		
+230: 	DRS 	RAS 	67		
+225: 	DRS 	RAS 	67		
+220: 	DRS5 	DR5 	86		
+215: 	DRS 	RAS 	67		
+210: 	DRS 	RAS 	67		
+205: 	DRS 	RAS 	67		
+200: 	DRS 	RAS 	67		
+					
+hist: 	5.png 	DRS5 	86	220	DR5
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+230: 	TRAIL SENSITIZATION 	TRANSCRIPTION 	62		
+225: 	TRAIL SENSITIZATION 	TRANSCRIPTION 	62		
+220: 	TRAIL SENSITIZATION 	TRANSCRIPTION 	62		
+215: 	TRAIL SENSITIZATION 	TRANSCRIPTION 	62		
+210: 	TRAIL SENSITIZATION 	TRANSCRIPTION 	62		
+205: 	TRAIL SENSITIZATION 	TRANSCRIPTION 	62		
+200: 	TRAIL SENSITIZATION 	TRANSCRIPTION 	62		
+195: 	TRAIL SENSITIZATION 	TRANSCRIPTION 	62		
+fail: 	6.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+240: 	EXTRACELLULAR SPACE 	ACTIVE CASPASE-8 	46		
+235: 	EXTRACELLULAR SPACE 	ACTIVE CASPASE-8 	46		
+230: 	EXTRACELLULAR SPACE 	ACTIVE CASPASE-8 	46		
+225: 	EXTRACELLULAR SPACE 	ACTIVE CASPASE-8 	46		
+220: 	EXTRACELLULAR SPACE 	ACTIVE CASPASE-8 	46		
+215: 	EXTRACELLULAR SPACE 	ACTIVE CASPASE-8 	46		
+210: 	EXTRACELLULAR SPACE 	ACTIVE CASPASE-8 	46		
+205: 	EXTRACELLULAR SPACE 	ACTIVE CASPASE-8 	46		
+fail: 	7.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+240: 	OH 	OH 	100		
+235: 	OH 	OH 	100		
+230: 	OH 	OH 	100		
+					
+hist: 	8.png 	OH 	100	240	OH
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+240: 	MEMBRANE 	BRAF 	50		
+235: 	MEMBRANE 	BRAF 	50		
+230: 	MEMBRANE 	BRAF 	50		
+225: 	MEMBRANE 	BRAF 	50		
+220: 	MEMBRANE 	BRAF 	50		
+215: 	MEMBRANE 	BRAF 	50		
+210: 	MEMBRANE 	BRAF 	50		
+205: 	MEMBRANE 	BRAF 	50		
+fail: 	9.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+240: 	TRANSERIPS ION 	TRANSCRIPTION 	81		
+235: 	DR4/DRS5 GENE TRANSCRIPTION 	DR4/DR5 GENE TRANSCRIPTION 	98		
+230: 	DR4/DR35 GENE TRANSCRIPTION 	DR4/DR5 GENE TRANSCRIPTION 	98		
+225: 	DR4/DRS5 GENE TRANSCRIPTION 	DR4/DR5 GENE TRANSCRIPTION 	98		
+220: 	DR4/DRS GENE TRANSCRIPTION 	DR4/DR5 GENE TRANSCRIPTION 	96		
+215: 	DR4/DRS5 GENE TRANSCRIPTION 	DR4/DR5 GENE TRANSCRIPTION 	98		
+210: 	DR4/DRS5 GENE TRANSCRIPTION 	DR4/DR5 GENE TRANSCRIPTION 	98		
+205: 	DR4/DRS5 GENE TRANSCRIPTION 	DR4/DR5 GENE TRANSCRIPTION 	98		
+200: 	DR4/DR5 GENE TRANSCRIPTION 	DR4/DR5 GENE TRANSCRIPTION 	100		
+					
+hist: 	10.png 	DR4/DR5 GENE TRANSCRIPTION 	100	200	DR4/DR5 GENE TRANSCRIPTION
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+230: 	CYTOPLASM 	CYTO C 	53		
+225: 	CYTOPLASM 	CYTO C 	53		
+220: 	CYTOPLASM 	CYTO C 	53		
+215: 	CYTOPLASM 	CYTO C 	53		
+210: 	LASM CYTOP 	CYTO C 	50		
+205: 	CYTOPLASM 	CYTO C 	53		
+200: 	CYTOPLASM 	CYTO C 	53		
+195: 	CYTOPLASM 	CYTO C 	53		
+fail: 	11.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+240: 	DISC 	.DIXDC1 	60		
+235: 	| PRO-CASPAS 	PRO-CASPASE 9 	87		
+230: 	| PRO-CASPAS DISC 	PRO-CASPASE 9 	79		
+225: 	| PRO-CASPAS DISC 	PRO-CASPASE 9 	79		
+220: 	| PRO-CASPAS DISC 	PRO-CASPASE 9 	79		
+215: 	} PRO-CASPAS DISC 	PRO-CASPASE 9 	79		
+210: 	} PRO-CASPAS DISC 	PRO-CASPASE 9 	79		
+205: 	| PRO-CASPAS DISC 	PRO-CASPASE 9 	79		
+200: 	| PRO-CASPAS DISC 	PRO-CASPASE 9 	79		
+					
+hist: 	12.png 	| PRO-CASPAS 	87	235	PRO-CASPASE 9
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+195: 	RE 	RET 	80		
+190: 	ES 	HES1 	67		
+185: 	RS 	RAS 	80		
+180: 	SS 	SOS 	80		
+170: 	SS 	SOS 	80		
+210: 	: TI ICED 	TBID 	55		
+215: 	AES 	RAS 	67		
+220: 	A 	AR 	67		
+225: 	OA 	RHOA 	67		
+230: 	OA 	RHOA 	67		
+235: 	OE 	OH 	50		
+240: 	A 	AR 	67		
+245: 	A 	AR 	67		
+15: 	CL 	CSL 	80		
+10: 	CL 	CSL 	80		
+5: 	OO 	FOXO 	67		
+190: 	P 	P53 	50		
+185: 	P 	P53 	50		
+180: 	P 	P53 	50		
+175: 	P 	P53 	50		
+170: 	P 	P53 	50		
+165: 	P 	P53 	50		
+160: 	P 	P53 	50		
+155: 	P 	P53 	50		
+210: 	' GR LY  I Ã‚Ë†Å½ Ã‚â€¡â‚¬Ã‚Ë†â„¢Ã‚Ë†â€™ 	EGFR-TKI 	28		
+215: 	ORE.  AA! 	CYTOCHROME C 	40		
+220: 	IP 	IAP 	80		
+230: 	5 A .  CON 	F-ACTIN 	47		
+235: 	A 	AR 	67		
+240: 	GOA BOL. 	RAG A/B 	57		
+245: 	A 	AR 	67		
+250: 	O 	OH 	67		
+150: 	P 	P53 	50		
+145: 	P 	P53 	50		
+140: 	P 	P53 	50		
+135: 	P 	P53 	50		
+130: 	P 	P53 	50		
+125: 	P 	P53 	50		
+120: 	P 	P53 	50		
+115: 	P 	P53 	50		
+110: 	P 	P53 	50		
+105: 	P 	P53 	50		
+100: 	P 	P53 	50		
+95: 	P 	P53 	50		
+90: 	P 	P53 	50		
+85: 	P 	P53 	50		
+80: 	P 	P53 	50		
+75: 	P 	P53 	50		
+70: 	P 	P53 	50		
+65: 	P 	P53 	50		
+60: 	P 	P53 	50		
+55: 	P 	P53 	50		
+50: 	P 	P53 	50		
+45: 	P 	P53 	50		
+40: 	P 	P53 	50		
+35: 	P 	P53 	50		
+30: 	P 	P53 	50		
+25: 	P 	P53 	50		
+20: 	P 	P53 	50		
+15: 	Ã‚â€¹â€¦Ã‚â€ Â¼Ã‚â€¹Â° 	7/10/5/8/6 	35		
+10: 	P 	P53 	50		
+5: 	P 	P53 	50		
+195: 	P 	P53 	50		
+190: 	P 	P53 	50		
+185: 	P 	P53 	50		
+180: 	P 	P53 	50		
+175: 	P 	P53 	50		
+170: 	P 	P53 	50		
+165: 	P 	P53 	50		
+160: 	P 	P53 	50		
+155: 	P 	P53 	50		
+210: 	GREES 	G2 ARREST 	57		
+215: 	MI | Ã‚â€¹â€¦ PIL ROAN 	MHC-I EXPRESSION 	42		
+220: 	EE I  CO 	N(IC)-1 	53		
+225: 	OY AE OE 	PRO-CASPASE 9 	48		
+230: 	I 	BID 	50		
+235: 	OE 	OH 	50		
+240: 	O 	OH 	67		
+245: 	O 	OH 	67		
+250: 	A 	AR 	67		
+150: 	P 	P53 	50		
+145: 	P 	P53 	50		
+140: 	P 	P53 	50		
+135: 	P 	P53 	50		
+130: 	P 	P53 	50		
+125: 	P 	P53 	50		
+120: 	P 	P53 	50		
+115: 	P 	P53 	50		
+110: 	P 	P53 	50		
+105: 	P 	P53 	50		
+100: 	P 	P53 	50		
+95: 	P 	P53 	50		
+90: 	P 	P53 	50		
+85: 	P 	P53 	50		
+80: 	P 	P53 	50		
+75: 	P 	P53 	50		
+70: 	P 	P53 	50		
+65: 	P 	P53 	50		
+60: 	P 	P53 	50		
+55: 	P 	P53 	50		
+50: 	P 	P53 	50		
+45: 	P 	P53 	50		
+40: 	P 	P53 	50		
+35: 	P 	P53 	50		
+30: 	P 	P53 	50		
+20: 	P 	P53 	50		
+15: 	P 	P53 	50		
+10: 	P 	P53 	50		
+5: 	P 	P53 	50		
+195: 	P 	P53 	50		
+190: 	P 	P53 	50		
+185: 	PP 	PIP2 	67		
+180: 	P 	P53 	50		
+175: 	P 	P53 	50		
+170: 	P 	P53 	50		
+165: 	P 	P53 	50		
+160: 	P 	P53 	50		
+155: 	P 	P53 	50		
+210: 	RE 	RET 	80		
+215: 	OA \ OTF 	ATF7 	50		
+220: 	CO 5  OT 	C-MET 	46		
+225: 	Ã‚â‚¬Å’GK BO. 	NF-KB 	46		
+230: 	CE 	CMET 	67		
+235: 	CE 	CMET 	67		
+150: 	P 	P53 	50		
+145: 	P 	P53 	50		
+140: 	P 	P53 	50		
+135: 	P 	P53 	50		
+130: 	P 	P53 	50		
+125: 	P 	P53 	50		
+120: 	P 	P53 	50		
+115: 	P 	P53 	50		
+110: 	P 	P53 	50		
+105: 	P 	P53 	50		
+100: 	P 	P53 	50		
+95: 	P 	P53 	50		
+90: 	P 	P53 	50		
+85: 	P 	P53 	50		
+80: 	P 	P53 	50		
+75: 	P 	P53 	50		
+70: 	P 	P53 	50		
+65: 	P 	P53 	50		
+60: 	P 	P53 	50		
+55: 	P 	P53 	50		
+50: 	P 	P53 	50		
+45: 	P 	P53 	50		
+40: 	P 	P53 	50		
+35: 	P 	P53 	50		
+30: 	P 	P53 	50		
+25: 	P 	P53 	50		
+20: 	PP 	PIP2 	67		
+15: 	EE 	ELF4E 	57		
+10: 	[2 	P21 	50		
+5: 	P 	P53 	50		
+fail: 	13.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+160: 	PI3K 	PI3K 	100		
+155: 	PI3K 	PI3K 	100		
+150: 	PI3K 	PI3K 	100		
+					
+hist: 	14.png 	PI3K 	100	160	PI3K
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+195: 	P 	P53 	50		
+190: 	P 	P53 	50		
+185: 	P 	P53 	50		
+180: 	P 	P53 	50		
+175: 	P 	P53 	50		
+170: 	P 	P53 	50		
+165: 	P 	P53 	50		
+160: 	P 	P53 	50		
+fail: 	15.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+155: 	JNK 	JNK 	100		
+150: 	JNK 	JNK 	100		
+145: 	JNK 	JNK 	100		
+					
+hist: 	16.png 	JNK 	100	155	JNK
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+155: 	ERK 	ERK 	100		
+150: 	ERK 	ERK 	100		
+145: 	ERK 	ERK 	100		
+					
+hist: 	17.png 	ERK 	100	155	ERK
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+160: 	P53 	P53 	100		
+155: 	P53 	P53 	100		
+150: 	PS3 	P53 	67		
+145: 	PS3 	P53 	67		
+140: 	P33 	P53 	67		
+135: 	P33 	P53 	67		
+130: 	P33 	P53 	67		
+125: 	PS3 	P53 	67		
+180: 	53 	P53 	80		
+					
+hist: 	18.png 	P53 	100	160	P53
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+170: 	APOPTOSIS 	APOPTOSIS 	100		
+165: 	APOPTOSIS 	APOPTOSIS 	100		
+160: 	APOPTOSIS 	APOPTOSIS 	100		
+					
+hist: 	19.png 	APOPTOSIS 	100	170	APOPTOSIS
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+190: 	ES 	HES1 	67		
+185: 	ES 	HES1 	67		
+180: 	ES 	HES1 	67		
+175: 	ES 	HES1 	67		
+165: 	SS 	SOS 	80		
+160: 	FOL 	POL 	67		
+215: 	"A VY, "	AP-1 	50		
+220: 	Ã‚â‚¬Å’SEL 	CSL 	44		
+225: 	AL 	ALK 	80		
+230: 	EE 	ELF4E 	57		
+240: 	ONS 	SOS 	67		
+245: 	7 	P27 	50		
+110: 	Ã‚Ë†â„¢Ã‚â€¹â€¦ 	AP-1 	25		
+75: 	Ã‚â‚¬â€	14-3-3 	40		
+45: 	Ã‚â‚¬â€	14-3-3 	40		
+195: 	IT 	IAKT 	67		
+190: 	P 	P53 	50		
+185: 	PP 	PIP2 	67		
+180: 	PP 	PIP2 	67		
+175: 	PP 	PIP2 	67		
+170: 	PP 	PIP2 	67		
+165: 	PP 	PIP2 	67		
+160: 	PP 	PIP2 	67		
+155: 	PP 	PIP2 	67		
+210: 	} T AY A A EAE] A 7 	BETA-CATENIN 	34		
+215: 	P 	P53 	50		
+220: 	7  AS 3 	CASPASE 3 	50		
+225: 	1 Ã‚â‚¬ËœER = ARES | ANE REO  N) RE FY OE Ã‚â€¹â€¦ 	ERBB PARTNER 	31		
+230: 	I: 	BID 	50		
+235: 	RAE | ENS 	RAS 	50		
+240: 	I: 	BID 	50		
+245: 	7 	P27 	50		
+250: 	7 	P27 	50		
+150: 	P 	P53 	50		
+145: 	P 	P53 	50		
+140: 	P 	P53 	50		
+135: 	P 	P53 	50		
+130: 	P 	P53 	50		
+125: 	P 	P53 	50		
+120: 	P 	P53 	50		
+115: 	P 	P53 	50		
+110: 	P 	P53 	50		
+105: 	P 	P53 	50		
+100: 	P 	P53 	50		
+95: 	P 	P53 	50		
+90: 	P 	P53 	50		
+85: 	P 	P53 	50		
+80: 	P 	P53 	50		
+75: 	PP 	PIP2 	67		
+70: 	PP 	PIP2 	67		
+65: 	P 	P53 	50		
+60: 	P 	P53 	50		
+55: 	PP 	PIP2 	67		
+50: 	P 	P53 	50		
+45: 	P 	P53 	50		
+40: 	P 	P53 	50		
+35: 	P 	P53 	50		
+30: 	P 	P53 	50		
+25: 	P 	P53 	50		
+20: 	P 	P53 	50		
+15: 	P 	P53 	50		
+10: 	P 	P53 	50		
+5: 	P 	P53 	50		
+195: 	PP 	PIP2 	67		
+190: 	PP 	PIP2 	67		
+185: 	P 	P53 	50		
+180: 	P 	P53 	50		
+175: 	P 	P53 	50		
+170: 	P 	P53 	50		
+165: 	PP 	PIP2 	67		
+160: 	PP 	PIP2 	67		
+155: 	P 	P53 	50		
+210: 	IT 	IAKT 	67		
+215: 	Ã‚â€ Â±Ã‚â€ Â½Ã‚Ë†â„¢ 	7/10/5/8/6 	33		
+220: 	I 	BID 	50		
+225: 	OM  IM  - 	BIM 	44		
+230: 	AN 	AXIN 	67		
+245: 	7 	P27 	50		
+150: 	P 	P53 	50		
+145: 	PP 	PIP2 	67		
+140: 	P 	P53 	50		
+135: 	P 	P53 	50		
+130: 	P 	P53 	50		
+125: 	P 	P53 	50		
+120: 	P 	P53 	50		
+115: 	P 	P53 	50		
+110: 	P 	P53 	50		
+105: 	P 	P53 	50		
+100: 	P 	P53 	50		
+95: 	P 	P53 	50		
+90: 	P 	P53 	50		
+85: 	P 	P53 	50		
+80: 	P 	P53 	50		
+75: 	P 	P53 	50		
+70: 	P 	P53 	50		
+65: 	P 	P53 	50		
+60: 	P 	P53 	50		
+55: 	P 	P53 	50		
+50: 	P 	P53 	50		
+45: 	P 	P53 	50		
+40: 	P 	P53 	50		
+35: 	P 	P53 	50		
+30: 	P 	P53 	50		
+25: 	P 	P53 	50		
+20: 	P 	P53 	50		
+15: 	P 	P53 	50		
+10: 	P 	P53 	50		
+5: 	P 	P53 	50		
+195: 	P 	P53 	50		
+190: 	P 	P53 	50		
+185: 	PP 	PIP2 	67		
+180: 	PP 	PIP2 	67		
+175: 	P 	P53 	50		
+170: 	P 	P53 	50		
+165: 	P 	P53 	50		
+160: 	PP 	PIP2 	67		
+155: 	P 	P53 	50		
+210: 	IE 	EIF4E 	57		
+215: 	LIL WY) OM 	LYSOSME 	47		
+220: 	\ | Ã‚Â«  OM 	G2-M 	40		
+230: 	AS 	RAS 	80		
+235: 	I 	BID 	50		
+150: 	P 	P53 	50		
+145: 	P 	P53 	50		
+140: 	P 	P53 	50		
+135: 	P 	P53 	50		
+130: 	P 	P53 	50		
+125: 	P 	P53 	50		
+120: 	P 	P53 	50		
+115: 	P 	P53 	50		
+110: 	P 	P53 	50		
+105: 	P 	P53 	50		
+100: 	P 	P53 	50		
+95: 	P 	P53 	50		
+90: 	P 	P53 	50		
+85: 	P 	P53 	50		
+80: 	P 	P53 	50		
+75: 	P 	P53 	50		
+70: 	P 	P53 	50		
+65: 	P 	P53 	50		
+60: 	P 	P53 	50		
+55: 	P 	P53 	50		
+50: 	P 	P53 	50		
+45: 	P 	P53 	50		
+40: 	P 	P53 	50		
+35: 	P 	P53 	50		
+30: 	P 	P53 	50		
+25: 	P 	P53 	50		
+20: 	P 	P53 	50		
+15: 	P 	P53 	50		
+10: 	P 	P53 	50		
+5: 	GE 	GEF 	80		
+fail: 	20.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+180: 	P53 BINDING SITE 	MITOCHONDRIAL FUSION 	39		
+175: 	P53 BINDING SITE 	MITOCHONDRIAL FUSION 	39		
+170: 	P53 BINDING SITE 	MITOCHONDRIAL FUSION 	39		
+165: 	P53 BINDING SITE 	MITOCHONDRIAL FUSION 	39		
+160: 	P53 BINDING SITE 	MITOCHONDRIAL FUSION 	39		
+155: 	P53 BINDING SITE 	MITOCHONDRIAL FUSION 	39		
+150: 	P53 BINDING SITE 	MITOCHONDRIAL FUSION 	39		
+145: 	P53 BINDING SITE 	MITOCHONDRIAL FUSION 	39		
+fail: 	21.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+235: 	ACTIVE CASPASE-8 	ACTIVE CASPASE-8 	100		
+230: 	ACTIVE CASPASE-8 	ACTIVE CASPASE-8 	100		
+225: 	ACTIVE CASPASE-8 	ACTIVE CASPASE-8 	100		
+					
+hist: 	22.png 	ACTIVE CASPASE-8 	100	235	ACTIVE CASPASE-8
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+155: 	AKT 	AKT 	100		
+150: 	AKT 	AKT 	100		
+145: 	AKT 	AKT 	100		
+					
+hist: 	23.png 	AKT 	100	155	AKT
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+185: 	CELL SURVIVAL. 	CELL SURVIVAL 	100		
+180: 	CELL SURVIVAL. 	CELL SURVIVAL 	100		
+175: 	CELL SURVIVAL 	CELL SURVIVAL 	100		
+					
+hist: 	24.png 	CELL SURVIVAL. 	100	185	CELL SURVIVAL
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+190: 	TBID 	TBID 	100		
+185: 	TBID 	TBID 	100		
+180: 	TBID 	TBID 	100		
+					
+hist: 	25.png 	TBID 	100	190	TBID
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+185: 	P 	P53 	50		
+180: 	P 	P53 	50		
+175: 	P 	P53 	50		
+170: 	P 	P53 	50		
+165: 	P 	P53 	50		
+160: 	P 	P53 	50		
+155: 	P 	P53 	50		
+210: 	JP 	P53 	40		
+fail: 	26.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+190: 	CASPASE-3 	CASPASE 3 	100		
+185: 	CASPASE-3 	CASPASE 3 	100		
+180: 	CASPASE-3 	CASPASE 3 	100		
+					
+hist: 	27.png 	CASPASE-3 	100	190	CASPASE 3
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+165: 	IKAPPAB. 	IKAPPAB 	100		
+160: 	IKAPPAB 	IKAPPAB 	100		
+155: 	IKAPPAB 	IKAPPAB 	100		
+					
+hist: 	28.png 	IKAPPAB. 	100	165	IKAPPAB
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+160: 	PS3 	P53 	67		
+155: 	Ã‚â€¹â€¦ P53 	P53 	60		
+150: 	PS3 	P53 	67		
+145: 	PS3 	P53 	67		
+140: 	PS3 	P53 	67		
+135: 	PS3 	P53 	67		
+130: 	PS3 	P53 	67		
+125: 	PS3 	P53 	67		
+fail: 	29.png				
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+190: 	BAX 	BAX 	100		
+185: 	BAX 	BAX 	100		
+180: 	BAX 	BAX 	100		
+					
+hist: 	30.png 	BAX 	100	190	BAX
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+190: 	CASPASE-9 	CASPASE 9 	100		
+185: 	CASPASE-9 	CASPASE 9 	100		
+180: 	CASPASE-9 	CASPASE 9 	100		
+					
+hist: 	31.png 	CASPASE-9 	100	190	CASPASE 9
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+175: 	BEL-2 BEL-X] 	BCL-2 BCL-XL 	78		
+170: 	BEL-2 BEL-XL 	BCL-2 BCL-XL 	83		
+165: 	BEL-2 BEL-XL 	BCL-2 BCL-XL 	83		
+160: 	BEL-2 BEL-XL 	BCL-2 BCL-XL 	83		
+155: 	BEL-2 BEL-XL 	BCL-2 BCL-XL 	83		
+150: 	BEL-2 BEL-XL 	BCL-2 BCL-XL 	83		
+145: 	BEL-2 BEL-XL 	BCL-2 BCL-XL 	83		
+140: 	BEL-2 BEL-X]L 	BCL-2 BCL-XL 	80		
+					
+hist: 	32.png 	BEL-2 BEL-XL 	83	170	BCL-2 BCL-XL
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+160: 	~~  Ã‚â‚¬Å’FF 	BFGF 	44		
+155: 	7 ~ NF-KAPPAB 	NF-KAPPAB 	82		
+150: 	" ~ NF-KAPPAB 	NF-KAPPAB 	100 "				
+145: 	" ~ NF-KAPPAB 	NF-KAPPAB 	100 "				
+140: 	" +. NF-KAPPAB 	NF-KAPPAB 	100 "				
+					
+hist: 	33.png 	" ~ NF-KAPPAB 	100 	150 	NF-KAPPAB"			
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+160: 	P6S 	P16 	67		
+155: 	P65 	P65 	100		
+150: 	POS 	SOS 	67		
+145: 	P6S 	P16 	67		
+140: 	P65 	P65 	100		
+135: 	P65 	P65 	100		
+					
+hist: 	34.png 	P65 	100	155	P65
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+190: 	CYT-C 	CYT-C 	100		
+185: 	CYT-C 	CYT-C 	100		
+180: 	CYT-C 	CYT-C 	100		
+					
+hist: 	35.png 	CYT-C 	100	190	CYT-C
+ 					
+pdf_12_Apigenin_11_219.png					
+ 					
+175: 	TARGETED G ENES 	AREG EGF 	52		
+170: 	TARGETED GENES 	ANGIOGENESIS 	54		
+165: 	TARGETED GENES 	ANGIOGENESIS 	54		
+160: 	TARGETED GENES 	ANGIOGENESIS 	54		
+155: 	TARGETED GENES 	ANGIOGENESIS 	54		
+150: 	TARGETED GENES 	ANGIOGENESIS 	54		
+145: 	TARGETED GENES 	ANGIOGENESIS 	54		
+140: 	TARGETED GENES 	ANGIOGENESIS 	54		
+225: 	WE ES 	SRC/YES 	50		
+230: 	SEE EE 	GENE EXPRESSION 	48		
+235: 	EEE 	ELF4E 	50		
+135: 	TARGETED GENES 	ANGIOGENESIS 	54		
+130: 	TARGETED GENES 	ANGIOGENESIS 	54		
+125: 	TARGETED GENES 	ANGIOGENESIS 	54		
+120: 	TARGETED GENES 	ANGIOGENESIS 	54		
+115: 	TARGETED GENES 	ANGIOGENESIS 	54		
+110: 	TARGETED GENES 	ANGIOGENESIS 	54		
+105: 	TARGETED GENES 	ANGIOGENESIS 	54		
+fail: 	36.png				
+ 					
