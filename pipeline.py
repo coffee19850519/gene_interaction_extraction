@@ -1,21 +1,20 @@
 import os
 import cfg
+import cv2
+import numpy as np
 from loadexcldata import load_ground_truth_into_excl
-from OCR import OCR, display
-from correct_gene_names import map_result_to_dictionary
+from OCR import OCR
 from predict import predict
 from network import East
 from to_labelme import to_labelme
-import cv2
-import numpy as np
-from detect_arrow_processing import find_all_arrows_for_straight_line, \
-  pair_gene, find_all_inhibits_for_straight_line, plot_connections
-from label_file import LabelFile
 from evaluation import calculate_all_metrics_by_json
 from loadexcldata import load_dictionary_from_excl
+from predict_relationship import generate_relationship_shapes, predict_relationships, get_relationship_pairs
+
 
 os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+
 
 if __name__ == '__main__':
 
@@ -29,6 +28,11 @@ if __name__ == '__main__':
     # load ground truth into gene dictionary
     if cfg.ground_truth_folder:
         load_ground_truth_into_excl(col_num=1)  # 1 for openpyxl, 0 for xlrd
+
+    all_sub_image_boxes = {}
+    all_sub_image_entity_boxes = {}
+    all_relationship_shapes = {}
+
     user_words = load_dictionary_from_excl(col_num=0)
     count = 0
 
@@ -84,85 +88,22 @@ if __name__ == '__main__':
                    cfg.predict_folder)
 
         # # step 4: pair gene generate json file
-        # label_file = os.path.join(cfg.predict_folder, image_name + '.json')
-        #
-        # try:
-        #     label = LabelFile(label_file)
-        # except:
-        #     display("Exception: " + str(image_name), file=cfg.log_file)
-        #     continue
-        #
-        # arrow_activator_list, activator_neighbor_list, arrow_receptor_list, receptor_neighbor_list, \
-        #     text_shapes, arrows_with_overlap, arrows_without_overlap = find_all_arrows_for_straight_line(
-        #         image_path, label)
-        #
-        # arrow_relationships = pair_gene(arrow_activator_list, activator_neighbor_list,
-        #                                 arrow_receptor_list, receptor_neighbor_list,
-        #                                 text_shapes, arrows_with_overlap, image_file)
-        #
-        # arrow_shapes = arrows_without_overlap + arrows_with_overlap
-        #
-        # # alternate the arrow label
-        # for arrow_idx in range(len(arrow_shapes)):
-        #
-        #     cv2.drawContours(current_img, [np.array(arrow_shapes[arrow_idx]['points'], np.int32)], -1,
-        #                      (0, 0, 255), thickness=2)
-        #     cv2.putText(current_img, str(arrow_idx), (arrow_shapes[arrow_idx]['points'][3][0] - 5,
-        #                 arrow_shapes[arrow_idx]['points'][3][1] - 5),
-        #                 cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255))
-        #
-        #     # write relation results to txt file to monitor
-        #     with open(os.path.join(cfg.predict_folder, image_name + '_activate.txt'), 'a') as relation_fp:
-        #         relation_fp.writelines(str(arrow_idx) + '\t'
-        #                                + 'activate:' + arrow_relationships[arrow_idx] + '\n')
-        #
-        #     # write relation results to json file to save
-        #     for label_shape in label.shapes:
-        #         if label_shape['label'].split(':')[0] == 'activate' and \
-        #                 arrow_shapes[arrow_idx]['points'] == label_shape['points']:
-        #             label_shape['label'] = 'activate:' + arrow_relationships[arrow_idx]
-        #             break
-        #
-        # # inhibit
-        # inhibit_activator_list, inhibit_activator_neighbor_list, \
-        #     inhibit_receptor_list, inhibit_receptor_neighbor_list, text_shapes, \
-        #     inhibits_with_overlap, inhibits_without_overlap = find_all_inhibits_for_straight_line(image_path, label)
-        #
-        # inhibit_relationships = pair_gene(inhibit_activator_list, inhibit_activator_neighbor_list,
-        #                                   inhibit_receptor_list, inhibit_receptor_neighbor_list,
-        #                                   text_shapes,inhibits_with_overlap, image_file)
-        #
-        # inhibit_shapes = inhibits_without_overlap + inhibits_with_overlap
-        #
-        # # alternate the inhibit label
-        # for inhibit_idx in range(len(inhibit_shapes)):
-        #     cv2.drawContours(current_img, [np.array(inhibit_shapes[inhibit_idx]['points'],
-        #                                             np.int32)], -1, (0, 255, 0), thickness=2)
-        #     cv2.putText(current_img, str(inhibit_idx),
-        #                 (inhibit_shapes[inhibit_idx]['points'][3][0] - 5,
-        #                  inhibit_shapes[inhibit_idx]['points'][3][1] - 5),
-        #                 cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 255, 0))
-        #
-        #     # write relation results to txt file to monitor
-        #     with open(os.path.join(cfg.predict_folder, image_name + '_inhibit.txt'), 'a') as relation_fp:
-        #         relation_fp.writelines(str(inhibit_idx) + '\t' + 'inhibit:'
-        #                                + inhibit_relationships[inhibit_idx] + '\n')
-        #
-        #     for label_shape in label.shapes:
-        #         if label_shape['label'].split(':')[0] == 'inhibit' \
-        #                 and inhibit_shapes[inhibit_idx]['points'] == label_shape['points']:
-        #             label_shape['label'] = 'inhibit:' + inhibit_relationships[
-        #                                     inhibit_idx]
-        #             break
-        #
-        # label.save(os.path.join(cfg.predict_folder, image_name + '.json'),
-        #            label.shapes, image_file, None, None, None, None, {})
+        sub_image_boxes, sub_image_entity_boxes, relationship_shapes = \
+            generate_relationship_shapes(image_file, predict_box, OCR_results, 10)
+
+        all_sub_image_boxes[image_file] = sub_image_boxes
+        all_sub_image_entity_boxes[image_file] = sub_image_entity_boxes
+        all_relationship_shapes[image_file] = relationship_shapes
 
         cv2.imwrite(os.path.join(cfg.predict_folder, image_name + '_result_number'
                                  + image_ext), current_img)
         del current_img  # , label
 
     del user_words
+
+    filenames, predicted_classes = predict_relationships()
+    get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, filenames, predicted_classes,
+                           all_relationship_shapes)
 
     if cfg.ground_truth_folder and os.path.exists(cfg.ground_truth_folder):  # evaluate
         for value in cfg.detection_thresholds:

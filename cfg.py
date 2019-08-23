@@ -74,10 +74,10 @@ pixel_size = 2 ** feature_layers_range[-1]
 
 locked_layers = True
 
-if not os.path.exists('saved_model'):
-    os.mkdir('saved_model')
+if not os.path.exists('saved_models'):
+    os.mkdir('saved_models')
 
-saved_model_weights_file_path = r'saved_model\model_weights.h5'
+saved_model_weights_file_path = r'saved_models\model_weights.h5'
 
 text_pixel_threshold = 0.8  # text foreground & background score
 action_pixel_threshold = 0.8  # relation foreground & background score
@@ -93,7 +93,7 @@ crop_width = 736
 crop_height = 736
 
 # OCR configurations
-home_folder = r'C:\Users\hefe\Desktop\quatre_tete'  # home folder
+home_folder = r'C:\Users\hefe\Desktop\test'  # home folder
 image_folder = os.path.join(home_folder, "images")
 ground_truth_folder = image_folder
 predict_folder = os.path.join(home_folder, "predict")
@@ -123,5 +123,11 @@ detection_thresholds = [.1, .25, .5, .75]  # for evaluation
 padding = 50  # for deskew
 OCR_SCALE = 5  # for resizing image
 OCR_OFFSET = 0
+
+# relationship configuration
+relationship_model = r'saved_models\bottleneck_fc_model11.h5'
+relationship_folder = os.path.join(home_folder, "relationship")
+testing_data_folder = os.path.join(relationship_folder, "test")
+not_classified_folder = os.path.join(testing_data_folder, "not_classified")
 
 # end of file
