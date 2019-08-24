@@ -89,7 +89,7 @@ def to_labelme(image_file,predict_path,ocr_path,to_labelmefolder):
         for OCR_each in OCR_results:
             tempDict = {}
             points = []
-            idx, shape, str_coords = str(OCR_each).strip().split('\t')
+            idx, shape, str_coords = str(OCR_each).strip().split('@')
             tempDict['label'] = 'gene:'+shape
             tempDict['line_color'] = colorgene
             tempDict['fill_color'] = None
