@@ -10,8 +10,8 @@ from to_labelme import to_labelme
 from evaluation import calculate_all_metrics_by_json
 from loadexcldata import load_dictionary_from_excl
 from predict_relationship import generate_relationship_shapes, predict_relationships, get_relationship_pairs
-
-
+from text_mining.biomedpdf_reader import  biomedpdf_reader
+from text_mining.gene_stat_collector import get_pair_counts
 os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
@@ -99,12 +99,16 @@ if __name__ == '__main__':
                                  + image_ext), current_img)
         del current_img  # , label
 
+    pdf_reader = biomedpdf_reader(user_words)
     del user_words
 
     filenames, predicted_classes = predict_relationships()
-    get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, filenames, predicted_classes,
+    predicted_relationship_pairs, pair_descriptions = get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, filenames, predicted_classes,
                            all_relationship_shapes)
-
+    print('the predicted relationship pairs:', predicted_relationship_pairs)
+    all_pair_counts = pdf_reader.get_gene_pair_cooccurrence_counts('test/pdf/apigeninExample.pdf')
+    predicted_pair_counts = get_pair_counts(all_pair_counts, predicted_relationship_pairs)
+    print(predicted_pair_counts)
     if cfg.ground_truth_folder and os.path.exists(cfg.ground_truth_folder):  # evaluate
         for value in cfg.detection_thresholds:
             calculate_all_metrics_by_json(value)

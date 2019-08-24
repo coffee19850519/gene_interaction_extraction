@@ -1,5 +1,5 @@
 from collections import Counter
-import sentence_interpreter
+from . import sentence_interpreter
 from fuzzywuzzy.fuzz import ratio
 
 threshold = 70

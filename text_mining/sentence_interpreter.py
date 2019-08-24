@@ -12,13 +12,13 @@ def read_sentence(gene_dictionary_reader, sentence, threshold):
     first_gene = None
     genes_in_sentence = []
     for word in words_in_sentence:
+        word = word.upper()
         if not gene_dictionary_reader.examine_word(word):
-            extracted_gene_name, valid_name, standard_gene_name = gene_dictionary_reader.extract_name()
+            extracted_gene_name, valid_name = gene_dictionary_reader.extract_name()
             if valid_name:
-                standard_gene_name = standard_gene_name[0]
                 gene_count += 1
-                constructed_sentence += ' <{}: {}>'.format(extracted_gene_name, standard_gene_name)
-                genes_in_sentence.append(standard_gene_name)
+                constructed_sentence += ' <{}>'.format(extracted_gene_name)
+                genes_in_sentence.append(extracted_gene_name)
         if not gene_dictionary_reader.is_reading_name():
             constructed_sentence += ' ' + word
     if gene_count >= threshold:
@@ -31,11 +31,11 @@ def get_gene_pairs(gene_dictionary_reader, sentence):
     constructed_sentence = ''
     genes_in_sentence = []
     for word in words_in_sentence:
+        word = word.upper()
         if not gene_dictionary_reader.examine_word(word):
-            extracted_gene_name, valid_name, standard_gene_name = gene_dictionary_reader.extract_name()
+            extracted_gene_name, valid_name = gene_dictionary_reader.extract_name()
             if valid_name:
-                standard_gene_name = standard_gene_name[0]
-                constructed_sentence += ' <{}: {}>'.format(extracted_gene_name, standard_gene_name)
+                constructed_sentence += ' <{}>'.format(extracted_gene_name)
                 genes_in_sentence.append(extracted_gene_name)
         if not gene_dictionary_reader.is_reading_name():
             constructed_sentence += ' ' + word
