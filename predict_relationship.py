@@ -121,6 +121,7 @@ def get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, file
     shapes_to_write = []
     relationship_tuple_pairs = []
     relationship_descriptions = []
+    relationship_bounding_boxes = []
     for sub_image in files_with_relationship:
 
         sub_image_boxes = {}
@@ -188,22 +189,36 @@ def get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, file
             starter = temp_image_name[0]
             receptor = temp_image_name[1][:-4]
             temp_shape = candidate_shapes[index]
+            temp_relationship_dict = {}
 
             if "inhibit" in temp_shape['label']:
                 temp_relationship = (starter, receptor)
                 relationship_tuple_pairs.append(temp_relationship)
                 relationship_descriptions.append("inhibit:" + starter + "|" + receptor)
+
+                # save bounding boxes of both entities in relationship and the nock bounding box
+                temp_relationship_dict['relationship_bounding_box'] = temp_shape['points']
+                temp_relationship_dict['entity1_bounding_box'] = entity_boxes[0]
+                temp_relationship_dict['entity2_bounding_box'] = entity_boxes[1]
+                relationship_bounding_boxes.append(temp_relationship_dict)
+
             elif "activate" in temp_shape['label']:
                 temp_relationship = (starter, receptor)
                 relationship_tuple_pairs.append(temp_relationship)
                 relationship_descriptions.append("activate:" + starter + "|" + receptor)
+
+                # save bounding boxes of both entities in relationship and the arrow bounding box
+                temp_relationship_dict['relationship_bounding_box'] = temp_shape['points']
+                temp_relationship_dict['entity1_bounding_box'] = entity_boxes[0]
+                temp_relationship_dict['entity2_bounding_box'] = entity_boxes[1]
+                relationship_bounding_boxes.append(temp_relationship_dict)
 
     print(relationship_tuple_pairs)
     print(relationship_descriptions)
     #remove not classified folder and all files
     shutil.rmtree(cfg.not_classified_folder)
 
-    return relationship_tuple_pairs, relationship_descriptions
+    return relationship_tuple_pairs, relationship_descriptions, relationship_bounding_boxes
 
 
 # uses ocr to get entities
