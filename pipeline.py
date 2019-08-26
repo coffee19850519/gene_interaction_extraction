@@ -103,7 +103,7 @@ if __name__ == '__main__':
     del user_words
 
     filenames, predicted_classes = predict_relationships()
-    predicted_relationship_pairs, pair_descriptions = get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, filenames, predicted_classes,
+    predicted_relationship_pairs, pair_descriptions,_ = get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, filenames, predicted_classes,
                            all_relationship_shapes)
     print('the predicted relationship pairs:', predicted_relationship_pairs)
     all_pair_counts = pdf_reader.get_gene_pair_cooccurrence_counts('test/pdf/apigeninExample.pdf')
