@@ -18,7 +18,7 @@ from keras.applications.vgg16 import VGG16,preprocess_input
 from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 
 ssl._create_default_https_context = ssl._create_unverified_context
-K.image_data_format()
+#K.image_data_format()
 
 # pathway_image_folder = r'Archive'
 # ocr_sub_image_folder = r'tmpSubImages'
@@ -115,7 +115,7 @@ def predict_relationships(model, sub_image_folder,img_width, img_height, batch_s
 
 
     # remove sub_image_folder folder and all files when relation prediction finished
-    shutil.rmtree(sub_image_folder)
+    #shutil.rmtree(sub_image_folder)
 
     return filenames, classes
 
@@ -184,7 +184,7 @@ def get_relationship_pairs(sub_image_boxes, sub_image_entity_boxes, filenames, p
                     if shape['points'][2][0] < box_coordinates[2] and shape['points'][2][1] < box_coordinates[3]:
                         candidate_shapes.append(shape)
             except:
-                pass
+                continue
         # find best candidate
         # TODO handle index variable better
         index = -1
@@ -201,13 +201,23 @@ def get_relationship_pairs(sub_image_boxes, sub_image_entity_boxes, filenames, p
                 counter += 1
         elif len(candidate_shapes) == 1:
             index = 0
+        else:
+            continue
 
         # determine if best candidate is inhibit or activate
         # add relationship to tuple and descriptions lists
         if index != -1:
-            temp_image_name = sub_image.split("_")
-            starter = temp_image_name[0]
-            receptor = temp_image_name[1][:-4]
+            starter, receptor = sub_image.split("_", 1)
+            #remove the extention
+            receptor, _ = os.path.splitext(receptor)
+            #remove the potential suffix
+            try:
+                receptor, _ = receptor.split("_", 1)
+            except:
+                # no additional suffix
+                pass
+            # starter = temp_image_name[0]
+            # receptor = temp_image_name[1][:-4]
             temp_shape = candidate_shapes[index]
             temp_relationship_dict = {}
 
