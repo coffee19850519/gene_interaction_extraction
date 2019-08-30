@@ -91,7 +91,7 @@ def preprocess():
     num_nock = 0
     nock_samples = []
 
-    data_dir = cfg.data_dir
+    data_dir = cfg.train_data_dir
     origin_image_dir = os.path.join(data_dir, cfg.origin_image_dir_name)
     origin_txt_dir = os.path.join(data_dir, cfg.origin_txt_dir_name)
     train_image_dir = os.path.join(data_dir, cfg.train_image_dir_name)
@@ -103,7 +103,7 @@ def preprocess():
     show_gt_image_dir = os.path.join(data_dir, cfg.show_gt_image_dir_name)
     if not os.path.exists(show_gt_image_dir):
         os.mkdir(show_gt_image_dir)
-    show_act_image_dir = os.path.join(cfg.data_dir, cfg.show_act_image_dir_name)
+    show_act_image_dir = os.path.join(cfg.train_data_dir, cfg.show_act_image_dir_name)
     if not os.path.exists(show_act_image_dir):
         os.mkdir(show_act_image_dir)
 

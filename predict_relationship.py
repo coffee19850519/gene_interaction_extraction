@@ -1,7 +1,5 @@
 import cfg
-import csv
 import ssl
-import time
 import cv2, os, copy
 import numpy as np
 from os import path
@@ -16,11 +14,11 @@ import keras.backend as K
 from keras.layers import Input
 from keras.models import load_model
 from keras.models import Sequential
-from keras.applications.vgg16 import VGG16
-from keras.preprocessing.image import ImageDataGenerator
+from keras.applications.vgg16 import VGG16,preprocess_input
+from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 
 ssl._create_default_https_context = ssl._create_unverified_context
-K.set_image_dim_ordering('tf')
+K.image_data_format()
 
 # pathway_image_folder = r'Archive'
 # ocr_sub_image_folder = r'tmpSubImages'
@@ -51,60 +49,81 @@ K.set_image_dim_ordering('tf')
 #    return all_subimages_boxes, all_subimages_entity_boxes, all_relationship_shapes
 
 
+
+def load_relation_predict_model(image_width, image_hight, image_channel):
+    # build the VGG16 network
+    # include_top=False loads model without fully-connected classifier on top
+    # combine the two models
+    input_tensor = Input(shape=(image_width, image_hight, image_channel))
+    vgg_model = VGG16(weights='imagenet', include_top=False, input_tensor=input_tensor)
+    top_model = load_model(cfg.relationship_model)
+    relation_model = Sequential()
+    for l in vgg_model.layers:
+        relation_model.add(l)
+    for l in top_model.layers:
+        relation_model.add(l)
+    del vgg_model, top_model
+    return relation_model
+
+
 # load in all subimages in the test_data directory
 # resize the subimages to 196,140,3
 # predict if subimage contains a relationship
 # return corresponding filename and predicted class
 # 1:positive 0:negative
-def predict_relationships():
+def predict_relationships(model, sub_image_folder,img_width, img_height, batch_size):
     print("\n****Predicting Relationships****\n")
 
-    img_width, img_height = 196, 140
-    batch_size = 1
-
-    # build the VGG16 network
-    # include_top=False loads model without fully-connected classifier on top
-    # combine the two models
-    input_tensor = Input(shape=(196, 140, 3))
-    vgg_model = VGG16(weights='imagenet', include_top=False, input_tensor=input_tensor)
-    top_model = load_model(cfg.relationship_model)
-    model = Sequential()
-    for l in vgg_model.layers:
-        model.add(l)
-    for l in top_model.layers:
-        model.add(l)
-
-    # used for loading testing data from file
-    datagen2 = ImageDataGenerator(rescale=1. / 255)
-    test_generator = datagen2.flow_from_directory(
-        cfg.testing_data_folder,
-        target_size=(img_width, img_height),
-        batch_size=batch_size,
-        class_mode=None,
-        shuffle=False)
-
-    # get predictions and file names
-    test_filenames = test_generator.filenames
-    predictions = model.predict_generator(generator=test_generator, steps=len(test_filenames) // batch_size, verbose=1)
-    predicted_classes = np.rint(predictions)
+    # # used for loading testing data from file
+    # datagen2 = ImageDataGenerator(rescale=1. / 255)
+    # test_generator = datagen2.flow_from_directory(
+    #     sub_image_folder,
+    #     target_size=(img_width, img_height),
+    #     batch_size=batch_size,
+    #     class_mode=None,
+    #     shuffle=True)
+    #
+    # # get predictions and file names
+    # test_filenames = test_generator.filenames
+    #
+    # predictions = model.predict_generator(generator=test_generator, steps=len(test_filenames) // batch_size, verbose=1)
+    filenames = []
+    classes = []
+    for image_file in os.listdir(sub_image_folder):
+        # load an image from file
+        image = load_img(os.path.join(sub_image_folder, image_file), target_size=(img_width, img_height))
+        # convert the image pixels to a numpy array
+        image = img_to_array(image)
+        # reshape data for the model
+        image = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))
+        # prepare the image for the VGG model
+        image = preprocess_input(image)
+        # predictions = model.predict(image)
+        # predicted_class = np.rint(predictions)
+        predicted_class = model.predict(image)
+        filenames.append(image_file)
+        classes.append(predicted_class[0][0])
 
     # clean file names
-    filenames = []
-    for filename in test_filenames:
-        filenames.append(filename.split("\\")[1])
+
+    #for filename in test_filenames:
+
 
     # clean classes
-    classes = []
-    for predicted_class in predicted_classes:
-        classes.append(predicted_class[0])
+
+    #for predicted_class in predicted_classes:
+
+
+    # remove sub_image_folder folder and all files when relation prediction finished
+    shutil.rmtree(sub_image_folder)
 
     return filenames, classes
 
 
 # takes sub_image_filenames and predicted classes and extracts the relationship type and pairs
 # returns entity pairs in list of tuples and list of strings (format: "relationship_type:starter|receptor")
-def get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, filenames, predicted_classes,
-                           all_relationship_shapes):
+def get_relationship_pairs(sub_image_boxes, sub_image_entity_boxes, filenames, predicted_classes,
+                           relationship_shapes):
     print("\n****Extracting Relationship Pairs****\n")
 
     # get only file names of sub_images with relationship
@@ -116,27 +135,27 @@ def get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, file
         counter += 1
 
     # loop through all of the sub-images that have a relationship
-    original_filename = None
-    sub_image_relationship_marker = {}
-    shapes_to_write = []
+    #original_filename = None
+    # sub_image_relationship_marker = {}
+    # shapes_to_write = []
     relationship_tuple_pairs = []
     relationship_descriptions = []
     relationship_bounding_boxes = []
     for sub_image in files_with_relationship:
 
-        sub_image_boxes = {}
-        sub_image_entity_boxes = {}
+        # sub_image_boxes = {}
+        # sub_image_entity_boxes = {}
         # find what original image they come from
         # get that pathway's sub_image_boxes and sub_image_entity_boxes
-        for original_image_name in all_sub_image_boxes:
-            if sub_image in all_sub_image_boxes.get(original_image_name).keys():
-                sub_image_boxes = all_sub_image_boxes.get(original_image_name)
-                sub_image_entity_boxes = all_sub_image_entity_boxes.get(original_image_name)
-                original_filename = original_image_name
-                break
+        # for original_image_name in all_sub_image_boxes:
+        #     if sub_image in all_sub_image_boxes.get(original_image_name).keys():
+        #         sub_image_boxes = all_sub_image_boxes.get(original_image_name)
+        #         sub_image_entity_boxes = all_sub_image_entity_boxes.get(original_image_name)
+        #         original_filename = original_image_name
+        #         break
 
-        if sub_image_boxes is None or sub_image_entity_boxes is None:
-            continue
+        # if sub_image_boxes is None or sub_image_entity_boxes is None:
+        #     continue
 
         # get the boundaries for the current sub image
         box_coordinates = sub_image_boxes.get(sub_image)
@@ -144,27 +163,28 @@ def get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, file
         candidate_shapes = []
 
         # get all the arrows and nocks for this subimage's original image
-        sub_image_relationship_shapes = all_relationship_shapes.get(original_filename)
+        #sub_image_relationship_shapes = all_relationship_shapes.get(original_filename)
 
-        if sub_image_relationship_shapes is None:
-            continue
+        # if sub_image_relationship_shapes is None:
+        #     continue
 
         # loop through all the arrows and nocks
         # if the bounding box for one of the arrows or nocks is inside of the subimage's boundary
         # then add it as a candidate
-        for shape in sub_image_relationship_shapes:
+        for shape in relationship_shapes:
+            try:
+                # check top left corner
+                # shape['points'][0][0] is top_left_x
+                # shape['points'][0][1] is top_left_y
+                if shape['points'][0][0] > box_coordinates[0] and shape['points'][0][1] > box_coordinates[1]:
 
-            # check top left corner
-            # shape['points'][0][0] is top_left_x
-            # shape['points'][0][1] is top_left_y
-            if shape['points'][0][0] > box_coordinates[0] and shape['points'][0][1] > box_coordinates[1]:
-
-                # check bottom right corner
-                # shape['points'][2][0] is bottom_right_x
-                # shape['points'][2][1] is bottom_right_y
-                if shape['points'][2][0] < box_coordinates[2] and shape['points'][2][1] < box_coordinates[3]:
-                    candidate_shapes.append(shape)
-
+                    # check bottom right corner
+                    # shape['points'][2][0] is bottom_right_x
+                    # shape['points'][2][1] is bottom_right_y
+                    if shape['points'][2][0] < box_coordinates[2] and shape['points'][2][1] < box_coordinates[3]:
+                        candidate_shapes.append(shape)
+            except:
+                pass
         # find best candidate
         # TODO handle index variable better
         index = -1
@@ -215,8 +235,6 @@ def get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, file
 
     print(relationship_tuple_pairs)
     print(relationship_descriptions)
-    #remove not classified folder and all files
-    shutil.rmtree(cfg.not_classified_folder)
 
     return relationship_tuple_pairs, relationship_descriptions, relationship_bounding_boxes
 
@@ -224,9 +242,9 @@ def get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, file
 # uses ocr to get entities
 # from ocr results, generate all subimages from pathway based on detected entities
 # returns bounding boxes of all subimages, entity boxes for all subimages, and arrow/nock bounding boxes
-def generate_relationship_shapes(image_file, predict_box, OCR_results, offset):
-
-    image_path = os.path.join(cfg.image_folder, image_file)
+def generate_relationship_shapes(image_name, image_ext, current_threshold, predict_box, OCR_results, offset):
+    #load current original test image
+    image_path = os.path.join(cfg.image_folder, image_name + image_ext)
     image = cv2.imread(image_path)
 
     # get shapes
@@ -239,6 +257,10 @@ def generate_relationship_shapes(image_file, predict_box, OCR_results, offset):
 
     sub_image_box_coordinates = {}
     sub_image_entity_boxes = {}
+
+    sub_image_folder = os.path.join(cfg.predict_folder, 'relation_' + image_name + '_' + str(current_threshold))
+    if not os.path.exists(sub_image_folder):
+        os.mkdir(sub_image_folder)
 
     # compare all genes es = {}
     for start_idx in range(0, len(gene_shapes)):
@@ -268,19 +290,20 @@ def generate_relationship_shapes(image_file, predict_box, OCR_results, offset):
                 startor = startor.replace('*', '')
                 receptor = receptor.replace('*', '')
 
-                if not os.path.isdir(cfg.relationship_folder):
-                    os.mkdir(cfg.relationship_folder)
-                if not os.path.isdir(cfg.testing_data_folder):
-                    os.mkdir(cfg.testing_data_folder)
-                if not os.path.isdir(cfg.not_classified_folder):
-                    os.mkdir(cfg.not_classified_folder)
+                # if not os.path.isdir(cfg.relationship_folder):
+                #     os.mkdir(cfg.relationship_folder)
+                # if not os.path.isdir(cfg.testing_data_folder):
+                #     os.mkdir(cfg.testing_data_folder)
+                # if not os.path.isdir(cfg.not_classified_folder):
+                #     os.mkdir(cfg.not_classified_folder)
+
 
                 # check if file exists
                 # this happens when a gene's name may appear multiple times on a pathway figure
                 file_name = startor + '_' + receptor + '.png'
-                if path.exists(os.path.join(cfg.not_classified_folder, file_name)):
+                if path.exists(sub_image_folder):
                     for x in range(2, 2000):
-                        if path.exists(os.path.join(cfg.not_classified_folder,
+                        if path.exists(os.path.join(sub_image_folder,
                                                     startor + '_' + receptor + '_' + str(x) + '.png')):
                             continue
                         else:
@@ -288,7 +311,7 @@ def generate_relationship_shapes(image_file, predict_box, OCR_results, offset):
                             break
 
                 # create file
-                cv2.imwrite(os.path.join(cfg.not_classified_folder, file_name), sub_img)
+                cv2.imwrite(os.path.join(sub_image_folder, file_name), sub_img)
                 sub_image_box_coordinates[file_name] = (left_top_x, left_top_y, right_bottom_x, right_bottom_y)
                 sub_image_entity_boxes[file_name] = (gene_shapes[start_idx]['points'], gene_shapes[end_idx]['points'])
 
@@ -296,7 +319,7 @@ def generate_relationship_shapes(image_file, predict_box, OCR_results, offset):
                 print('exception startor:' + gene_shapes[start_idx][
                     'label'] + 'receptor:' + gene_shapes[end_idx]['label'])
 
-    return sub_image_box_coordinates, sub_image_entity_boxes, relationship_shapes
+    return sub_image_box_coordinates, sub_image_entity_boxes, relationship_shapes, sub_image_folder
 
 
 # generates label file shapes from prediction results and ocr corrections
@@ -508,11 +531,20 @@ def calculate_distance_between_two_boxes(box1, box2):
     return np.sqrt((center1_x - center2_x) ** 2 + (center1_y - center2_y) ** 2)
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+
+    relation_model = load_relation_predict_model(cfg.sub_img_width_for_relation_predict,
+                                                 cfg.sub_img_height_for_relation_predict,
+                                                 cfg.num_channels)
     # get sub images
+
     # all_sub_image_boxes, all_sub_image_entity_boxes, all_relationship_shapes = get_sub_images()
     # predict sub images' relationships
-    # filenames, predicted_classes = predict_relationships()
+    filenames, predicted_classes = predict_relationships(relation_model,
+                                                         r'C:\Users\coffe\Desktop\test\predict\relation_pdf_107_MiR-93_8_34_0.95',
+                                                         cfg.sub_img_width_for_relation_predict,
+                                                         cfg.sub_img_height_for_relation_predict,
+                                                         cfg.num_channels)
     # extract and output relationship pairs
     # get_relationship_pairs(all_sub_image_boxes, all_sub_image_entity_boxes, filenames, predicted_classes,
     #                        all_relationship_shapes)

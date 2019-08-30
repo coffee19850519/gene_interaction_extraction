@@ -48,7 +48,7 @@ else:
 steps_per_epoch = total_img * (1 - validation_split_ratio) // batch_size
 validation_steps = total_img * validation_split_ratio // batch_size
 
-data_dir = r'C:\Users\LSC-110\Desktop\pubmed'
+train_data_dir = r'C:\Users\LSC-110\Desktop\pubmed'
 origin_image_dir_name = r'Images'
 origin_txt_dir_name = r'labels'
 train_image_dir_name = r'images_%s' % train_task_id
@@ -93,11 +93,11 @@ crop_width = 736
 crop_height = 736
 
 # OCR configurations
-home_folder = r'C:\Users\hefe\Desktop\test'  # home folder
-image_folder = os.path.join(home_folder, "images")
+test_home_folder = r'C:\Users\coffe\Desktop\test'  # home folder
+image_folder = os.path.join(test_home_folder, "images")
 ground_truth_folder = image_folder
-predict_folder = os.path.join(home_folder, "predict")
-failed_folder = os.path.join(home_folder, "failed")
+predict_folder = os.path.join(test_home_folder, "predict")
+failed_folder = os.path.join(test_home_folder, "failed")
 previous_dictionary_path = ''  # none if not needed
 
 log_file = os.path.join(predict_folder, "log.txt")
@@ -105,10 +105,10 @@ dictionary_path = os.path.join(predict_folder, "gene_dictionary.xlsx")
 word_file = os.path.join(predict_folder, "word_cloud.txt")  # word cloud
 all_results_file = os.path.join(predict_folder, "all_results.txt")
 
-step_size = 15  # should perfectly divide 255
-num_steps = 3  # num of steps to check
-num_sub_steps = 3  # should perfectly divide step size
-sub_step = step_size / num_sub_steps
+OCR_hist_step_size = 15  # should perfectly divide 255
+OCR_hist_num_steps = 3  # num of steps to check
+OCR_hist_num_sub_steps = 3  # should perfectly divide step size
+#sub_step = step_size / num_sub_steps
 
 candidate_threshold = 20  # do not show corrected_results if fuzz_ratio < candidate_threshold
 threshold = 70  # do not proceed to next range unless best_fuzz_ratio > threshold
@@ -118,7 +118,7 @@ patience_2 = 10  # stop if x consecutive bests >= threshold
 patience = 3  # stop if x bests >= early_stop_threshold
 
 vertical_ratio_thresh = 1.5  # rotate 90c and 90cc if height / width >= vertical_ratio_thresh
-detection_thresholds = [.1, .25, .5, .75]  # for evaluation
+detection_IoU_thresholds = [.1, .25, .5, .75]  #  threshold for evaluation
 
 padding = 50  # for deskew
 OCR_SCALE = 5  # for resizing image
@@ -126,8 +126,10 @@ OCR_OFFSET = 0
 
 # relationship configuration
 relationship_model = r'saved_models\bottleneck_fc_model11.h5'
-relationship_folder = os.path.join(home_folder, "relationship")
-testing_data_folder = os.path.join(relationship_folder, "test")
-not_classified_folder = os.path.join(testing_data_folder, "not_classified")
+sub_img_width_for_relation_predict = 196
+sub_img_height_for_relation_predict = 140
+# relationship_folder = os.path.join(test_home_folder, "relationship")
+# testing_data_folder = os.path.join(relationship_folder, "test")
+#not_classified_folder = os.path.join(test_home_folder, "not_classified")
 
 # end of file

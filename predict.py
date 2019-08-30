@@ -35,7 +35,6 @@ def cut_text_line(geo, scale_ratio_w, scale_ratio_h, im_array, img_path, s):
 
 def resize_image(im, max_train_size):
 
-
     max_img_size = 32 * max ( im.width // 32 , im.height // 32 )
     if max_img_size > 2 * max_train_size:
         max_img_size = 2 * max_train_size

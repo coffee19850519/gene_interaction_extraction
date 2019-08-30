@@ -140,7 +140,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
     src_path = os.path.join(src_folder, src_file)
     image = cv2.imread(src_path)
 
-    bins = np.arange(0, 256, cfg.step_size)
+    bins = np.arange(0, 256, cfg.OCR_hist_step_size)
 
     if image is None:
         display("Error: Invalid Parameters", file=cfg.log_file)
@@ -203,7 +203,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
                     if proceed_left:
                         best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                             all_results, corrected_results, fuzz_ratios, count, proceed_left = \
-                            test_side(abs_max_index, cfg.num_steps * num, cfg.num_steps * (num + 1), 0, len(histogram),
+                            test_side(abs_max_index, cfg.OCR_hist_num_steps * num, cfg.OCR_hist_num_steps * (num + 1), 0, len(histogram),
                                       src_folder, src_file, hist_folder, hist_file, user_words,
                                       best_result, best_corrected_result, best_fuzz_ratio, best_thresh,
                                       all_results, corrected_results, fuzz_ratios, count,
@@ -212,7 +212,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
                     if proceed_right:
                         best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                             all_results, corrected_results, fuzz_ratios, count, proceed_right = \
-                            test_side(abs_max_index + 1, cfg.num_steps * num, cfg.num_steps * (num + 1), 0,
+                            test_side(abs_max_index + 1, cfg.OCR_hist_num_steps * num, cfg.OCR_hist_num_steps * (num + 1), 0,
                                       len(histogram),
                                       src_folder, src_file, hist_folder, hist_file, user_words,
                                       best_result, best_corrected_result, best_fuzz_ratio, best_thresh,
@@ -232,7 +232,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
                     if proceed_left:
                         best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                             all_results, corrected_results, fuzz_ratios, count, proceed_left = \
-                            test_side(abs_max_index, cfg.num_steps * num, cfg.num_steps * (num + 1), 0, len(histogram),
+                            test_side(abs_max_index, cfg.OCR_hist_num_steps * num, cfg.OCR_hist_num_steps * (num + 1), 0, len(histogram),
                                       src_folder, src_file, hist_folder, hist_file, user_words,
                                       best_result, best_corrected_result, best_fuzz_ratio, best_thresh,
                                       all_results, corrected_results, fuzz_ratios, count,
@@ -241,7 +241,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
                     if proceed_right:
                         best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                             all_results, corrected_results, fuzz_ratios, count, proceed_right = \
-                            test_side(abs_max_index + 1, cfg.num_steps * num, cfg.num_steps * (num + 1), 0,
+                            test_side(abs_max_index + 1, cfg.OCR_hist_num_steps * num, cfg.OCR_hist_num_steps * (num + 1), 0,
                                       len(histogram),
                                       src_folder, src_file, hist_folder, hist_file, user_words,
                                       best_result, best_corrected_result, best_fuzz_ratio, best_thresh,
@@ -261,7 +261,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
                 if proceed_left:
                     best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                         all_results, corrected_results, fuzz_ratios, count, proceed_left = \
-                        test_side(abs_max_index, cfg.num_steps * num, cfg.num_steps * (num + 1), 0, len(histogram),
+                        test_side(abs_max_index, cfg.OCR_hist_num_steps * num, cfg.OCR_hist_num_steps * (num + 1), 0, len(histogram),
                                   src_folder, src_file, hist_folder, hist_file, user_words,
                                   best_result, best_corrected_result, best_fuzz_ratio, best_thresh,
                                   all_results, corrected_results, fuzz_ratios, count,
@@ -270,7 +270,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
                 if proceed_right:
                     best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                         all_results, corrected_results, fuzz_ratios, count, proceed_right = \
-                        test_side(abs_max_index + 1, cfg.num_steps * num, cfg.num_steps * (num + 1), 0, len(histogram),
+                        test_side(abs_max_index + 1, cfg.OCR_hist_num_steps * num, cfg.OCR_hist_num_steps * (num + 1), 0, len(histogram),
                                   src_folder, src_file, hist_folder, hist_file, user_words,
                                   best_result, best_corrected_result, best_fuzz_ratio, best_thresh,
                                   all_results, corrected_results, fuzz_ratios, count,
@@ -289,7 +289,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
                 if proceed_left:
                     best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                         all_results, corrected_results, fuzz_ratios, count, proceed_left = \
-                        test_side(abs_max_index, cfg.num_steps * num, cfg.num_steps * (num + 1), 0, len(histogram),
+                        test_side(abs_max_index, cfg.OCR_hist_num_steps * num, cfg.OCR_hist_num_steps * (num + 1), 0, len(histogram),
                                   hist_folder, hist_file, deskew_folder, deskew_file, user_words,
                                   best_result, best_corrected_result, best_fuzz_ratio, best_thresh,
                                   all_results, corrected_results, fuzz_ratios, count,
@@ -297,7 +297,7 @@ def hist(src_folder, src_file, user_words, original_image=None, hist_folder=None
                 if proceed_right:
                     best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                         all_results, corrected_results, fuzz_ratios, count, proceed_right = \
-                        test_side(abs_max_index + 1, cfg.num_steps * num, cfg.num_steps * (num + 1), 0, len(histogram),
+                        test_side(abs_max_index + 1, cfg.OCR_hist_num_steps * num, cfg.OCR_hist_num_steps * (num + 1), 0, len(histogram),
                                   hist_folder, hist_file, deskew_folder, deskew_file, user_words,
                                   best_result, best_corrected_result, best_fuzz_ratio, best_thresh,
                                   all_results, corrected_results, fuzz_ratios, count,
@@ -354,15 +354,15 @@ def test_side(index, start, end, left_bound, right_bound,
 
         # if valid start index for thresh
         if left_bound < start_index < right_bound:  # check valid index
-            start_thresh = int(start_index * cfg.step_size)
+            start_thresh = int(start_index * cfg.OCR_hist_step_size)
 
-            for s in range(0, cfg.num_sub_steps):
+            for s in range(0, cfg.OCR_hist_num_sub_steps):
 
                 if count >= cfg.patience - 1 or (count * 100) % 100 >= cfg.patience_2 - 1:  # early stop
                     return best_result, best_corrected_result, best_fuzz_ratio, best_thresh, \
                         all_results, corrected_results, fuzz_ratios, cfg.patience, False
 
-                thresh = int(start_thresh + f * cfg.sub_step * s)
+                thresh = int(start_thresh + f * (cfg.OCR_hist_step_size / cfg.OCR_hist_num_sub_steps) * s)
 
                 if thresh == e:
                     continue  # skip
