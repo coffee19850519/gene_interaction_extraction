@@ -364,7 +364,7 @@ if __name__ == '__main__':
     # ground_truth_folder = r'C:\Users\hefe\Desktop\history\ground_truth'
 
     if cfg.ground_truth_folder and os.path.exists(cfg.ground_truth_folder):  # evaluate
-        for value in cfg.detection_thresholds:
+        for value in cfg.detection_IoU_thresholds:
             calculate_all_metrics_by_json(value)
 
 # end of file
