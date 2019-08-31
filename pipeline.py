@@ -68,8 +68,10 @@ if __name__ == '__main__':
                 pdf_name = pdf_name[:20] + '...'
             mediancount = np.median([item[1] for item in all_pair_counts.items()])
             print('all counts for {} are \n {}'.format(pdf_name, all_pair_counts))
-        else:
+        elif len(pdf_path) > 1:
             print("warning found multiple pdfs for image: {}".format(image_name))
+        else:
+            print("warning found no pdfs for image: {}".format(image_name))
         # step 1: predict images
         image_path = os.path.join(cfg.image_folder, image_file)
         threshold_score_dict = {}
