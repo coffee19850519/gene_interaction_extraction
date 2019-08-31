@@ -1,7 +1,7 @@
 import fuzzywuzzy
 from fuzzywuzzy import process, fuzz
 from fuzzywuzzy.process import default_scorer, default_processor
-from loadexcldata import load_genename_from_excl
+#from loadexcldata import load_genename_from_excl
 
 # import os, unicodedata, re
 # from alignment.sequence import Sequence
@@ -150,20 +150,20 @@ if __name__ == '__main__':
     # test_file = r'C:\Users\LSC-110\Desktop\text_results_from_to' \
     #             r'\cin_00094.txttextpredict_to.txt'
     test_file = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\imagetest\cin_00004_OCR1.txt'
-    OCR_results=[]
-    bounding_results=[]
-    filename = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\dictionary.xlsx'
-    user_words= load_genename_from_excl(filename)
-    with open(test_file, 'r') as test_fp:
-      test_results = test_fp.readlines()
-
-    for line in test_results:
-        OCR_result = line.split('\t', 1)[0]
-        bounding_box=line.split('\t', 1)[1]
-        OCR_results.append(OCR_result)
-        bounding_results.append(bounding_box)
-    corrections = map_result_to_dictionary(OCR_results, user_words)
-    with open(test_file[:-4]+'_correction.txt','w') as res_fp:
-        for idx in range(len(corrections)):
-            res_fp.write(str(corrections[idx])+'\t'+str(bounding_results[idx]))
-    del corrections
+    # OCR_results=[]
+    # bounding_results=[]
+    # filename = r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\dictionary.xlsx'
+    # user_words= load_genename_from_excl(filename)
+    # with open(test_file, 'r') as test_fp:
+    #   test_results = test_fp.readlines()
+    #
+    # for line in test_results:
+    #     OCR_result = line.split('\t', 1)[0]
+    #     bounding_box=line.split('\t', 1)[1]
+    #     OCR_results.append(OCR_result)
+    #     bounding_results.append(bounding_box)
+    # corrections = map_result_to_dictionary(OCR_results, user_words)
+    # with open(test_file[:-4]+'_correction.txt','w') as res_fp:
+    #     for idx in range(len(corrections)):
+    #         res_fp.write(str(corrections[idx])+'\t'+str(bounding_results[idx]))
+    # del corrections

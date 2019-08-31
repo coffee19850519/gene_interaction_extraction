@@ -99,7 +99,7 @@ def shrink_edge(xy_list, new_xy_list, edge, r, theta, ratio=cfg.shrink_ratio):
         long_end_sign_y * ratio * r[end_point] * np.sin(theta[start_point])
 
 
-def process_label(data_dir=cfg.data_dir):
+def process_label(data_dir=cfg.train_data_dir):
     with open(os.path.join(data_dir, cfg.val_fname), 'r') as f_val:
         f_list = f_val.readlines()
     with open(os.path.join(data_dir, cfg.train_fname), 'r') as f_train:
@@ -236,7 +236,7 @@ def process_label(data_dir=cfg.data_dir):
                                         py - 0.5 * cfg.pixel_size)],
                                       width=line_width, fill=line_color)
 
-            act_image_dir = os.path.join(cfg.data_dir,
+            act_image_dir = os.path.join(cfg.train_data_dir,
                                          cfg.show_act_image_dir_name)
             if cfg.DEBUG:
                 im.save(os.path.join(act_image_dir, img_name))

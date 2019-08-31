@@ -6,8 +6,7 @@ from keras.applications.vgg16 import preprocess_input
 import cfg,os
 from label import point_inside_of_quad
 from network import East
-from preprocess import resize_image
-import cv2
+
 
 
 def softmax(x):
@@ -32,6 +31,29 @@ def cut_text_line(geo, scale_ratio_w, scale_ratio_h, im_array, img_path, s):
                 sub_im_arr[m - min_xy[1], n - min_xy[0], :] = 255
     sub_im = image.array_to_img(sub_im_arr, scale=False)
     sub_im.save(img_path + '_subim%d.jpg' % s)
+
+
+def resize_image(im, max_train_size):
+
+    max_img_size = 32 * max ( im.width // 32 , im.height // 32 )
+    if max_img_size > 2 * max_train_size:
+        max_img_size = 2 * max_train_size
+    im_width = np.minimum ( im.width , max_img_size )
+
+
+    if im_width == max_img_size < im.width:
+        im_height = int ( (im_width / im.width) * im.height )
+    else:
+        im_height = im.height
+    o_height = np.minimum ( im_height , max_img_size )
+    if o_height == max_img_size < im_height:
+        o_width = int ( (o_height / im_height) * im_width )
+    else:
+        o_width = im_width
+    d_wight = o_width - (o_width % 32)
+    d_height = o_height - (o_height % 32)
+    return d_wight , d_height
+
 
 
 def predict(east_detect,
@@ -102,7 +124,7 @@ def predict(east_detect,
                     line_width, line_color = 2, 'blue'
                 elif idx == 2 and y[i, j, 4] >= \
                     action_side_vertex_pixel_threshold and y[i, j, 5] >= 1 - \
-                    nock_trunc_threshold:
+                        nock_trunc_threshold:
                     line_width, line_color = 2, 'yellow'
                 elif idx == 3 and y[i, j, 4] >= action_side_vertex_pixel_threshold and \
                     y[i, j, 5] >= arrow_trunc_threshold:
@@ -122,14 +144,12 @@ def predict(east_detect,
                         convert_bounding_box(geo)
                         rescaled_geo = geo / [scale_ratio_w, scale_ratio_h]
 
-
-                        #text
+                        # text
                         quad_draw.line([tuple(geo[0]),
                                         tuple(geo[1]),
                                         tuple(geo[2]),
                                         tuple(geo[3]),
                                         tuple(geo[0])], width=3, fill='red')
-
 
                         # form bounding box
 
@@ -152,8 +172,8 @@ def predict(east_detect,
                         txt_items.append(txt_item + '\n')
                         del txt_item
                     elif idx == 2:
-                        #nock
-                        #geo =convert_bounding_box(geo)
+                        # nock
+                        # geo = convert_bounding_box(geo)
                         rescaled_geo = geo / [scale_ratio_w, scale_ratio_h]
                         quad_draw.line([tuple(geo[0]),
                                         tuple(geo[1]),
@@ -167,8 +187,8 @@ def predict(east_detect,
                         txt_items.append(txt_item + '\n')
                         del txt_item
                     elif idx == 3:
-                        #arrow
-                        #geo = convert_bounding_box(geo)
+                        # arrow
+                        # geo = convert_bounding_box(geo)
                         rescaled_geo = geo / [scale_ratio_w, scale_ratio_h]
 
                         quad_draw.line([tuple(geo[0]),
@@ -176,7 +196,6 @@ def predict(east_detect,
                                         tuple(geo[2]),
                                         tuple(geo[3]),
                                         tuple(geo[0])], width=3, fill='green')
-
 
                         # form bounding box
 
@@ -201,10 +220,10 @@ def predict(east_detect,
                 elif not quiet:
                     print('quad invalid with vertex num less then 4.')
             del activation_pixels
-        #im.save(img_path + '_act.jpg')
-        #quad_im.save(img_path + '_predict.jpg')
+        # im.save(img_path + '_act.jpg')
+        # quad_im.save(img_path + '_predict.jpg')
     del im,quad_im,draw,quad_draw,img
-    return txt_items
+    return txt_items, y[:, :, :1]
 
 def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
     img = image.load_img(img_path)
@@ -217,10 +236,11 @@ def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
     x = np.expand_dims(img, axis=0)
     y = east_detect.predict(x)
     y = np.squeeze(y, axis=0)
-    #activate the output layer
+
+    # activate the output layer
     y[:, :, :4] = softmax(y[:, :, :4])
     y[:, :, 4:6] = sigmoid(y[:, :, 4:6])
-    #
+
     cond = np.greater_equal(y[:, :, 0], pixel_threshold)
     activation_pixels = np.where(cond)
     quad_scores, quad_after_nms = nms(y, activation_pixels)
@@ -286,7 +306,7 @@ def rec_region_merge(region_list, m, S):
     tmp = []
     for n in S:
         if not region_neighbor(region_list[m]).isdisjoint(region_list[n]) or \
-            not region_neighbor(region_list[n]).isdisjoint(region_list[m]):
+                not region_neighbor(region_list[n]).isdisjoint(region_list[m]):
             # 第m与n相交
             tmp.append(n)
     for d in tmp:
@@ -309,9 +329,6 @@ def convert_bounding_box(geo):
     geo[2, 1] = max_y
     geo[3, 0] = max_x
     geo[3, 1] = min_y
-
-
-
 
 
 def nms(predict,
@@ -344,7 +361,7 @@ def nms(predict,
         for row in group:
             for ij in region_list[row]:
                 score = predict[ij[0], ij[1], 4]
-                #if score >= side_threshold:
+                # if score >= side_threshold:
                 if cls_idx == 1 and score >= text_side_vertex_pixel_threshold:
                     ith_score = predict[ij[0], ij[1], 5:6]
                     if not (text_trunc_threshold <= ith_score < 1 - text_trunc_threshold):
@@ -360,7 +377,7 @@ def nms(predict,
                       1 - nock_trunc_threshold and score >=
                       action_side_vertex_pixel_threshold) or (
                     cls_idx == 3 and predict[ij[0], ij[1], 5:6] >=
-                    arrow_trunc_threshold and score >=  action_side_vertex_pixel_threshold):
+                        arrow_trunc_threshold and score >=  action_side_vertex_pixel_threshold):
                     # for cls=2 nock, label for trunc is 0
                     # for cls=3 arrow, label for trunc is 1
                     # regression for 4 vertexes
@@ -381,28 +398,27 @@ def nms(predict,
                     quad_list[g_th, 3] += [score * p_v[1, 0], score *
                                            p_v[0, 1]]
 
-
         score_list[g_th] = total_score[:, 0]
         quad_list[g_th] /= (total_score + cfg.epsilon)
     return score_list, quad_list
 
 
 if __name__ == '__main__':
-    #args = parse_args()
-    #img_path = args.path
-    #threshold = float(args.threshold)
-    #print(img_path, threshold)
+    # args = parse_args()
+    # img_path = args.path
+    # threshold = float(args.threshold)
+    # print(img_path, threshold)
     # img_path = r'C:\Users\LSC-110\Desktop\test'
-    img_path = r'C:\Users\LSC-110\Desktop\Images'
+    img_path = r'C:\Users\LSC-110\Desktop\data\positive'
     east = East()
     east_detect = east.east_network()
     east_detect.load_weights(cfg.saved_model_weights_file_path)
-    #load gene dictionary
+    # load gene dictionary
     # 2019/3/10   cx
     # with open(cfg.dictionary_file,'r') as dict_fp:
     #     word_dictionary = dict_fp.readlines()
 
-    # declaim some variances for computing final assessment
+    # claim some variances for computing final assessment
     pos_correct_detect_total = 0
     num_pd_detect_total = 0
     num_gt_detect_total = 0
@@ -421,10 +437,8 @@ if __name__ == '__main__':
         predict_gene_box = predict(east_detect, os.path.join(img_path,
                                        image_file), quiet=False)
         with open(os.path.join(img_path, image_file[:-4] + '.txt'),
-                      'w') as result_fp:
-                result_fp.writelines(predict_gene_box)
-
-
+                  'w') as result_fp:
+            result_fp.writelines(str(predict_gene_box))
 
     #     # do OCR, also help filter some
     #     OCR_result = OCR(img_path, image_file, predict_gene_box)

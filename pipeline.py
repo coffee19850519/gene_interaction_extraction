@@ -47,6 +47,16 @@ if __name__ == '__main__':
         if image_ext == ".json" or image_ext == ".pdf" or image_ext == ""  or image_ext == ".ini":
             continue
 
+        # pdf_path = pdf_from_image_name(image_name)
+        # # display(str(count) + ": \t" + str(image_file) + "\n", file=log_file)
+        # # calculate
+        # if len(pdf_path) == 1:
+        #     pdf_path = pdf_path[0]
+        #     all_pair_counts = pdf_reader.get_gene_pair_cooccurrence_counts(pdf_path)
+        #     print('all counts are {}'.format(all_pair_counts))
+        # else:
+        #     print("warning found multiple pdfs for image: {}".format(image_name))
+
         pdf_path = pdf_from_image_name(image_name)
         # display(str(count) + ": \t" + str(image_file) + "\n", file=log_file)
         # calculate
@@ -70,7 +80,7 @@ if __name__ == '__main__':
         best_score = 0
         best_threshold = 0
         #for testing set it to a fixed value
-        for threshold in np.arange(0.60, 0.99, 0.1):
+        for threshold in np.arange(cfg.threshold_start_point, cfg.threshold_end_point, cfg.threshold_step):
             predict_box, _ = predict(east_detect, image_path,
                                      text_pixel_threshold= threshold,
                                      action_pixel_threshold= threshold,
@@ -123,17 +133,19 @@ if __name__ == '__main__':
             #step 4: get cooccurence of current group of candidates
             predicted_pair_counts = get_pair_counts(all_pair_counts, predicted_relationship_pairs)
             print('counts with threshold {} are {}'.format(threshold, predicted_pair_counts))
-            #step 5: score current group of candidates
+            # step 5: score current group of candidates
 
-            confidence_score = sum([counted_score(predicted_pair[1], mediancount) for predicted_pair in predicted_pair_counts.items()]) # just a placeholder
+            confidence_score = sum([counted_score(predicted_pair[1], mediancount) for predicted_pair in
+                                    predicted_pair_counts.items()])  # just a placeholder
             best_score, best_threshold = max((best_score, best_threshold), (confidence_score, threshold))
             print('confidence with threshold {} is {}\n'.format(threshold, confidence_score))
-            #update the score and threshold into dict
+            # update the score and threshold into dict
             threshold_score_dict[threshold] = confidence_score
 
         #outside the threshold for loop, pick the best score group
         # best_score = 10 # just a placeholder
         # best_threshold = threshold_score_dict[best_score]
+        best_threshold = 0.6
         # best_relation_boxes = threshold_boxes_dict[best_threshold]
         # best_description = threshold_relation_dict[best_threshold]
         best_relation_boxes = threshold_boxes_dict[best_threshold]   #for test only
@@ -156,6 +168,14 @@ if __name__ == '__main__':
         with open(os.path.join(cfg.predict_folder, image_name + '_result_number'
                                      + '.txt'), 'w') as predict_results_fp:
             predict_results_fp.writelines(results_string)
+
+        #delete the intermediate text files
+        for threshold in np.arange(cfg.threshold_start_point, cfg.threshold_end_point, cfg.threshold_step):
+            if os.path.exists(os.path.join(cfg.predict_folder, image_name + '_' + str(threshold) + "_correct.txt")):
+                os.remove(os.path.join(cfg.predict_folder, image_name + '_' + str(threshold) + "_correct.txt"))
+            if os.path.exists(os.path.join(cfg.predict_folder, image_name + '_' + str(threshold) +'_predict.txt')):
+                os.remove(os.path.join(cfg.predict_folder, image_name + '_' + str(threshold) + "_predict.txt"))
+
         del current_img, best_relation_boxes, best_description    # , label
 
     del user_words, relation_model
