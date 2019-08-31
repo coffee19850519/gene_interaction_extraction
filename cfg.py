@@ -132,4 +132,8 @@ sub_img_height_for_relation_predict = 140
 # testing_data_folder = os.path.join(relationship_folder, "test")
 #not_classified_folder = os.path.join(test_home_folder, "not_classified")
 
+#different threshold configuration
+threshold_start_point = 0.6
+threshold_end_point = 0.99
+threshold_step = 0.1
 # end of file
