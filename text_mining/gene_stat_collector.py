@@ -25,7 +25,7 @@ def get_ordered_counts(gene_dictionary_reader, text):
     return gene_co_occurrence
 
 def get_pair_counts(counts, pairs):
-    results = []
+    results = Counter()
     for gene in pairs:
         actor = gene[0]
         receiver = gene[1]
@@ -41,7 +41,14 @@ def get_pair_counts(counts, pairs):
                     best_match = actorRatio, receiverRatio
                     match = count
         if match:
-            results.append((gene, counts[match]))
+            results[gene] = counts[match]
         else:
-            results.append((gene, 0))
+            results[gene] = 0
     return results
+
+def counted_score(count, bound):
+    if count > bound:
+        return 2
+    if count <= bound and count > 0:
+        return 1
+    return 0

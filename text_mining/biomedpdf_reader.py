@@ -18,7 +18,7 @@ class biomedpdf_reader:
 
 
 if __name__ == '__main__':
-    biomed_reader = biomedpdf_reader()
-    counts = biomed_reader.get_gene_pair_cooccurrence_counts('apigeninExample.pdf')
+    biomed_reader = biomedpdf_reader([])
+    counts = biomed_reader.get_gene_pair_cooccurrence_counts()
     print(counts)
     print(gene_stat_collector.get_pair_counts(counts, [('TRAL', 'TRAL'), ('p53', 'DR'), ('TRAL', 'HSP26'), ('DR1', 'DR1')]))

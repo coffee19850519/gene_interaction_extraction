@@ -33,7 +33,6 @@ def get_column_index(table, column_name):
 
 def load_dictionary_from_excl(col_num):
     table, err = read_excel_data_by_name(cfg.dictionary_path)
-
     row_num = table.nrows
     words = []
     for row_idx in range(1, row_num):

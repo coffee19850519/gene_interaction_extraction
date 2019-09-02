@@ -14,7 +14,7 @@ from skimage.feature import canny
 from skimage.transform import probabilistic_hough_line, rotate
 
 
-def display(input, file=None, to_print=True):
+def display(input, file=None, to_print=False):
     if file:
         with open(file, 'a', encoding="utf-8") as file:
             file.writelines(str(input) + " \n")

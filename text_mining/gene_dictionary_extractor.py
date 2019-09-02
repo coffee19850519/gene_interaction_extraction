@@ -13,6 +13,7 @@ def extract_dictionary(gene_list=None):
     gene_dictionary = [{}, False] # Keys, Valid, Standard Name, Ambiguous
     for gene in gene_list:
         add_gene(gene_dictionary, gene)
+    return gene_dictionary
 
 
 if __name__ == "__main__":

@@ -93,7 +93,7 @@ crop_width = 736
 crop_height = 736
 
 # OCR configurations
-test_home_folder = r'C:\Users\coffe\Desktop\test'  # home folder
+test_home_folder = r'C:\Users\hefe\Desktop\use case'  # home folder
 image_folder = os.path.join(test_home_folder, "images")
 ground_truth_folder = image_folder
 predict_folder = os.path.join(test_home_folder, "predict")

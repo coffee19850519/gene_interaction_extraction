@@ -9,9 +9,9 @@ from to_labelme import to_labelme
 from evaluation import calculate_all_metrics_by_json
 from loadexcldata import load_dictionary_from_excl
 from predict_relationship import generate_relationship_shapes, predict_relationships, get_relationship_pairs,load_relation_predict_model
-#from get_pdf_from_image import pdf_from_image_name
+from get_pdf_from_image import pdf_from_image_name
 from text_mining.biomedpdf_reader import  biomedpdf_reader
-from text_mining.gene_stat_collector import get_pair_counts
+from text_mining.gene_stat_collector import get_pair_counts, counted_score
 os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
@@ -57,7 +57,21 @@ if __name__ == '__main__':
         # else:
         #     print("warning found multiple pdfs for image: {}".format(image_name))
 
-
+        pdf_path = pdf_from_image_name(image_name)
+        # display(str(count) + ": \t" + str(image_file) + "\n", file=log_file)
+        # calculate
+        if len(pdf_path) == 1:
+            pdf_path = pdf_path[0]
+            all_pair_counts = pdf_reader.get_gene_pair_cooccurrence_counts(pdf_path)
+            pdf_name = pdf_path.split('\\')[-1]
+            if len(pdf_name) > 20:
+                pdf_name = pdf_name[:20] + '...'
+            mediancount = np.median([item[1] for item in all_pair_counts.items()])
+            print('all counts for {} are \n {}'.format(pdf_name, all_pair_counts))
+        elif len(pdf_path) > 1:
+            print("warning found multiple pdfs for image: {}".format(image_name))
+        else:
+            print("warning found no pdfs for image: {}".format(image_name))
         # step 1: predict images
         image_path = os.path.join(cfg.image_folder, image_file)
         threshold_score_dict = {}
@@ -65,6 +79,8 @@ if __name__ == '__main__':
         threshold_boxes_dict = {}
         best_relation_boxes = []
         best_description = []
+        best_score = 0
+        best_threshold = 0
         #for testing set it to a fixed value
         for threshold in np.arange(cfg.threshold_start_point, cfg.threshold_end_point, cfg.threshold_step):
             predict_box, _ = predict(east_detect, image_path,
@@ -117,12 +133,15 @@ if __name__ == '__main__':
             print('the predicted relationship pairs:', predicted_relationship_pairs)
 
             #step 4: get cooccurence of current group of candidates
-            # predicted_pair_counts = get_pair_counts(all_pair_counts, predicted_relationship_pairs)
-            # print('counts with threshold {} are {}'.format(threshold, predicted_pair_counts))
-            #step 5: score current group of candidates
+            predicted_pair_counts = get_pair_counts(all_pair_counts, predicted_relationship_pairs)
+            print('counts with threshold {} are {}'.format(threshold, predicted_pair_counts))
+            # step 5: score current group of candidates
 
-            confidence_score = 1 # just a placeholder
-            #update the score and threshold into dict
+            confidence_score = sum([counted_score(predicted_pair[1], mediancount) for predicted_pair in
+                                    predicted_pair_counts.items()])  # just a placeholder
+            best_score, best_threshold = max((best_score, best_threshold), (confidence_score, threshold))
+            print('confidence with threshold {} is {}\n'.format(threshold, confidence_score))
+            # update the score and threshold into dict
             threshold_score_dict[threshold] = confidence_score
 
         #outside the threshold for loop, pick the best score group
@@ -165,7 +184,7 @@ if __name__ == '__main__':
 
 
     if cfg.ground_truth_folder and os.path.exists(cfg.ground_truth_folder):  # evaluate
-        for value in cfg.detection_thresholds:
+        for value in cfg.detection_IoU_thresholds:
             calculate_all_metrics_by_json(value)
 
 # end of file

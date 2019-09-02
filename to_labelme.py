@@ -33,10 +33,10 @@ def to_labelme(image_name,
         tempDict['alias'] = 'name'
         shapes.append(tempDict)
         #plot the index and box into current_img
-        #cv2.drawContours(current_img,[box['relationship_bounding_box']], -1, tempDict['line_color'], thickness=2)
-        cv2.putText(current_img, str(index), (box['relationship_bounding_box'][3][0] - 5,
-                                              box['relationship_bounding_box'][3][1] - 5),
-                                                cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, tempDict['line_color'])
+        # cv2.drawContours(current_img,np.array(box['relationship_bounding_box']), -1, tempDict['line_color'], thickness=2)
+        # cv2.putText(current_img, str(index), (box['relationship_bounding_box'][3][0] - 5,
+        #                                       box['relationship_bounding_box'][3][1] - 5),
+        #                                         cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 0, 0))
         result_string += str(index) + '\t' + description + '\n'
         index += 1
         del tempDict
@@ -144,8 +144,8 @@ def to_labelme(image_name,
             shapes.append(tempDict)
             # plot the index and box into current_img
             # cv2.drawContours(current_img, np.array(tempDict['points']), -1, tempDict['line_color'], thickness=2)
-            cv2.putText(current_img, str(index), (A3[0] - 5, A3[1] - 5),
-                        cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, tempDict['line_color'])
+            # cv2.putText(current_img, str(index), (A3[0] - 5, A3[1] - 5),
+            #             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 0, 0))
 
             result_string += str(index) + '\t' + OCR_result + '\n'
             index += 1
