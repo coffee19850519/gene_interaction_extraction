@@ -4,6 +4,7 @@ import cfg
 import os
 from label_file import LabelFile
 from matplotlib import pyplot as plt
+import networkx as nx
 
 
 def intersection(g, p):
@@ -156,6 +157,89 @@ def filter_interaction_without_gene(relation_list, gene_name_gt):
     del relation_list
     return relation_list_with_gene
 
+def graph_similarity(label_gt,label_pd):
+                     #,relationship_bounding_boxes_gt,relationship_bounding_boxes_pd):
+    G1 = nx.DiGraph()
+    pd_arrow_shapes = label_pd.get_all_shapes_for_category('arrow')
+    pd_inhibit_shapes = label_pd.get_all_shapes_for_category('nock')
+    pd_text_shapes = label_pd.get_all_shapes_for_category('text')
+
+
+    for gene_idx in range(len(pd_text_shapes)):
+        gene_name = pd_text_shapes[gene_idx]['label']
+        gene_geo = pd_text_shapes[gene_idx]['points']
+        G1.add_node(gene_name,)
+
+    predict_relations = []
+    for arrow_idx in range(len(pd_arrow_shapes)):
+        arrow_relation = str(pd_arrow_shapes[arrow_idx]['label'])
+        try:
+            gene1, gene2 = arrow_relation.split(':')[1].split('|')
+            gene1 = gene1.upper()
+            G1.add_node(gene1)
+            gene2 = gene2.upper()
+            G1.add_node(gene2)
+            arrow_relation = gene1 + '|' + gene2
+            G1.add_edge(gene1, gene2, relation='activate')
+            predict_relations.append(arrow_relation)
+        except:
+            print('file_name: %s , relation: %s' % (label_pd.imagePath,
+                                                    pd_arrow_shapes[arrow_idx]))
+
+    for inhibit_idx in range(len(pd_inhibit_shapes)):
+        inhibit_relation = str(pd_inhibit_shapes[inhibit_idx]['label'])
+        try:
+            gene1, gene2 = inhibit_relation.split(':')[1].split('|')
+            gene1 = gene1.upper()
+            G1.add_node(gene1)
+            gene2 = gene2.upper()
+            G1.add_node(gene2)
+            inhibit_relation = gene1 + '|' + gene2
+            G1.add_edge(gene1, gene2, relation='inhibit')
+            predict_relations.append(inhibit_relation)
+        except:
+            print('file_name: %s , relation: %s' % (label_pd.imagePath,
+                                                    pd_inhibit_shapes[inhibit_idx]))
+
+    G2 = nx.DiGraph()
+    gt_arrow_shapes = label_gt.get_all_shapes_for_category('arrow')
+    gt_inhibit_shapes = label_gt.get_all_shapes_for_category('nock')
+    gt_text_shapes = label_gt.get_all_shapes_for_category('text')
+
+    ground_truth_relations = []
+    for arrow_idx in range(len(gt_arrow_shapes)):
+        arrow_relation = str(gt_arrow_shapes[arrow_idx]['label'])
+        try:
+            gene1, gene2 = arrow_relation.split(':')[1].split('|')
+            gene1 = gene1.upper()
+            G2.add_node(gene1)
+            gene2 = gene2.upper()
+            G2.add_node(gene1)
+            arrow_relation = gene1 + '|' + gene2
+            G2.add_edge(gene1, gene2, relation='activate')
+            ground_truth_relations.append(arrow_relation)
+        except:
+            print('file_name: %s , relation: %s' % (label_gt.imagePath,
+                                                    gt_arrow_shapes[arrow_idx]))
+
+    for inhibit_idx in range(len(gt_inhibit_shapes)):
+        inhibit_relation = str(gt_inhibit_shapes[inhibit_idx]['label'])
+        try:
+            gene1, gene2 = inhibit_relation.split(':')[1].split('|')
+            gene1 = gene1.upper()
+            G2.add_node(gene1)
+            gene2 = gene2.upper()
+            G2.add_node(gene2)
+            inhibit_relation = gene1 + '|' + gene2
+            G2.add_edge(gene1, gene2, relation='inhibit')
+            ground_truth_relations.append(inhibit_relation)
+        except:
+            print('file_name: %s , relation: %s' % (label_gt.imagePath,
+                                                    gt_inhibit_shapes[inhibit_idx]))
+
+    graph_edit_distance = nx.algorithms.similarity.graph_edit_distance(G1, G2, edge_match=lambda a, b: a['relation'] == b['relation'])
+
+    return graph_edit_distance
 
 def calculate_all_metrics_by_json(detection_threshold):
 
@@ -206,6 +290,11 @@ def calculate_all_metrics_by_json(detection_threshold):
         except():
             print('we cannot open current predicted json file')
             continue
+
+
+        # calculate graph_edit_diatance
+        graph_edit_diatance=graph_similarity(label_gt,label_pd)
+
 
         pos_genebox_correct_detect, pos_arrowbox_correct_detect, \
             pos_inhibitbox_correct_detect, pos_correct_gene, pos_correct_arrow, \
@@ -279,6 +368,9 @@ def calculate_all_metrics_by_json(detection_threshold):
         # inhibit recognition
         pos_inhibit_correct_total += pos_correct_inhibit
 
+        # graph_edit_diatance
+        graph_edit_diatance += graph_edit_diatance
+
         del label_gt, label_pd, current_gt_text_num, current_gt_arrow_num, \
             current_gt_inhibit_num, current_gt_gene_num, current_pd_text_num, \
             current_pd_arrow_num, current_pd_inhibit_num, current_pd_gene_num, \
@@ -305,7 +397,7 @@ def calculate_all_metrics_by_json(detection_threshold):
               'a') as result_fp:
         result_fp.write(
             str.format(
-                '%s \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f\t %f \t %f \n')
+                '%s \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f\t %f \t %f \t %f \n')
             % ('total evaluation',
                overall_genebox_recall_detect,
                overall_genebox_precision_detect,
@@ -319,7 +411,8 @@ def calculate_all_metrics_by_json(detection_threshold):
                overall_recall_arrow,
                overall_precision_arrow,
                overall_recall_inhibit,
-               overall_precision_inhibit))
+               overall_precision_inhibit,
+               graph_edit_diatance))
 
 
 def draw_curve(gene_list, arrow_list, inhibit_list):
