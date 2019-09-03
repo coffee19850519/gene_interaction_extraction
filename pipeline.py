@@ -147,7 +147,6 @@ if __name__ == '__main__':
         #outside the threshold for loop, pick the best score group
         # best_score = 10 # just a placeholder
         # best_threshold = threshold_score_dict[best_score]
-        best_threshold = 0.6
         # best_relation_boxes = threshold_boxes_dict[best_threshold]
         # best_description = threshold_relation_dict[best_threshold]
         best_relation_boxes = threshold_boxes_dict[best_threshold]   #for test only
