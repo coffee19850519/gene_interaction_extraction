@@ -1,6 +1,6 @@
 import glob
 
-main_pdf_directory = r'C:\Users\hefe\Desktop\other\pdfs'
+main_pdf_directory = r'/Users/orion/Desktop/use_case1/pdfs'
 def pdf_from_image_name(image_name):
     splitname = image_name.split('_');
     subid = splitname[1]
@@ -20,7 +20,7 @@ def pdf_from_image_name(image_name):
 
 
 if __name__ == "__main__":
-    image_directory = r'C:\Users\hefe\Desktop\use case\images'
+    image_directory = r'/Users/orion/Desktop/use_case1/images'
     for image in glob.glob(image_directory + r'\*.png'):
         imagename = image.split('\\')[-1]
         possible_pdfs = pdf_from_image_name(imagename)

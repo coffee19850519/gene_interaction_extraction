@@ -16,7 +16,9 @@ os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
+
+def pipeline_go():
 
     if not os.path.isdir(cfg.predict_folder):
         os.mkdir(cfg.predict_folder)
@@ -33,6 +35,10 @@ if __name__ == '__main__':
     relation_model = load_relation_predict_model(cfg.sub_img_width_for_relation_predict,
                                                  cfg.sub_img_height_for_relation_predict,
                                                  cfg.num_channels)
+
+    #insert new dictionary here
+
+
 
     user_words = load_dictionary_from_excl(col_num=0)
 

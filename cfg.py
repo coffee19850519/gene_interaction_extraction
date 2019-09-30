@@ -77,7 +77,7 @@ locked_layers = True
 if not os.path.exists('saved_models'):
     os.mkdir('saved_models')
 
-saved_model_weights_file_path = r'saved_models\model_weights.h5'
+saved_model_weights_file_path = r'saved_models/model_weights.h5'
 
 text_pixel_threshold = 0.8  # text foreground & background score
 action_pixel_threshold = 0.8  # relation foreground & background score
@@ -93,7 +93,7 @@ crop_width = 736
 crop_height = 736
 
 # OCR configurations
-test_home_folder = r'C:\Users\hefe\Desktop\use case'  # home folder
+test_home_folder = r'/Users/orion/Desktop/use_case1'  # home folder
 image_folder = os.path.join(test_home_folder, "images")
 ground_truth_folder = image_folder
 predict_folder = os.path.join(test_home_folder, "predict")
@@ -125,7 +125,7 @@ OCR_SCALE = 5  # for resizing image
 OCR_OFFSET = 0
 
 # relationship configuration
-relationship_model = r'saved_models\bottleneck_fc_model11.h5'
+relationship_model = r'saved_models/bottleneck_fc_model11.h5'
 sub_img_width_for_relation_predict = 196
 sub_img_height_for_relation_predict = 140
 # relationship_folder = os.path.join(test_home_folder, "relationship")

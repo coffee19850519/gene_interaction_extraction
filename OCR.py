@@ -563,8 +563,8 @@ def ocr_text_from_image(src_folder, src_file, dst_folder, dst_name, delete=True,
     for num in range(0, len(psm)):
 
         text_path = os.path.join(dst_folder, dst_name + ".txt")
-        comm = "tesseract \"" + src_folder + "\\" + src_file + \
-            "\" \"" + dst_folder + "\\" + dst_name + "\" --oem 3 --psm " + str(psm[num]) + " -l eng+equ"
+        comm = "tesseract \"" + src_folder + "/" + src_file + \
+            "\" \"" + dst_folder + "/" + dst_name + "\" --oem 3 --psm " + str(psm[num]) + " -l eng+equ"
 
         status = subprocess.getoutput(comm)
         result = ''
@@ -589,7 +589,7 @@ def ocr_text_from_image(src_folder, src_file, dst_folder, dst_name, delete=True,
 
 if __name__ == '__main__':
     # result_folder = r'C:\Users\LSC-110\Desktop\results\cin_00003'
-    image_folder = r'C:\Users\hefe\Desktop\deskew'
+    image_folder = r'/Users/orion/Desktop/use_case1/predict/deskew'
     results = []
     for image_file in os.listdir(image_folder):
         image_name, image_ext = os.path.splitext(image_file)
