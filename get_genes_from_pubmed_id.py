@@ -84,14 +84,14 @@ def get_annotated_sentences(pubtatorobj):
                 important_sentences.add(sentences[idx])
     return result
 
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        if len(sys.argv) == 2:
-            articleid = sys.argv[1]
+def run(PMID):
+    if len(PMID) > 0:
+        if len(PMID) == 1:
+            articleid = PMID[0]
             idtype = 'pmcids' if 'PMC' in articleid else 'pmids'
-        if len(sys.argv) == 3:
-            idtype = sys.argv[2]
-            articleid = sys.argv[1]
+        if len(PMID) == 2:
+            idtype = PMID[1]
+            articleid = PMID[0]
 
 
         response = requests.get('https://www.ncbi.nlm.nih.gov/research/pubtator-api/publications/export/biocjson?{}={}&concepts=gene'.format(idtype, articleid))
@@ -120,4 +120,4 @@ if __name__ == '__main__':
     else:
         print('Need to specify id and/or id type')
 
-    pl.pipeline_go()
+    #pl.pipeline_go()

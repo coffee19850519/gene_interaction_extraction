@@ -2,9 +2,10 @@ import pandas as pd
 import codecs
 import openpyxl
 from openpyxl.utils import get_column_letter
+import cfg
 
 def excel_one_line_to_list():
-    df1 = pd.read_excel("dictionary.xlsx", usecols=[0], sheet_name='Sheet')  # 读取项目名称列,不要列名
+    df1 = pd.read_excel("dictionary.xlsx", usecols=[0], sheet_name='Sheet1')  # 读取项目名称列,不要列名
     df_li1 = df1.values.tolist()
     result1 = []
     for s_li1 in df_li1:
@@ -34,7 +35,7 @@ def deal(result):
     df = pd.DataFrame(name_list, columns=['Name:'])
 
     # 保存到本地excel
-    df.to_excel("/Users/orion/Desktop/use_case1/predict/gene_dictionary.xlsx", index=False)
+    df.to_excel(cfg.dictionary_path, index=False)
 
 def txt_to_xlsx(filename,outfile):
 

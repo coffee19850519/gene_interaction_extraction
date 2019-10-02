@@ -12,13 +12,12 @@ from predict_relationship import generate_relationship_shapes, predict_relations
 from get_pdf_from_image import pdf_from_image_name
 from text_mining.biomedpdf_reader import  biomedpdf_reader
 from text_mining.gene_stat_collector import get_pair_counts, counted_score
+import get_genes_from_pubmed_id as GGFPI
 os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 
-#if __name__ == '__main__':
-
-def pipeline_go():
+if __name__ == '__main__':
 
     if not os.path.isdir(cfg.predict_folder):
         os.mkdir(cfg.predict_folder)
@@ -37,7 +36,8 @@ def pipeline_go():
                                                  cfg.num_channels)
 
     #insert new dictionary here
-
+    PMID = ['PMC5970946']
+    GGFPI.run(PMID)
 
 
     user_words = load_dictionary_from_excl(col_num=0)

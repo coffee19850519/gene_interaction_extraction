@@ -6,6 +6,8 @@ from OCR import display
 import cfg
 
 
+
+
 def read_excel_data_by_name(file_name):
     table = None
     error_msg = None
@@ -91,6 +93,7 @@ def load_ground_truth_into_excl(col_num):
         wb.save(cfg.dictionary_path)
 
         display("\n" + "Finished loading ground truth into dictionary" + "\n", file=cfg.log_file)
+
 
 
 if __name__ == '__main__':

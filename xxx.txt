@@ -1,398 +1,165 @@
 
+Non-Small Cell Lung Carcinoma
 NSCLC
-metformin
-AMP
-non-small cell lung cancer
-Akt
-mTOR
-LKB1
-AMPK
-p53
-child
-lung cancer
-tumor
-cancer
-Metformin
-diabetic
-malignancy
-Non-small cell lung cancer
 patients
-stage tumors
-RTOG-0617
-Platinum
-deaths
-Non-Small Cell Lung Cancer
-squamous cell carcinomas
-adenocarcinomas
-cell carcinomas
-Epidermal Growth Factor Receptor
-EGFR
-K-Ras
-TP53
-Liver Kinase B 1
-lung cancers
-RTOG 0324
-Raf
-Mek
-Erk
-mammalian Target of Rapamycin
-TSC2
-Rheb
-PRAS40
-mTORC1
-mLST8
-p70S6-kinase
-p70s6k
-eIF4E binding protein 1
-4EBP1
-Sterol Regulatory Element-Binding Proteins (SREBP) 1a
-c and 2
-ACLY
-ACC1
-FASN
-SREBP1a and 1c
-SREBP2
-Raptor
-MRE11
-ATM
-histone H2Ax
-p21cip1
-ATM-AMPK
-cholesterol
-fatty acid
-tumors
-Tuberous Sclerosis Complex
-Phosphatidyl-inositol
-Tuberous Sclerosis Complex 2
-glucose
-mammalian
-xenografts
-pneumonitis
-Phosphatidylinositol
-Lung adenocarcinomas
-ATR
-Chk1
-Chk2
-Cdk2
-Cdk1
-Ataxia Telengiectasia
-solid tumors
-F18-FDG
-Hypoxia of the tumor
-2-deoxy-D-glucose
-18F
-oxygen
-Glucose transport and glycolysis
-GLUT1
-glucose-6-phosphate
-Glucose metabolism
-ATP Citrate Lyase
-fatty acid synthase
-HMG-CoA reductase
-HMGR
-malonyl-CoA
-ATP
-HMG-CoA
-acetoacetyl-CoA
-tricarboxylate
-geranyl-PP diphosphates
-acetyl-CoA
-TCA
-pyruvate
-isoprenoids
-palmitic acid
-Acetyl-CoA
-pentose phosphate
-Malonyl-CoA
-ribose 5-phosphate
-farnesyl-PP
-ADP
-Cholesterol
-Acetyl CoA
-Glucose
-mevalonate
-citrate
-Fatty acid synthase
-HMG-CoA Reductase
-glutamine
-statins
-Citrate
-mouse
-colon cancer
-aggressive tumors
-lung and colon cancer
-lovastatin
-Lkb1
-lung adenocarcinomas
-hamartomas
-Peutz-Jeghers syndrome
-lung cancer carcinogenesis
-polyps
-adenomatous hyperplasia
-invasive disease
-(beta1
-beta2
-cystathionine beta synthase
-AMPK beta1
-yeast
-C. Elegans
-Human
-humans
-salicylate
-hypoxia
-A-769662
-threonine
-carbohydrate
-Ser
-insulin
-Insulin-like growth factor I
-Insulin Receptor Substrate (IRS)-1
-B-RAF
-MEK
-ERK
-BRAF
-Kinase Suppressor of Ras (KSR) 1
-IGF-1
-TSC1
-p70-S6 kinase
-p70S6K
-eukaryotic initiation factor 4E
-eIF4E) binding protein 1
-Thr1227
-Tuberous Sclerosis 2
-ACC2
-obese
-Ser212
-alanine
-sterol
-p27kip1
-mitosis
-glucose deprivation
-HIF1alpha
-FOXO3a
-SREBP1c
-Bcl-2
-caspase 6
-vascular endothelial growth factor
-VEGF
-O3
-hepatic glucose output
-glucose metabolism
-hepatic gluconeogenesis
-AMPKalpha1
-sestrin 2
-mice
-human
-MEFs
-A549
-cytotoxicity in NSCLC
-toxicity
-diabetics
-METFORMIN
-buformin
-1-(diaminomethylidene)-3,3-dimethyl-guanidine
-biguanide
-non-alcoholic liver disease
-guanidine
-phenoformin
-galega officinalis
-galegine
-biguanides
-lactic acidosis
-polycystic ovary syndrome
-small cell lung cancer
-phenformin
-Oxygen
-LLC1
-Caveolin-1
-Adenoviral
-CALU-1
-CALU-6
-CALU-3
-GLC82
-Cisplotin
-H460
-H838
-Paclitaxel
-PC9
-gefitinib
-cisplatin
-Cisplatin
-Al
-Phenformin
-Gefitinib
-Ashinuma etal
-lung tumorigenesis
-NNK
-IP Gefitnib Cisplatin
-Doxorubicin Carboplatin Paclitaxel
-LKB-1
-adenovirus
-Adenocarcinoma
-adenocarcinoma lines
-SK-MES
-N
-squamous cell carcinoma
-IGF-I
-epidermoid cancer
-breast cancer
-etoposide
-acidosis
-Hypoxia induced factor (HIF)1
-NDI1
-HIF1a
-Saccharomyces cerevisiae
-hypoxic tumor
-NADH
-rapamycin
-doxorubicin
-paclitaxel
-cytotoxicity
-irradiated lung cancer
-KU60019
-HCT116
-H1299 lung adenocarcinoma
-lung tumors
-colon carcinoma
-Diabetic
-glycemia
-IN CANCER
-sulfonylureas
-diabetes
-Lung cancer
 patient
-prostate cancer
-type II diabetic
-thiazolidenediones
+non-small cell lung carcinoma
+lung cancer
+lung cancers
+tumors
+Lung cancer
+small cell lung carcinoma
+SCLC
 adenocarcinoma
-cisplatin-etoposide
-diabetic and non-diabetic
-Patients
-male
-III disease
-type II diabetes
-www.ClinicalTrials.govOctober 2016
-Oct
-Weight Loss
-IL6
-IGF1
-IGFBP3
-Women
-p70S6k
-Non Small Cell Lung Cancer
-carboplatin
-METRO
-Adeno-carcinoma of lung
-platinum
-Carbohydrate
-Non-small Cell Lung Cancer
-toxicity Active NOT Recruiting NSCLC Locally Advanced NSCLC
-Recruiting NSCLC
-Carboplatin
-Non-squamous Non-small Cell Lung Cancer
-Toxicity
-NCT01717482
-RTOG-GOG
-carboplatin-paclitaxel
-OCOG
-MD Anderson Cancer
-temsirolimus
-IGF binding protein 3
-weight loss
-NCT02145559
-sirolimus
-cell lung cancer
-Non-Small-Cell Lung Cancer
-non-small-cell lung cancer
-oat
-carcinoma of the lung
-non-small-cell lung carcinoma
-vindesine
-mitomycin
-RTOG 0617
-small-cell lung cancer
+ADC
+squamous cell carcinoma
+SqCC
+tumor
+EGFR
 epidermal growth factor receptor
-AKT
-head and neck cancer
-mammalian target of rapamycin
-K-RAS
-Everolimus
-pulmonary toxicity
-Insulin-Like Growth Factor-1 Receptor
-Mammalian
-Mammalian Target of Rapamycin
-CHK1
-CHK2
-p21
-GLUT-1
-laryngeal carcinoma
-apigenin
-serine
-PKB
-Statins
-ATP citrate lyase
-colorectal cancer
-ATP-citrate lyase
-cancer metabolism
-phosphatidylinositol
-orlistat
-metastasis of orthotopic tongue oral squamous cell carcinomas
+EML4-ALK
+EML4
+ALK
+LKB1
+STK11
+NF1
+CDKN2A
+SMARCA4
+KEAP1
 KRAS
-lung carcinoma
-AMP-activated protein kinase
-homocystinuria disease
-Health and Disease
-KSR1
-raptor
-TSC
-Insulin
-Atherosclerosis
-Hepatic Steatosis
-acetyl
-Acc1
-Acc2
-p27
-kip1
-phospho-AMPKalphaThr172
-mitosis and cytokinesis
-myeloma cells
-adenosine monophosphate
-gastric cancer
-Adenosine
-atherosclerosis
-hepatic steatosis
-DU145
-FOXO3
-Sestrin2
-Breast Cancer Cells
-Kras
-liver kinase B-1
-lung adenocarcinoma
-Etoposide
-ECa109
-ataxia telangiectasia mutated
-MCF-7 breast cancer
-HIF-1
-tumor glucose metabolism
-HER2
-HIF-1alpha
-hepatocellular carcinoma
-metastases in prostate cancer
+ROS1
+RET
+DDR2
+PTEN
+MLL2
+HLA-A
+NFE2L2
+NOTCH1
+RB1
 tyrosine
-prostate and lung cancer
-Salicylate
-prolonging tumor
-cyclin D1
-endometrial cancer
-renal insufficiency
-Mouse
-people
-type 2 diabetes
-thiazolidinedione
-nonsmall cell lung cancer
-Thiazolidinedione
-esophageal adenocarcinoma
-neck cancer treatment failure
-carcinoma growth
-tobacco
-SREBP-1
+crizotinib
+TKIs
+EML4-ALK alterations
+PD-L1
+programmed cell death ligand 1
+CD8
+PD-1
+hematoxylin
+eosin
+NSCLCs
+lung tumors
+EWSR1
+CREB1
+WWTR1
+CAMTA1
+bronchioloalveolar carcinoma
+sclerosing hemangioma" to "sclerosing pneumocytoma", and "hamartoma" to "pulmonary hamartoma
+NUT carcinoma", "pulmonary myxoid sarcoma
+myoepithelioma and myoepithelial carcinomas
+epithelioid hemangioendotheliomas
+PEComatous tumors
+malignant PEComa" and "lymphangioleiomyomatosis
+advanced disease
+cell carcinoma
+lung ADC
+necrosis
+carcinomas lack
+TTF-1
+thyroid transcription factor-1
+Napsin A
+CK5/6
+P63
+P40
+neoplasm of lung
+thyroid tumors
+neuroendocrine tumors
+carcinoid tumors
+renal cell carcinomas
+N
+pulmonary alveolar macrophages
+CK5
+TMA
+SPATS2
+ST6GALNAC1
+Lung Tumors
+gefitinib
+Erlotinib
+non-small-cell lung cancer
+lung adenocarcinoma
+squamous cell lung cancers
+Thoracic Tumors
+AKT
+mTOR
+non-small cell lung cancer
+cancer
+pulmonary squamous cell carcinoma and adenocarcinoma
+staging
+carcinoma
+Napsin A and Thyroid Transcription Factor -1
+Carcinomas of the Lung
+Malignant Mesothelioma
+CK7
+adenocarcinoma and squamous cell carcinoma of the lung
+Lung Adenocarcinomas
+p40
+p63
+Thyroid transcription factor 1
+napsin a
+pulmonary non-small carcinomas into adenocarcinoma
+Primary Squamous Cell Carcinoma
+Adenocarcinoma
+Small Cell Carcinoma of Lung
+Napsin-A
+non-small cell lung carcinomas
+human
+lung NSCLC
+tumour
+adenocarcinoma of the lung
+ERBB2
+HSP90
+KIF5B
+FGFR1
+IGF1R
+NRAS              <1
+RASA1
+AKT1
+AKT3
+MDM2
+TP53
+ERBB3
+Gefitinib
+Afatinib
+Dacomitinib
+Neratinib
+Crizotinib
+Ceritinib
+Ganetispib
+AT13387
+Tivantinib
+Cabozantinib
+Crizotinib2
+AMG102
+Vandetanib
+AZD4547
+nintedanib
+dovitinib
+HGS1036
+AXL1717
+Selumetinib
+Trametinib
+everolimus,sirolimus AUY922
+BYL719
+Vemurafenib
+GDC-0941
+MK-2206
+Everolimus
+sirolimus
+temsirolimus
+Biguanide
+PD0332991
+BAY1000394
+BH3
+Overexpression              ND              ND
+V600E
+PD- 1
+Bristol
