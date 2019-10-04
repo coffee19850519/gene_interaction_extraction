@@ -3,8 +3,8 @@ from PIL import Image, ImageDraw
 import os,label_file
 import random
 from tqdm import tqdm
-
-import cfg
+from shape_tool import generate_rect_points
+import cfg,json
 from label import shrink
 
 
@@ -120,96 +120,15 @@ def preprocess():
             show_gt_im = im.copy()
             # draw on the img
             draw = ImageDraw.Draw(show_gt_im)
-            # if o_img_fname[:3] != 'cin':
-            #     preffix, suffix = o_img_fname.split('_')
-            #     suffix = str(suffix).replace('png', 'txt')
-            #     with open(os.path.join(origin_txt_dir,
-            #                            preffix + '_label_' + suffix), 'r') as f:
-            #         # load corresponding label file
-            #         anno_list = f.readlines()
-            #
-            #     xy_list_array = np.zeros((len(anno_list), 5, 2))
-            #     for anno, i in zip(anno_list, range(len(anno_list))):
-            #         category, anno_colums = anno.strip().split('\t')
-            #         anno_colums = anno_colums.strip().split(',')
-            #         anno_array = np.array(anno_colums)
-            #
-            #         xy_list = anno_array.astype(float).reshape((4, 2))
-            #
-            #         xy_list[:, 0] = xy_list[:, 0] * scale_ratio_w
-            #         xy_list[:, 1] = xy_list[:, 1] * scale_ratio_h
-            #         xy_list = reorder_vertexes(xy_list)
-            #         # set the class label, needed one-hot encoding
-            #         if category == 'text':
-            #             num_text = num_text + 1
-            #             xy_list_array[i] = np.r_[xy_list, np.array([[0, 0]])]
-            #             # xy_list_array[i] = xy_list
-            #             _, shrink_xy_list, _ = shrink(xy_list, cfg.shrink_ratio)
-            #             shrink_1, _, long_edge = shrink(xy_list,
-            #                                             cfg.shrink_side_ratio)
-            #         elif category == 'nock':
-            #             num_nock = num_nock + 1
-            #             xy_list_array[i] = np.r_[xy_list, np.array([[0, 1]])]
-            #             _, shrink_xy_list, _ = shrink(xy_list, 0)
-            #             shrink_1, _, long_edge = shrink(xy_list,
-            #                                             0.5)
-            #             # nock_samples.append(current_file)
-            #         elif category == 'arrow':
-            #             num_arrow = num_arrow + 1
-            #             xy_list_array[i] = np.r_[xy_list, np.array([[1, 0]])]
-            #             _, shrink_xy_list, _ = shrink(xy_list, 0)
-            #             shrink_1, _, long_edge = shrink(xy_list,
-            #                                             0.5)
-            #         # else:
-            #         #     #category == 'predict'
-            #         #     xy_list_array[i] = np.r_[xy_list, np.array([[1, 1]])]
-            #         #     _, shrink_xy_list, _ = shrink(xy_list, cfg.shrink_ratio)
-            #         #     shrink_1, _, long_edge = shrink(xy_list,
-            #         #                                     cfg.shrink_side_ratio)
-            #
-            #         if cfg.DEBUG:
-            #             draw.line([tuple(xy_list[0]), tuple(xy_list[1]),
-            #                        tuple(xy_list[2]), tuple(xy_list[3]),
-            #                        tuple(xy_list[0])
-            #                        ],
-            #                       width=2, fill='green')
-            #             draw.line([tuple(shrink_xy_list[0]),
-            #                        tuple(shrink_xy_list[1]),
-            #                        tuple(shrink_xy_list[2]),
-            #                        tuple(shrink_xy_list[3]),
-            #                        tuple(shrink_xy_list[0])
-            #                        ],
-            #                       width=2, fill='blue')
-            #             vs = [[[0, 0, 3, 3, 0], [1, 1, 2, 2, 1]],
-            #                   [[0, 0, 1, 1, 0], [2, 2, 3, 3, 2]]]
-            #             for q_th in range(2):
-            #                 draw.line([tuple(xy_list[vs[long_edge][q_th][0]]),
-            #                            tuple(shrink_1[vs[long_edge][q_th][1]]),
-            #                            tuple(shrink_1[vs[long_edge][q_th][2]]),
-            #                            tuple(xy_list[vs[long_edge][q_th][3]]),
-            #                            tuple(xy_list[vs[long_edge][q_th][4]])],
-            #                           width=3, fill='yellow')
-            #     if cfg.DEBUG:
-            #         im.save(os.path.join(train_image_dir, o_img_fname))
-            #     np.save(os.path.join(
-            #         train_label_dir,
-            #         o_img_fname[:-4] + '.npy'),
-            #         xy_list_array)
-            #     if cfg.DEBUG:
-            #         show_gt_im.save(
-            #             os.path.join(show_gt_image_dir, o_img_fname))
-            #     train_val_set.append('{},{},{}\n'.format(o_img_fname,
-            #                                              d_wight,
-            #                                              d_height))
-            # else:
             # load corresponding json label file
-            category_list, coords_list, current_file = load_json_label(
+            category_list, coords_list, sub_box_list, current_file = load_json_label(
                 os.path.join(
                     origin_txt_dir, o_img_fname[:-4] + '.json'))
 
-            xy_list_array = np.zeros((len(category_list), 5, 2))
+            #xy_list_array = np.zeros((len(category_list), 5, 2))
+            xy_list_dict = {}
 
-            for category, coord, i in zip(category_list, coords_list,
+            for category, coord, sub_boxes, i in zip(category_list, coords_list,sub_box_list,
                                           range(len(category_list))):
                 xy_list = coord.astype(float)
                 xy_list[:, 0] = xy_list[:, 0] * scale_ratio_w
@@ -218,24 +137,47 @@ def preprocess():
                 # set the class label, needed one-hot encoding
                 if category == 'text':
                     num_text = num_text + 1
-                    xy_list_array[i] = np.r_[xy_list, np.array([[0, 0]])]
+                    #xy_list_array[i] = np.r_[xy_list, np.array([[0, 0]])]
+                    xy_list_dict.update({
+                        'category': category,
+                        'coords':coord,
+                        'sub_boxes':sub_boxes
+                    })
+
                     # xy_list_array[i] = xy_list
                     _, shrink_xy_list, _ = shrink(xy_list, cfg.shrink_ratio)
                     shrink_1, _, long_edge = shrink(xy_list,
                                                     cfg.shrink_side_ratio)
                 elif category == 'nock':
                     num_nock = num_nock + 1
-                    xy_list_array[i] = np.r_[xy_list, np.array([[0, 1]])]
+                    #xy_list_array[i] = np.r_[xy_list, np.array([[0, 1]])]
+                    xy_list_dict.update({
+                        'category': category,
+                        'coords': coord,
+                        'sub_boxes': sub_boxes
+                    })
                     _, shrink_xy_list, _ = shrink(xy_list, 0)
                     shrink_1, _, long_edge = shrink(xy_list,
                                                     0.5)
                     # nock_samples.append(current_file)
                 elif category == 'arrow':
                     num_arrow = num_arrow + 1
-                    xy_list_array[i] = np.r_[xy_list, np.array([[1, 0]])]
+                    #xy_list_array[i] = np.r_[xy_list, np.array([[1, 0]])]
+                    xy_list_dict.update({
+                        'category': category,
+                        'coords': coord,
+                        'sub_boxes': sub_boxes
+                    })
                     _, shrink_xy_list, _ = shrink(xy_list, 0)
                     shrink_1, _, long_edge = shrink(xy_list,
                                                     0.5)
+                elif category == 'relationship':
+
+                    xy_list_dict.update({
+                        'category': category,
+                        'coords': coord,
+                        'sub_boxes': sub_boxes
+                    })
                 # else:
                 #     #category == 'predict'
                 #     xy_list_array[i] = np.r_[xy_list, np.array([[1, 1]])]
@@ -267,17 +209,21 @@ def preprocess():
                                   width=3, fill='yellow')
             if cfg.DEBUG:
                 im.save(os.path.join(train_image_dir, o_img_fname))
-            np.save(os.path.join(
-                train_label_dir,
-                o_img_fname[:-4] + '.npy'),
-                xy_list_array)
+
+            #save the label file
+            with  open(os.path.join(
+                train_label_dir, o_img_fname[:-4] + '_label.json'),'w') as json_fp:
+                json.dump(xy_list_dict,json_fp)
+
             if cfg.DEBUG:
                 show_gt_im.save(
                     os.path.join(show_gt_image_dir, o_img_fname))
+
             train_val_set.append('{},{},{}\n'.format(o_img_fname,
                                                      d_wight,
                                                      d_height))
-            # del category_list, coords_list
+
+            del category_list, coords_list,sub_box_list, xy_list_dict
 
     train_img_list = os.listdir(train_image_dir)
     print('found %d train images.' % len(train_img_list))
@@ -297,43 +243,43 @@ def load_json_label(json_path):
     label_data = label_file.LabelFile(json_path)
     category_list = []
     coords_list = []
+    sub_box_list = []
     file_name = label_data.filename
     for shape in label_data.shapes:
         try:
+            category = label_data.generate_category(shape)
+            category_list.append(category)
             if shape['shape_type'] == 'rectangle':
-                category = label_data.generate_category(shape)
                 coord = generate_rect_points(shape)
-                category_list.append(category)
                 coords_list.append(coord)
-                del category,coord
+                del coord
             elif shape['shape_type'] == 'polygon':
-                category = label_data.generate_category(shape)
-                # if np.array(shape['points']).size != 8:
-                #     print('file:'+json_path+' label:' +str(shape['label']) )
-                coords_list.append(np.array(shape['points']).reshape((4,2)))
+                coord = np.array(shape['points']).reshape((4,2))
+                coords_list.append(coord)
                 category_list.append(category)
-                del category
             else:
-                print('we have other shape type:'+ str(shape['shape_type']))
+                print('we have other shape type:' + str(shape['shape_type']))
+
+            if category == 'relationship':
+                sub_shapes = label_data.get_sub_shape_in_relationship(shape)
+                if sub_shapes is not None:
+                    sub_boxes = []
+                    for sub_shape in sub_shapes:
+                        sub_boxes.append(sub_shape['points'])
+                    sub_box_list.append(sub_boxes)
+                    del sub_shapes,sub_boxes
+                else:
+                    #error arise when grouping relationship's sub-boxes
+                    raise Exception('illegal relationship box found in ' + file_name)
+            else:
+                sub_box_list.append(None)
+
         except:
             print('%s includes invalid annotation'%json_path)
     del  label_data
-    return category_list, coords_list, file_name
+    return category_list, coords_list, sub_box_list, file_name
 
-def generate_rect_points(shape):
-    # organize its vertex points to quadrangle
-    points = np.array(shape['points']).reshape((2, 2))
-    pt0 = np.min(points[:,0])
-    pt1 = np.min(points[:,1])
-    pt4 = np.max(points[:,0])
-    pt5 = np.max(points[:,1])
-    pt2 = pt4
-    pt3 = pt1
-    pt6 = pt0
-    pt7 = pt5
-    del  points
-    #pts = np.zeros(4, 2)
-    return np.array([[pt0, pt1],[pt2, pt3],[pt4, pt5],[pt6, pt7]]).reshape((4,2))
+
 
 
 
@@ -342,8 +288,8 @@ if __name__ == '__main__':
     #num_text = 0
     #num_arrow = 0
 
-    num_text, num_nock, num_arrow,nock_files = preprocess()
-    print('text:%d, nock:%d, arrow:%d'%(num_text,num_nock,num_arrow))
-    for file in nock_files:
-        print('figure including nock:' + str(file))
-    #load_json_label(r'C:\Users\LSC-110\Desktop\Dima\labeled\cin_00047.json')
+    # num_text, num_nock, num_arrow,nock_files = preprocess()
+    # print('text:%d, nock:%d, arrow:%d'%(num_text,num_nock,num_arrow))
+    # for file in nock_files:
+    #     print('figure including nock:' + str(file))
+    load_json_label(r'C:\Users\coffe\Desktop\Henrys Annotations\pdf_2_A_2_1289.json')

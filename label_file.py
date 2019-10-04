@@ -1,8 +1,8 @@
 import base64
 import json
 import os.path
-import cfg
-
+import numpy as np
+from shape_tool import is_smallpolygon_covered_by_largeone
 
 class LabelFileError(Exception):
     pass
@@ -19,6 +19,8 @@ class LabelFile(object):
         self.arrow_num = 0
         self.inhibit_num = 0
         self.gene_num = 0
+        self.imageHeight = 0
+        self.imageWidth = 0
 
         if filename is not None:
             self.load(filename)
@@ -55,7 +57,8 @@ class LabelFile(object):
             imagePath = data['imagePath']
             lineColor = data['lineColor']
             fillColor = data['fillColor']
-
+            width = data['imageWidth']
+            height = data['imageHeight']
             shapes = []
             for s in data['shapes']:
                 shapes.append(s)
@@ -79,6 +82,8 @@ class LabelFile(object):
         # Only replace data after everything is loaded.
         self.flags = flags
         self.shapes = shapes
+        self.imageHeight = height
+        self.imageWidth = width
         self.imagePath = imagePath
         self.imageData = image_data
         self.lineColor = lineColor
@@ -132,7 +137,6 @@ class LabelFile(object):
                 gene_names.append(gene_name)
         return gene_names
 
-
     def get_all_relations(self):
         relations = []
         for shape in self.shapes:
@@ -163,8 +167,12 @@ class LabelFile(object):
             category = 'arrow'
         elif shape['label'].split(':')[0] == 'inhibit':
             category = 'nock'
-        else:
+        elif shape['label'].split(':')[0] == 'gene':
             category = 'text'
+        elif shape['label'].split(':')[0] == 'relationship':
+            category = 'relationship'
+        else:
+            category = 'compound'
         return category
 
     def get_all_boxes_for_category(self, category_name):
@@ -182,22 +190,125 @@ class LabelFile(object):
                 text_boxes.append(shape)
         return text_boxes
 
+    def check_relationship_box(self, covered_shapes):
+        relation_symbol_amount = 0
+        for shape in covered_shapes:
+            if self.generate_category(shape) != 'text':
+                relation_symbol_amount = relation_symbol_amount + 1
+        if relation_symbol_amount != 1:
+            return False
+        else:
+            return True
+
+
+    def get_sub_shape_in_relationship(self, current_shape):
+        #get its involving entity names
+        #content = shape['label'].split(':',1)[1]
+        covered_shapes = []
+        #check all sub objects it covers
+        for shape in self.shapes:
+            #if shape is covered by current_shape
+            if shape != current_shape\
+                and is_smallpolygon_covered_by_largeone(current_shape['points'], shape['points']):
+                covered_shapes.append(shape)
+        if len(covered_shapes) > 2 and self.check_relationship_box(covered_shapes):
+            return covered_shapes
+        else:
+            #found invalid relationship box
+            #give a 'none' as a invalid marker
+            return None
+
+
+    def export_predict_correct_txt(self):
+        predict_results = []
+        correct_results = []
+        for shape in self.shapes:
+            category, content = shape['label'].split(':', 1)
+            coords = np.array (shape['points'], np.int)
+            if category == 'gene':
+                predict_temp = 'text\t'
+                correct_temp = '0@' + content + '@'
+                if len(coords) == 2:
+                    # convert it into 8-dimension
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[1][1]) + ','
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[1][1]) + '\n'
+                    correct_temp += str([[coords[0][0], coords[0][1]], [coords[1][0], coords[0][1]],[coords[1][0], coords[1][1]], [coords[0][0], coords[1][1]]]) + '\n'
+                else:
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[1][1]) + ','
+                    predict_temp += str(coords[2][0]) + ',' + str(coords[2][1]) + ','
+                    predict_temp += str(coords[3][0]) + ',' + str(coords[3][1]) + '\n'
+                    correct_temp += str(shape['points']) + '\n'
+                predict_results.append(predict_temp)
+                correct_results.append(correct_temp)
+            elif category == 'inhibit':
+                predict_temp = 'nock\t'
+                if len(coords) == 2:
+                    # convert it into 8-dimension
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[1][1]) + ','
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[1][1]) + '\n'
+                    #correct_temp += str([[coords[0][0], coords[0][1]], [coords[1][0], coords[0][1]],[coords[1][0], coords[1][1]], [coords[0][0], coords[1][1]]]) + '\n'
+                else:
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[1][1]) + ','
+                    predict_temp += str(coords[2][0]) + ',' + str(coords[2][1]) + ','
+                    predict_temp += str(coords[3][0]) + ',' + str(coords[3][1]) + '\n'
+                    #correct_temp += str(shape['points']) + '\n'
+                predict_results.append(predict_temp)
+            elif category == 'activate':
+                predict_temp = 'arrow\t'
+                if len(coords) == 2:
+                    # convert it into 8-dimension
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[1][1]) + ','
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[1][1]) + '\n'
+                else:
+                    predict_temp += str(coords[0][0]) + ',' + str(coords[0][1]) + ','
+                    predict_temp += str(coords[1][0]) + ',' + str(coords[1][1]) + ','
+                    predict_temp += str(coords[2][0]) + ',' + str(coords[2][1]) + ','
+                    predict_temp += str(coords[3][0]) + ',' + str(coords[3][1]) + '\n'
+                predict_results.append(predict_temp)
+            else:
+                continue
+
+            image_name, image_ext = os.path.splitext(self.imagePath)
+        with open(os.path.join(r'C:\Users\coffe\Desktop\test\export', image_name + '_0.6_predict.txt'),'w') as predict_fp:
+            predict_fp.writelines(predict_results)
+        with open(os.path.join(r'C:\Users\coffe\Desktop\test\export', image_name + '_0.6_correct.txt'),'w') as correct_fp:
+            correct_fp.writelines(correct_results)
+
     @staticmethod
 
     def isLabelFile(filename):
         return os.path.splitext(filename)[1].lower() == LabelFile.suffix
 
 
+
+
+
 if __name__ == '__main__':
-    ground_truth_folder = r'C:\Users\LSC-110\Desktop\ground_truth'
-    all_genes_in_gt = []
+    # ground_truth_folder = r'C:\Users\LSC-110\Desktop\ground_truth'
+    # all_genes_in_gt = []
+    # for json_file in os.listdir(ground_truth_folder):
+    #     if os.path.splitext(json_file)[-1] == '.json':
+    #         json_data = LabelFile(os.path.join(ground_truth_folder, json_file))
+    #         all_genes_in_gt.extend(json_data.get_all_text())
+    #         del json_data
+    # with open(os.path.join(ground_truth_folder, 'text_list.txt'), 'w') as gene_fp:
+    #     gene_fp.write('\n'.join(all_genes_in_gt))
+    ground_truth_folder = r'C:\Users\coffe\Desktop\test\images'
     for json_file in os.listdir(ground_truth_folder):
-        if os.path.splitext(json_file)[-1] == '.json':
+        if os.path.splitext(json_file)[-1] != '.json':
+            continue
+        else:
             json_data = LabelFile(os.path.join(ground_truth_folder, json_file))
-            all_genes_in_gt.extend(json_data.get_all_text())
-            del json_data
-    with open(os.path.join(ground_truth_folder, 'text_list.txt'), 'w') as gene_fp:
-        gene_fp.write('\n'.join(all_genes_in_gt))
+            json_data.export_predict_correct_txt()
+
 
     # with open(os.path.join(ground_truth_folder, 'gene_list.txt'),'w') as
     # gene_fp:

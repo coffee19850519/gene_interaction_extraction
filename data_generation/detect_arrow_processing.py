@@ -1,4 +1,4 @@
-import cv2,os,random,math
+import cv2,os,math
 import numpy as np
 import pandas as pd
 from label_file import LabelFile
@@ -19,54 +19,11 @@ def detect_all_contours(img, img_file):
     contours, hierarchy = cv2.findContours(binary_image_INV, cv2.RETR_CCOMP,
                                           cv2.CHAIN_APPROX_NONE)
 
-    #here is connected_analysis version
-    # image, contours, stats,_ = cv2.connectedComponentsWithStats(
-    #     binary_image_INV, connectivity= 8)
-
-    #draw each component in results
-    # for i in range(contours):
-    #
-    #     display_image = img.copy()
-
-        #display_image = cv2.cvtColor(display_image, cv2.COLOR_RGB2GRAY)
-
-        #generate mask for ith component
-        #mask = np.equal(contours, i).astype(np.int32)
-
-        #draw it on a new image
-        # display_image = cv2.bitwise_and(display_image, mask)
-        # masked_image = cv2.multiply (display_image, mask)
-        # display_image = img[mask]
-
-        #draw its bounding box
-        # cv2.rectangle(masked_image, (stats[i, cv2.CC_STAT_LEFT], stats[i,
-        #     cv2.CC_STAT_TOP]), (stats[i, cv2.CC_STAT_LEFT] + stats[i,
-        #     cv2.CC_STAT_WIDTH], stats[i, cv2.CC_STAT_TOP] + stats[i,
-        #     cv2.CC_STAT_HEIGHT]),(255, 0, 0),thickness=2)
-
-        #save the image
-        # cv2.imwrite(img_file[:-4] + '_contours' + str(i) + '.png',
-        #             labeled_img)
-        #
-        # #delete the mask, temp_image
-        # del display_image,mask, masked_image
-
-    for i in range(len(contours)):
-        # if i != 105:
-        #      continue
-
-        markedImage = img.copy()
-        # cv2.floodFill(markedImage,,contours[0],(0, 255, 0),
-        #               cv2.FLOODFILL_FIXED_RANGE )
-        # cv2.drawContours(markedImage, contours, i, (0, 255, 0), 2)
-        # cv2.imwrite(img_file[:-4] + '_contours'+ str(i) +'.png', markedImage)
-    del markedImage
-
     del binary_image
     return contours, hierarchy[0], binary_image_INV
 
 
-def match_head_and_arrow_contour(img, head_box, contours, hierarchy):
+def match_head_and_contour(img, head_box, contours, hierarchy):
     interaection_area = []
     for i in range(len(contours)):
       interaection_area.append(calculate_interaction_area(img, head_box,
@@ -75,23 +32,12 @@ def match_head_and_arrow_contour(img, head_box, contours, hierarchy):
 
       idx = interaection_area.index(max(interaection_area))
       del interaection_area
-      return [idx, hierarchy[idx][2], hierarchy[idx][3]]
+      return [idx, hierarchy[idx][2]]
 
     else:
       del interaection_area
-      # no matching arrow
-      return []
-
-    # match_contours = []
-    # for contour_idx in range(len(contours)):
-    #     interaection_area = calculate_interaction_area(img,
-    #                         head_box, contours[contour_idx])
-    #     if interaection_area > 0:
-    #
-    #         #current head match the contour, record contour information
-    #         match_contours.append([contour_idx, hierarchy[contour_idx][2],hierarchy[contour_idx][3]])
-    #
-    # return match_contours
+      # no matching
+      return None
 
 
 def  calculate_interaction_area(img, head_box, contour):
@@ -139,14 +85,12 @@ def get_angle_distance(point1, point2):
     else:
         return 0, dis
 
-
 def slope(point1, point2):
     if point1[0] !=  point2[0]:
         return  math.atan2(float(point1[1] - point2[1]), float(point1[0] -
                                                            point2[0]))
     else:
         return None
-
 
 def find_nearest_point(point, candidates):
   dis = []
@@ -156,7 +100,6 @@ def find_nearest_point(point, candidates):
   point_idx = dis.index(min(dis))
   del dis
   return candidates[point_idx], point_idx
-
 
 def get_distance_between_two_points(point1, point2):
 
@@ -176,7 +119,7 @@ def find_nearest_text(arrow_region, text_regions,sp):
   
   if len(dists)!=0:
       nearest_index = np.argmin(dists)
-      if dists[nearest_index]/diagonal<0.1:
+      if dists[nearest_index]/diagonal < 0.1:
           nearest_index=nearest_index
       else:
           nearest_index=None
@@ -519,40 +462,44 @@ def find_vertex_for_detected_arrow(img,binary_img, img_file, candidates, \
 
       #trace the path to locate
       #detected_path = []
-      detected_path = np.array([receptor_point[0],receptor_point[1], 0, 0,
-                                mean_neighbor_pixels(img,receptor_point,3)],
-                               np.float).reshape((-1, 5))
-      #cv2.circle(aggregate_img, tuple(receptor_point), 2,(255, 0, 0),
-      # thickness=-1)
-
-      activator_point, activator_neighbor,receptor_neighbor  = \
-        scoring_all_candidates(
-          aggregate_img, binary_img, receptor_point, out_head)
-      del detected_path
+      # detected_path = np.array([receptor_point[0],receptor_point[1], 0, 0,
+      #                           mean_neighbor_pixels(img,receptor_point,3)],
+      #                          np.float).reshape((-1, 5))
+      # #cv2.circle(aggregate_img, tuple(receptor_point), 2,(255, 0, 0),
+      # # thickness=-1)
+      #
+      # activator_point, activator_neighbor,receptor_neighbor  = \
+      #   scoring_all_candidates(
+      #     aggregate_img, binary_img, receptor_point, out_head)
+      # del detected_path
+      activator_point = None
+      activator_neighbor = None
+      # activate_slope = None
+      receptor_point = None
+      receptor_neighbor = None
 
     del aggregate_img, in_head,out_head
 
     return activator_point, activator_neighbor, receptor_point, receptor_neighbor
 
 def check_arrow_match_contour_overlap(current_arrow_head_box_idx,
+                                current_arrow_contour_idx,
                                 arrow_head_box_match_contour_dict,
                                 inhibit_head_box_match_contour_dict):
     #get matching contours of current head_box
-    cnt_idx = arrow_head_box_match_contour_dict[str(current_arrow_head_box_idx)]
+    #cnt_idx = arrow_head_box_match_contour_dict[current_arrow_head_box_idx]
 
     # check if there is overlap to other arrow
     for arrow_head_box_idx in range(len(arrow_head_box_match_contour_dict)):
         if arrow_head_box_idx != current_arrow_head_box_idx and \
-            (cnt_idx[0] in arrow_head_box_match_contour_dict[
-          str(arrow_head_box_idx)]):
+            (current_arrow_contour_idx in arrow_head_box_match_contour_dict[arrow_head_box_idx]):
             #current match_contour exsits in other matching contour list
             #overlapping found
             return True
     #check if there is overlap to other inhibit
     for inhibit_head_box_idx in range(len(
         inhibit_head_box_match_contour_dict)):
-        if  cnt_idx[0] in inhibit_head_box_match_contour_dict[str(
-                inhibit_head_box_idx)]:
+        if  current_arrow_contour_idx in inhibit_head_box_match_contour_dict[inhibit_head_box_idx]:
             #current match_contour exsits in other matching contour list
             #overlapping found
             return True
@@ -560,37 +507,52 @@ def check_arrow_match_contour_overlap(current_arrow_head_box_idx,
 
 
 def check_inhibit_match_contour_overlap(current_inhibit_head_box_idx,
+                                        current_inhibit_contour_idx,
                                       arrow_head_box_match_contour_dict,
                                       inhibit_head_box_match_contour_dict):
   # get matching contours of current head_box
-  cnt_idx = inhibit_head_box_match_contour_dict[str(current_inhibit_head_box_idx)]
+  #cnt_idx = inhibit_head_box_match_contour_dict[current_inhibit_head_box_idx]
 
   # check if there is overlap to other arrow
   for inhibit_head_box_idx in range(len(inhibit_head_box_match_contour_dict)):
-    if inhibit_head_box_idx != current_inhibit_head_box_idx and cnt_idx[0] in \
-        inhibit_head_box_match_contour_dict[str(inhibit_head_box_idx)]:
+    if inhibit_head_box_idx != current_inhibit_head_box_idx and current_inhibit_contour_idx in \
+        inhibit_head_box_match_contour_dict[inhibit_head_box_idx]:
       # current match_contour exsits in other matching contour list
       # overlapping found
       return True
   # check if there is overlap to other inhibit
   for arrow_head_box_idx in range(len(arrow_head_box_match_contour_dict)):
-    if cnt_idx[0] in arrow_head_box_match_contour_dict[
-      str(arrow_head_box_idx)]:
+    if current_inhibit_contour_idx in arrow_head_box_match_contour_dict[arrow_head_box_idx]:
       # current match_contour exsits in other matching contour list
       # overlapping found
       return True
   return False
 
+def get_relation_contours_by_head_box(img, relation_shapes, candidate_contours, hierarchy):
+    match_contours = {}
+    for arrow_idx in range(len(relation_shapes)) :
+        head_box = relation_shapes[arrow_idx]['points']
+        #draw the box of arrow
+        # cv2.rectangle(origin_img, tuple(head_box[0]), tuple(head_box[1]), (r,g,b), \
+        #               thickness=2)
+        match_contour_idx_list = match_head_and_contour(img, head_box,
+                                               candidate_contours, hierarchy)
+
+        #make a list for aggregating overlapping arrows
+        match_contours.update({arrow_idx : match_contour_idx_list})
+        del match_contour_idx_list, head_box
+    return  match_contours
 
 
 def find_all_arrows(img_file, label):
     origin_img = cv2.imread(img_file)
 
     arrow_shapes = label.get_all_shapes_for_category('arrow')
-    # cv2.polylines(origin_img,arrow_shapes[0]['points'],True,(255,0,0),
-    #               thickness= 2)
-    # cv2.imwrite(img_file[:-4]+ 'rect' + '.png', origin_img)
+    #relation_shapes = arrow_shapes
+    inhibit_shapes = label.get_all_shapes_for_category('nock')
+
     text_shapes = label.get_all_shapes_for_category('text')
+
     img = origin_img.copy()
     # locate_img = origin_img.copy()
     erase_all_text(img, img_file, text_shapes)
@@ -599,18 +561,12 @@ def find_all_arrows(img_file, label):
     receptor_list=[]
     activator_neighbor_list = []
     receptor_neighbor_list = []
-    arrow_match_contours = {}
-    for arrow_idx in range(len(arrow_shapes)) :
-        head_box = arrow_shapes[arrow_idx]['points']
-        #draw the box of arrow
-        # cv2.rectangle(origin_img, tuple(head_box[0]), tuple(head_box[1]), (r,g,b), \
-        #               thickness=2)
-        match_contour_idx_list = match_head_and_arrow_contour(img, head_box,
-                                               candidate_contours,hierarchy)
-                                               #,detected_list)
-        #make a list for aggregating overlapping arrows
-        arrow_match_contours.update({str(arrow_idx) : match_contour_idx_list})
-        del match_contour_idx_list, head_box
+    arrow_box = []
+
+    #get arrow contours according to arrowhead boxes
+    arrow_contours_dict = get_relation_contours_by_head_box(img, arrow_shapes, candidate_contours, hierarchy)
+    inhibit_contours_dict = get_relation_contours_by_head_box(img, inhibit_shapes, candidate_contours, hierarchy)
+
 
     for arrow_idx in range(len(arrow_shapes)) :
         # if arrow_idx != 10:
@@ -627,55 +583,52 @@ def find_all_arrows(img_file, label):
                       head_box[0]]
         head_box = np.array(head_box, np.int32).reshape((-1, 2))
 
-        cnt_idx = arrow_match_contours[str(arrow_idx)]
-        for cnt in cnt_idx:
-          vertex_candidates_dense = cv2.approxPolyDP(candidate_contours[cnt[
-            0]],epsilon=1, closed=True)
-          vertex_candidates_loose = cv2.approxPolyDP(candidate_contours[cnt[
-            0]],epsilon=5, closed=True)
-          # cv2.drawContours(locate_img, vertex_candidates, -1, (r, g, b),
-          #                  thickness=5)
-          if cnt[1] != -1:
-              vertex_candidates_dense = np.concatenate((vertex_candidates_dense,
-                       cv2.approxPolyDP(candidate_contours[cnt[1]], epsilon=1,
-                                                      closed=True)))
-              vertex_candidates_loose = np.concatenate((vertex_candidates_loose,
-                    cv2.approxPolyDP(candidate_contours[cnt[1]],
-                         epsilon=5,closed=True)))
-          if cnt[2] != -1:
-              vertex_candidates_dense = np.concatenate((vertex_candidates_dense,
-                        cv2.approxPolyDP(candidate_contours[cnt[2]], epsilon=1,
-                                                      closed=True)))
-              vertex_candidates_loose = np.concatenate((vertex_candidates_loose,
-                         cv2.approxPolyDP(candidate_contours[
-                              cnt[2]],epsilon=5,closed=True)))
+        cnt_idx = arrow_contours_dict[arrow_idx]
+        #以下将执行三次，由于cnt_idx有三个值
+        #for cnt in cnt_idx:
+        if cnt_idx[1] != -1:
+            cnt = cnt_idx[1]
+        else:
+            cnt = cnt_idx[0]
 
-          #remove duplicated points
+        vertex_candidates_dense = cv2.approxPolyDP(candidate_contours[cnt],epsilon=1, closed=True)
+        vertex_candidates_loose = cv2.approxPolyDP(candidate_contours[cnt],epsilon=5, closed=True)
 
-          # determine which strategy should use, chech overlapping
-          if check_match_contour_overlap(arrow_idx, arrow_match_contours):
-              #exist overlapping arrows
-              activator_point, activator_neighbor, receptor_point, \
-              receptor_neighbor = \
-                find_vertex_for_detected_arrow(origin_img, binary_img,
-                    img_file,vertex_candidates_dense,head_box)
-          else:
-              # straight forward way
-              activator_point, activator_neighbor, receptor_point, receptor_neighbor = \
-                find_vertex_for_detected_arrow_by_distance(binary_img,
-                                                           vertex_candidates_loose,
-                                                           head_box)
-          del vertex_candidates_dense,vertex_candidates_loose
+        if cnt != -1:
+          vertex_candidates_dense = np.concatenate((vertex_candidates_dense,
+                   cv2.approxPolyDP(candidate_contours[cnt], epsilon=1,
+                                                  closed=True)))
+          vertex_candidates_loose = np.concatenate((vertex_candidates_loose,
+                cv2.approxPolyDP(candidate_contours[cnt],
+                     epsilon=5,closed=True)))
 
-          activator_list.append(activator_point)
-          receptor_list.append(receptor_point)
-          activator_neighbor_list.append(activator_neighbor)
-          receptor_neighbor_list.append(receptor_neighbor)
+        #remove duplicated points
 
+        # determine which strategy should use, chech overlapping
+        if check_arrow_match_contour_overlap(arrow_idx, cnt, arrow_contours_dict,inhibit_contours_dict):
+          #exist overlapping arrows
+          activator_point, activator_neighbor, receptor_point, \
+          receptor_neighbor = \
+            find_vertex_for_detected_arrow(origin_img, binary_img,
+                img_file,vertex_candidates_dense,head_box)
+        else:
+          # straight forward way
+          activator_point, activator_neighbor, receptor_point, receptor_neighbor = \
+            find_vertex_for_detected_arrow_by_distance(binary_img,
+                                                       vertex_candidates_loose,
+                                                       head_box)
+
+        del vertex_candidates_dense,vertex_candidates_loose
+
+        activator_list.append(activator_point)
+        receptor_list.append(receptor_point)
+        activator_neighbor_list.append(activator_neighbor)
+        receptor_neighbor_list.append(receptor_neighbor)
+        arrow_box.append(head_box)
     # cv2.imwrite(img_file[:-4]+'_detected.png', origin_img)
-    del img, origin_img, cnt_idx, arrow_match_contours
+    del img, origin_img, cnt_idx, arrow_contours_dict, inhibit_contours_dict, arrow_shapes, inhibit_shapes
     return activator_list, activator_neighbor_list, receptor_list, \
-           receptor_neighbor_list, text_shapes, arrow_shapes
+           receptor_neighbor_list, text_shapes, arrow_box
 
 def find_all_inhibits(img_file, label):
     origin_img = cv2.imread(img_file)
@@ -686,6 +639,8 @@ def find_all_inhibits(img_file, label):
     # cv2.imwrite(img_file[:-4]+ 'rect' + '.png', origin_img)
     inhibit_shapes = label.get_all_shapes_for_category('nock')
     text_shapes = label.get_all_shapes_for_category('text')
+    arrow_shapes = label.get_all_shapes_for_category('arrow')
+
     img = origin_img.copy()
     # locate_img = origin_img.copy()
     erase_all_text(img, img_file, text_shapes)
@@ -695,17 +650,11 @@ def find_all_inhibits(img_file, label):
     receptor_list = []
     activator_neighbor_list = []
     receptor_neighbor_list = []
-    inhibit_match_contours = {}
-    for inhibit_idx in range(len(inhibit_shapes)) :
-        head_box = inhibit_shapes[inhibit_idx]['points']
-        # draw the box of arrow
-        # cv2.rectangle(origin_img, tuple(head_box[0]), tuple(head_box[1]), (r,g,b), \
-        #               thickness=2)
-        match_contour_idx_list = match_head_and_arrow_contour(img, head_box, candidate_contours, hierarchy)
-        # make a list for aggregating overlapping arrows
-        inhibit_match_contours.update({str(inhibit_idx): match_contour_idx_list})
-        del match_contour_idx_list, head_box
 
+    inhibit_box= []
+
+    inhibit_contours_dict = get_relation_contours_by_head_box(img, inhibit_shapes, candidate_contours, hierarchy)
+    arrow_contours_dict = get_relation_contours_by_head_box(img, arrow_shapes, candidate_contours, hierarchy)
 
     for inhibit_idx in range(len(inhibit_shapes)):
         # if arrow_idx != 10:
@@ -723,53 +672,50 @@ def find_all_inhibits(img_file, label):
                         head_box[0]]
         head_box = np.array(head_box, np.int32).reshape((-1, 2))
 
-        cnt_idx = inhibit_match_contours[str(inhibit_idx)]
+        cnt_idx = inhibit_contours_dict[inhibit_idx]
         for cnt in cnt_idx:
             vertex_candidates_dense = cv2.approxPolyDP(candidate_contours[
-                                                         cnt[0]], epsilon=5, closed=True)
+                                                         cnt], epsilon=5, closed=True)
             vertex_candidates_loose = cv2.approxPolyDP(candidate_contours[
-                                                         cnt[0]], epsilon=1, closed=True)
+                                                         cnt], epsilon=1, closed=True)
 
-            if cnt[1] != -1:
+            if cnt != -1:
               vertex_candidates_dense = np.concatenate((vertex_candidates_dense,
-                   cv2.approxPolyDP(candidate_contours[cnt[1]], epsilon=5,closed=True)))
+                   cv2.approxPolyDP(candidate_contours[cnt], epsilon=5,closed=True)))
               vertex_candidates_loose = np.concatenate((vertex_candidates_loose,
-                   cv2.approxPolyDP(candidate_contours[cnt[1]],epsilon=1,closed=True)))
+                   cv2.approxPolyDP(candidate_contours[cnt],epsilon=1,closed=True)))
 
-            if cnt[2] != -1:
-              vertex_candidates_dense = np.concatenate((vertex_candidates_dense,
-                   cv2.approxPolyDP(candidate_contours[cnt[2]], epsilon=5,closed=True)))
-              vertex_candidates_loose = np.concatenate((vertex_candidates_loose,
-                   cv2.approxPolyDP(candidate_contours[cnt[2]],epsilon=1,closed=True)))
 
             # determine which strategy should use
 
-            if check_inhibit_match_contour_overlap(inhibit_idx,
-                                            inhibit_match_contours):
+            if check_inhibit_match_contour_overlap(inhibit_idx, cnt, arrow_contours_dict, inhibit_contours_dict):
                 # exist overlapping arrows
                 activator_point, activator_neighbor, receptor_point, receptor_neighbor = \
                   find_vertex_for_detected_arrow(origin_img, binary_img,
                                                                      img_file,
                                                                      vertex_candidates_dense,
                                                                      head_box)
+
             else:
                 # straight forward way
                 activator_point, activator_neighbor, receptor_point, receptor_neighbor = \
                     find_vertex_for_detected_arrow_by_distance(binary_img,
                                                                vertex_candidates_loose,
                                                                head_box)
+
+
             del vertex_candidates_dense, vertex_candidates_loose
 
             activator_list.append(activator_point)
             receptor_list.append(receptor_point)
             activator_neighbor_list.append(activator_neighbor)
             receptor_neighbor_list.append(receptor_neighbor)
-
+            inhibit_box.append(head_box)
 
     # cv2.imwrite(img_file[:-4]+'_detected.png', origin_img)
-    del img, origin_img, detected_list,inhibit_match_contours
+    del img, origin_img, detected_list,arrow_contours_dict, inhibit_contours_dict
     return activator_list, activator_neighbor_list, receptor_list, \
-           receptor_neighbor_list, text_shapes, inhibit_shapes
+           receptor_neighbor_list, text_shapes, inhibit_box
 
 
 def find_all_arrows_for_straight_line(img_file, label):
@@ -837,7 +783,7 @@ def find_all_arrows_for_straight_line(img_file, label):
                   head_box[0]]
     head_box = np.array(head_box, np.int32).reshape((-1, 2))
 
-    cnt_idx = arrow_match_contours[str(arrow_idx)]
+    cnt_idx = arrow_match_contours[arrow_idx]
 
     vertex_candidates = cv2.approxPolyDP(candidate_contours[cnt_idx[
       0]], epsilon=5, closed=True)
@@ -957,7 +903,7 @@ def find_all_inhibits_for_straight_line(img_file, label):
                   head_box[0]]
     head_box = np.array(head_box, np.int32).reshape((-1, 2))
 
-    cnt_idx = inhibit_match_contours[str(inhibit_idx)]
+    cnt_idx = inhibit_match_contours[inhibit_idx]
 
     vertex_candidates = cv2.approxPolyDP(candidate_contours[cnt_idx[0]], epsilon=5,
                                                closed=True)
@@ -1033,8 +979,6 @@ def find_best_text(arrow_region, text_regions, arrow_neighbor,sp,arrow_dist,reve
   dist_merge = []
   dist_cs = []
   dist_ls = []
-  heigth=sp[0]
-  width=sp[1]
   diagonal=np.sqrt(sp[0]**2+sp[1]**2)
   for text_r in text_regions:
     dist_c = dist_center(arrow_region, text_r)
@@ -1057,12 +1001,12 @@ def find_best_text_merge(activator,receptor,text_centers,activator_neighbor,rece
     arrow_dist = dist_center(activator,receptor)
     best_activator_index =find_best_text(activator,text_centers,activator_neighbor,sp,arrow_dist,receptor)
     best_receptor_index =find_best_text(receptor,text_centers,receptor_neighbor,sp,arrow_dist,activator)
-    if best_activator_index is None: #delete best receptor text index and try again
+    if best_activator_index is None and best_receptor_index is not None: #delete best receptor text index and try again
        text_left = text_centers.copy()
        text_left[best_receptor_index]=(-100,-100) # one impossible value
        best_activator_index =find_best_text(activator,text_left,activator_neighbor,sp,arrow_dist,receptor)
        
-    if best_receptor_index is None: #delete best activator text index and try again
+    if best_receptor_index is None and best_activator_index is not None  : #delete best activator text index and try again
        text_left = text_centers.copy()
        text_left[best_activator_index]=(-100,-100) # one impossible value
        best_receptor_index =find_best_text(receptor,text_left,receptor_neighbor,sp,arrow_dist,activator)
@@ -1197,15 +1141,19 @@ def find_best_text_for_straight_line(arrow_region,text_regions,vx,vy,x,y,sp):
 
 ####I only need arrows_with_overlap !
 def pair_gene(activator_list,activator_neighbor_list,receptor_list,
-              receptor_neighbor_list,text_shapes,arrows_with_overlap,
-              result_folder, image_folder, image_file):
-    ori_img = cv2.imread(os.path.join(image_folder, image_file))
+              receptor_neighbor_list,text_shapes,
+              arrow_box,
+              image_path):
+    ori_img = cv2.imread(image_path)
     sp = ori_img.shape
     text_regions = []
     text_genename=[]
     relationships=[]
-    #connect_regions1 =[]
-    #connect_regions2 =[]
+    #for return values
+    relationship_tuple_pairs = []
+    relationship_descriptions = []
+    relationship_bounding_boxes = []
+
     apart_theta = 18
     dist_thre = 10  # should depend on the size of picture!
     ####get candidate text regions
@@ -1231,6 +1179,7 @@ def pair_gene(activator_list,activator_neighbor_list,receptor_list,
            activator_neighbor = receptor
         elif dist_center(activator_neighbor,activator)<=0.1*dist_ar:
            activator_neighbor = receptor
+
         
         if receptor_neighbor is None:
            receptor_neighbor = activator
@@ -1253,9 +1202,20 @@ def pair_gene(activator_list,activator_neighbor_list,receptor_list,
                 dist_arrows * 0.8:
                 activator_geo=text_regions[best_activator_index]
                 receptor_geo=text_regions[best_receptor_index]
-                activator_gene = text_genename[best_activator_index]
-                receptor_gene = text_genename[best_receptor_index]
-                relationship=activator_gene.split(':', 1)[1]+'|'+receptor_gene.split(':',1)[1]
+                try:
+                    activator_gene = str(text_genename[best_activator_index]).split(':',1)[1]
+                    receptor_gene = str(text_genename[best_receptor_index]).split(':',1)[1]
+                    relationship= activator_gene+'|'+receptor_gene
+                except:
+                    continue
+                relationship_tuple_pairs.append((activator_gene, receptor_gene))
+                relationship_descriptions.append(relationship)
+                relationship_bounding_boxes.append({
+                    'relationship_bounding_box':arrow_box,
+                    'entity1_bounding_box':activator_geo,
+                    'entity2_bounding_box':receptor_geo
+                })
+
                 #print(relationship+"\n")
                 #connect_regions1.append(([receptor_geo[0][0],receptor_geo[0][
             # 1],receptor_geo[1][0],receptor_geo[1][1]],[activator_geo[0][
@@ -1270,9 +1230,9 @@ def pair_gene(activator_list,activator_neighbor_list,receptor_list,
     ####pairing for overlapping arrows
     ori_img_binary = binary_image_for_line(ori_img.copy())
     arrowindex = 0
-    for arrow in arrows_with_overlap:
+    for arrow in arrow_box:
         #print("for receptor :"+str(arrowindex))
-        arrow_region = arrow['points']
+        arrow_region = arrow
         acenter = ((arrow_region[0][0]+arrow_region[1][0])/2, (arrow_region[0][1]+arrow_region[1][1])/2) #arrows center
         receptor_index = find_nearest_text(acenter,text_centers,sp)#receptor text index
         if receptor_index is None:
@@ -1301,10 +1261,10 @@ def pair_gene(activator_list,activator_neighbor_list,receptor_list,
                         #print("2 arrow line dist is ok!")
                         from_assign.append(text_regions[i])
                         from_centers.append(from_center)
-                        
-        
+
+
         if from_assign and receptor_index is not None:
-           best_index = find_best_text_for_straight_line(acenter,from_centers,vx,vy,x,y,sp)# by nearest text to arrows center and nearest dist to arrows line! 
+           best_index = find_best_text_for_straight_line(acenter,from_centers,vx,vy,x,y,sp)# by nearest text to arrows center and nearest dist to arrows line!
            arrow_seeds = get_candidate_seeds2(arrow_region)#[(int(x),int(y))]
            from_seed,out_box2,in_box2 = get_candidate_seeds(from_assign[best_index],ori_img_binary.shape[1],ori_img_binary.shape[0],scale_out=2)
            if detect_connect_regions(arrow_seeds,from_seed,ori_img_binary.copy()):
@@ -1312,22 +1272,34 @@ def pair_gene(activator_list,activator_neighbor_list,receptor_list,
               activator_geo=from_assign[best_index]
               receptor_geo=region_target
               activator_index =  text_regions.index(activator_geo)
-              activator_gene = text_genename[activator_index]
-              receptor_gene = text_genename[receptor_index]
-              relationship=activator_gene.split(':',1)[1]+'|'+receptor_gene.split(':',1)[1]
+              try:
+                  activator_gene = str(text_genename[best_activator_index]).split(':', 1)[1]
+                  receptor_gene = str(text_genename[best_receptor_index]).split(':', 1)[1]
+                  relationship = activator_gene + '|' + receptor_gene
+              except:
+                  continue
+
+              relationship_tuple_pairs.append((activator_gene, receptor_gene))
+              relationship_descriptions.append(relationship)
+              relationship_bounding_boxes.append({
+                  'relationship_bounding_box': arrow_region,
+                  'entity1_bounding_box': activator_geo,
+                  'entity2_bounding_box': receptor_geo
+              })
+
               #print(relationship+"\n")
               #connect_regions2.append(([receptor_geo[0][0],receptor_geo[0][1],receptor_geo[1][0],receptor_geo[1][1]],[activator_geo[0][0],activator_geo[0][1],activator_geo[1][0],activator_geo[1][1]]))
            else:
                 relationship = ''
         else:
             relationship = ''
-        
+
         relationships.append(relationship)
         arrowindex+=1
-    
+    #
     #!!!!!!!!!keep the unique relationship!!!!!!!
     #relationships=list(set(relationships))
-    return relationships
+    return relationship_tuple_pairs, relationship_descriptions, relationship_bounding_boxes
 
 #def pair_gene(activator_list,activator_neighbor_list,receptor_list,
 #              receptor_neighbor_list,text_shapes,result_folder, image_folder, image_file):

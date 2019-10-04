@@ -1,9 +1,7 @@
-import numpy as np
-import cv2, math
-from generate_inhibits import *
+import math
+from data_generation.generate_inhibits import *
 import os
 from label_file import LabelFile
-from PIL import Image, ImageDraw
 from keras.preprocessing.image import ImageDataGenerator
 import shutil
 
@@ -53,56 +51,11 @@ def gettrans_Point(point, rotate_img, tr):
   return [int(dst_x), int(dst_y)]
 
 
-def generate_rect_points(shape):
-  # organize its vertex points to quadrangle
-  points = np.array(shape['points']).reshape((2, 2))
-  pt0 = np.min(points[:, 0])
-  pt1 = np.min(points[:, 1])
-  pt4 = np.max(points[:, 0])
-  pt5 = np.max(points[:, 1])
-  pt2 = pt4
-  pt3 = pt1
-  pt6 = pt0
-  pt7 = pt5
-  del points
-  # pts = np.zeros(4, 2)
-  return np.array([[pt0, pt1], [pt2, pt3], [pt4, pt5], [pt6, pt7]]).reshape(
-      (4, 2))
-
-
-def load_json_label(json_path):
-  label_data = LabelFile(json_path)
-  category_list = []
-  coords_list = []
-  file_name = label_data.filename
-  for shape in label_data.shapes:
-    try:
-      if shape['shape_type'] == 'rectangle':
-        category = label_data.generate_category(shape)
-        coord = generate_rect_points(shape)
-        coords_list.append(coord)
-        category_list.append(category)
-        del category, coord
-      elif shape['shape_type'] == 'polygon':
-        category = label_data.generate_category(shape)
-        # if np.array(shape['points']).size != 8:
-        #     print('file:'+json_path+' label:' +str(shape['label']) )
-        coords_list.append(np.array(shape['points']).reshape((4, 2)))
-        category_list.append(category)
-        del category
-      else:
-        print('we have other shape type:' + str(shape['shape_type']))
-    except:
-      print('%s includes invalid annotation' % json_path)
-
-  del label_data
-  return category_list, coords_list, file_name
-
 
 def data_augment(img_file, txt_file, rotate_folder):
   img = cv2.imread(img_file)
-  category_list, coords_list, file_name = load_json_label(txt_file)
   rotate_label_data = LabelFile(txt_file)
+  category_list, coords_list, file_name = rotate_label_data.load_json_label(txt_file)
   generator = ImageDataGenerator()
   transform_list = ['flip_horizontal', 'flip_vertical']
   filename = os.path.split(img_file)[-1]

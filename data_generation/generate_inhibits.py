@@ -283,7 +283,7 @@ def generate_inhibit(img, file_name, arrow_boxes, head_boxes):
   return simulation_img, inhibit_box_list
 
 
-def simulate_inhibit_perimg(img_fold, image, sim_json_fold, ceiling_ratio):
+def simulate_inhibit_per_img(img_fold, image, sim_json_fold, ceiling_ratio):
   img_file = os.path.join(img_fold, image)  # single img_file
   suffixlen = len(image.split('.')[-1]) + 1
   label_file = os.path.join(img_fold, image[:-suffixlen] + '.json')
@@ -335,5 +335,5 @@ if __name__ == "__main__":
    img_fold = r'C:\Users\LSC-110\Desktop\cxtest\test_img'
    sim_json_fold = r'C:\Users\LSC-110\Desktop\cxtest\test_sim'
    image = r'_pmc_articles_instance_3887408_bin_leu2013184f1.jpg'
-   simulate_inhibit_perimg(img_fold,image,sim_json_fold, 0.5)
+   simulate_inhibit_per_img(img_fold,image,sim_json_fold, 0.5)
 #

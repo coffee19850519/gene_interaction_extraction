@@ -1,14 +1,14 @@
 import os
 from label_file import LabelFile
-import cv2
+import cv2, cfg
 import numpy as np
 
 
 def to_labelme(image_name,
                image_txt,
+               threshold,
                predicted_relation_boxes,
                predicted_relation_description,
-               ocr_path,
                to_labelmefolder,
                current_img):
     colorarrow = [255, 0, 0, 128]
@@ -17,95 +17,51 @@ def to_labelme(image_name,
     shapes = []
     index = 0
     result_string = ''
+    predict_path = os.path.join(cfg.predict_folder, image_name + '_' + str(threshold) + '_predict.txt')
+    ocr_path = os.path.join(cfg.predict_folder, image_name + '_' + str(threshold) + '_correct.txt')
     # annotation by CX:2019/4/4
     # f = open(os.path.join(to_labelmefolder,fename[:-8])+'.json', 'a', encoding="utf-8")
     #读取predict后的txt取出arror信息
-    for box,description in zip(predicted_relation_boxes, predicted_relation_description):
-        tempDict = {}
-        tempDict['label'] = description
-        if description.strip().split(':',1)[0] == 'activate':
-            tempDict['line_color'] = colorarrow
-        elif  description.strip().split(':',1)[0] == 'inhibit':
-            tempDict['line_color'] = colorinhibit
-        tempDict['fill_color'] = None
-        tempDict['points'] = box['relationship_bounding_box']
-        tempDict['shape_type'] = 'polygon'
-        tempDict['alias'] = 'name'
-        shapes.append(tempDict)
-        #plot the index and box into current_img
-        # cv2.drawContours(current_img,np.array(box['relationship_bounding_box']), -1, tempDict['line_color'], thickness=2)
-        # cv2.putText(current_img, str(index), (box['relationship_bounding_box'][3][0] - 5,
-        #                                       box['relationship_bounding_box'][3][1] - 5),
-        #                                         cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 0, 0))
-        result_string += str(index) + '\t' + description + '\n'
-        index += 1
-        del tempDict
-
-    # with open(predict_path, 'r') as pre_res:
-    #     pre_results = pre_res.readlines()
-    #     for pre_each in pre_results:
-    #         tempDict = {}
-    #         points = []
-    #         shape, str_coords = str(pre_each).strip().split('\t',1)
-    #         if shape== 'arrow':
-    #             tempDict['label'] = 'activate:'
-    #             tempDict['line_color'] = colorarrow
-    #             tempDict['fill_color'] = None
-    #             A=str_coords.replace('[','')
-    #             A=A.replace(']','')
-    #             A=A.split(',')
-    #             x1=int(A[0])
-    #             y1=int(A[1])
-    #             x2=int(A[2])
-    #             y2=int(A[3])
-    #             x3 = int(A[4])
-    #             y3 = int(A[5])
-    #             x4 = int(A[6])
-    #             y4 = int(A[7])
-    #             A1 = (x1, y1)
-    #             A2 = (x2, y2)
-    #             A3 = (x3, y3)
-    #             A4 = (x4, y4)
-    #             points.append(A1)
-    #             points.append(A2)
-    #             points.append(A3)
-    #             points.append(A4)
-    #             tempDict['points'] = points
-    #             del (points)
-    #             tempDict['shape_type'] = 'polygon'
-    #             tempDict['alias'] = 'name'
-    #             shapes.append(tempDict)
-    #         elif shape=='text':
-    #             pass
-    #         elif shape=='nock':
-    #             tempDict['label'] = 'inhibit:'
-    #             tempDict['line_color'] = colorinhibit
-    #             tempDict['fill_color'] = None
-    #             A = str_coords.replace('[', '')
-    #             A = A.replace(']', '')
-    #             A = A.split(',')
-    #             x1 = int(A[0])
-    #             y1 = int(A[1])
-    #             x2 = int(A[2])
-    #             y2 = int(A[3])
-    #             x3 = int(A[4])
-    #             y3 = int(A[5])
-    #             x4 = int(A[6])
-    #             y4 = int(A[7])
-    #             A1 = (x1, y1)
-    #             A2 = (x2, y2)
-    #             A3 = (x3, y3)
-    #             A4 = (x4, y4)
-    #             points.append(A1)
-    #             points.append(A2)
-    #             points.append(A3)
-    #             points.append(A4)
-    #             tempDict['points'] = points
-    #             del (points)
-    #             tempDict['shape_type'] = 'polygon'
-    #             tempDict['alias'] = 'name'
-    #             shapes.append(tempDict)
-
+    with open(predict_path, 'r') as pre_res:
+        pre_results = pre_res.readlines()
+        for pre_each in pre_results:
+            tempDict = {}
+            points = []
+            shape, str_coords = str(pre_each).strip().split('\t',1)
+            if shape== 'arrow':
+                tempDict['label'] = 'activate:'
+                tempDict['line_color'] = colorarrow
+            elif shape == 'nock':
+                tempDict['label'] = 'inhibit:'
+                tempDict['line_color'] = colorinhibit
+            else:
+                continue
+            tempDict['fill_color'] = None
+            A=str_coords.replace('[','')
+            A=A.replace(']','')
+            A=A.split(',')
+            x1=int(float(A[0]))
+            y1=int(float(A[1]))
+            x2=int(float(A[2]))
+            y2=int(float(A[3]))
+            x3 = int(float(A[4]))
+            y3 = int(float(A[5]))
+            x4 = int(float(A[6]))
+            y4 = int(float(A[7]))
+            A1 = (x1, y1)
+            A2 = (x2, y2)
+            A3 = (x3, y3)
+            A4 = (x4, y4)
+            points.append(A1)
+            points.append(A2)
+            points.append(A3)
+            points.append(A4)
+            tempDict['points'] = points
+            del (points)
+            tempDict['shape_type'] = 'polygon'
+            tempDict['alias'] = 'name'
+            shapes.append(tempDict)
+            del tempDict
             # elif shape=='bind':
                 # return shape, str_coords
     #读取OCR->correction后的txt
@@ -121,14 +77,14 @@ def to_labelme(image_name,
             A=str_coords.replace('[','')
             A=A.replace(']','')
             A=A.split(',')
-            x1=int(A[0])
-            y1=int(A[1])
-            x2=int(A[2])
-            y2=int(A[3])
-            x3=int(A[4])
-            y3=int(A[5])
-            x4=int(A[6])
-            y4=int(A[7])
+            x1 = int(float(A[0]))
+            y1 = int(float(A[1]))
+            x2 = int(float(A[2]))
+            y2 = int(float(A[3]))
+            x3 = int(float(A[4]))
+            y3 = int(float(A[5]))
+            x4 = int(float(A[6]))
+            y4 = int(float(A[7]))
             A1 =(x1,y1)
             A2 =(x2,y2)
             A3 =(x3,y3)
@@ -145,12 +101,33 @@ def to_labelme(image_name,
             # plot the index and box into current_img
             # cv2.drawContours(current_img, np.array(tempDict['points']), -1, tempDict['line_color'], thickness=2)
             # cv2.putText(current_img, str(index), (A3[0] - 5, A3[1] - 5),
-            #             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 0, 0))
+            #             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, tempDict['line_color'] )
 
             result_string += str(index) + '\t' + OCR_result + '\n'
             index += 1
             del tempDict
             # return shape, str_coords
+
+    #update relation prediction information
+    for box, description in zip(predicted_relation_boxes, predicted_relation_description):
+        for current_shape in shapes:
+            if len(box['relationship_bounding_box']) >= 4:
+                points = [(box['relationship_bounding_box'][0][0],box['relationship_bounding_box'][0][1]),
+                                                    (box['relationship_bounding_box'][1][0],box['relationship_bounding_box'][1][1]),
+                                                    (box['relationship_bounding_box'][2][0],box['relationship_bounding_box'][2][1]),
+                                                    (box['relationship_bounding_box'][3][0],box['relationship_bounding_box'][3][1])]
+
+
+            if  current_shape['points'] == points:
+                current_shape['label'] = description
+                # plot the index and box into current_img
+                # cv2.drawContours(current_img,np.array(box['relationship_bounding_box']), -1, tempDict['line_color'], thickness=2)
+                # cv2.putText(current_img, str(index), (box['relationship_bounding_box'][3][0] - 5,
+                #                                       box['relationship_bounding_box'][3][1] - 5),
+                #             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, tempDict['line_color'])
+                result_string += str(index) + '\t' + description + '\n'
+                index += 1
+
     #         annotation by CX 2019/4/4
     # tempDict3['version'] = '3.6.1'
     # tempDict3['flags'] = {}
@@ -168,13 +145,133 @@ def to_labelme(image_name,
     # print(tempJson)
     #call save function 2019/4/4
     label= LabelFile()
-    label.save(os.path.join(to_labelmefolder, image_name + '.json'),
+    label.save(os.path.join(to_labelmefolder, image_name + '_' + str(threshold) + '.json'),
                shapes,
                image_name + image_txt,
                None,None,None,None,{})
     return result_string
         ########################################
         # coords = np.array(str(str_coords).strip().split(','),np.int32).reshape((4, 2))
+
+
+def predict_to_labelme(image_file,predict_path,ocr_path,to_labelmefolder):
+    colorarrow = [255, 0, 0, 128]
+    colorinhibit = [0, 255, 0, 128]
+    colorgene = [0, 0, 0, 128]
+    shapes = []
+    #分隔文件名和扩展名
+    file_name,file_ext=os.path.splitext(image_file)
+    # annotation by CX:2019/4/4
+    # f = open(os.path.join(to_labelmefolder,fename[:-8])+'.json', 'a', encoding="utf-8")
+    #读取predict后的txt取出arror信息
+    with open(predict_path, 'r') as pre_res:
+        pre_results = pre_res.readlines()
+        for pre_each in pre_results:
+            tempDict = {}
+            points = []
+            shape, str_coords = str(pre_each).strip().split('\t')
+            if shape== 'arrow':
+                tempDict['label'] = 'activate:'
+                tempDict['line_color'] = colorarrow
+                tempDict['fill_color'] = None
+                A=str_coords.replace('[','')
+                A=A.replace(']','')
+                A=A.split(',')
+                x1=int(A[0])
+                y1=int(A[1])
+                x2=int(A[2])
+                y2=int(A[3])
+                x3 = int(A[4])
+                y3 = int(A[5])
+                x4 = int(A[6])
+                y4 = int(A[7])
+                A1 = (x1, y1)
+                A2 = (x2, y2)
+                A3 = (x3, y3)
+                A4 = (x4, y4)
+                points.append(A1)
+                points.append(A2)
+                points.append(A3)
+                points.append(A4)
+                tempDict['points'] = points
+                del (points)
+                tempDict['shape_type'] = 'polygon'
+                tempDict['alias'] = 'name'
+                shapes.append(tempDict)
+            elif shape=='text':
+                pass
+            elif shape=='nock':
+                tempDict['label'] = 'inhibit:'
+                tempDict['line_color'] = colorinhibit
+                tempDict['fill_color'] = None
+                A = str_coords.replace('[', '')
+                A = A.replace(']', '')
+                A = A.split(',')
+                x1 = int(A[0])
+                y1 = int(A[1])
+                x2 = int(A[2])
+                y2 = int(A[3])
+                x3 = int(A[4])
+                y3 = int(A[5])
+                x4 = int(A[6])
+                y4 = int(A[7])
+                A1 = (x1, y1)
+                A2 = (x2, y2)
+                A3 = (x3, y3)
+                A4 = (x4, y4)
+                points.append(A1)
+                points.append(A2)
+                points.append(A3)
+                points.append(A4)
+                tempDict['points'] = points
+                del (points)
+                tempDict['shape_type'] = 'polygon'
+                tempDict['alias'] = 'name'
+                shapes.append(tempDict)
+
+            # elif shape=='bind':
+                # return shape, str_coords
+                # 读取OCR->correction后的txt
+    with open(ocr_path, 'r') as OCR_RES:
+        OCR_results = OCR_RES.readlines()
+        for OCR_each in OCR_results:
+            tempDict = {}
+            points = []
+            idx, shape, str_coords = str(OCR_each).strip().split('@')
+            tempDict['label'] = 'gene:' + shape
+            tempDict['line_color'] = colorgene
+            tempDict['fill_color'] = None
+            A = str_coords.replace('[', '')
+            A = A.replace(']', '')
+            A = A.split(',')
+            x1 = int(A[0])
+            y1 = int(A[1])
+            x2 = int(A[2])
+            y2 = int(A[3])
+            x3 = int(A[4])
+            y3 = int(A[5])
+            x4 = int(A[6])
+            y4 = int(A[7])
+            A1 = (x1, y1)
+            A2 = (x2, y2)
+            A3 = (x3, y3)
+            A4 = (x4, y4)
+            points.append(A1)
+            points.append(A2)
+            points.append(A3)
+            points.append(A4)
+            tempDict['points'] = points
+            del (points)
+            tempDict['shape_type'] = 'polygon'
+            tempDict['alias'] = 'name'
+            shapes.append(tempDict)
+    label = LabelFile()
+    label.save(os.path.join(to_labelmefolder, predict_path[:-4] + '.json'),
+               shapes,
+               image_file,
+               None, None, None, None, {})
+
+
 
 if __name__ == '__main__':
     correctfolder=r'D:\Study\Master\1st deep learning project\Dima data(2)\Dima data\imagetest\correct_txt'

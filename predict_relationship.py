@@ -380,7 +380,7 @@ def get_shapes_from_prediction_box(predict_gene_box, corrections):
             tempDict['alias'] = 'name'
             relationship_shapes.append(tempDict)
         elif shape == 'text':
-            if "****" not in corrections[index]:
+            if "*\t*\t*\t*\t*" not in corrections[index]:
                 tempDict['label'] = 'gene:' + corrections[index]
                 tempDict['line_color'] = colorarrow
                 tempDict['fill_color'] = None

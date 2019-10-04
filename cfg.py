@@ -93,12 +93,13 @@ crop_width = 736
 crop_height = 736
 
 # OCR configurations
-test_home_folder = r'C:\Users\hefe\Desktop\use case'  # home folder
+test_home_folder = r'C:\Users\coffe\Desktop\test'  # home folder
 image_folder = os.path.join(test_home_folder, "images")
 ground_truth_folder = image_folder
 predict_folder = os.path.join(test_home_folder, "predict")
 failed_folder = os.path.join(test_home_folder, "failed")
 previous_dictionary_path = ''  # none if not needed
+pdf_directory = r'C:\Users\coffe\Desktop\test\pdfs'
 
 log_file = os.path.join(predict_folder, "log.txt")
 dictionary_path = os.path.join(predict_folder, "gene_dictionary.xlsx")
@@ -131,6 +132,10 @@ sub_img_height_for_relation_predict = 140
 # relationship_folder = os.path.join(test_home_folder, "relationship")
 # testing_data_folder = os.path.join(relationship_folder, "test")
 #not_classified_folder = os.path.join(test_home_folder, "not_classified")
+
+predict_ocr=False
+predict_bounding_box=False
+predict_relation=True
 
 #different threshold configuration
 threshold_start_point = 0.6

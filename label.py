@@ -1,5 +1,5 @@
 import numpy as np
-import os
+import os, json
 from PIL import Image, ImageDraw
 from tqdm import tqdm
 import cfg
@@ -111,41 +111,55 @@ def process_label(data_dir=cfg.train_data_dir):
             line_cols[0].strip(), int(line_cols[1].strip()), \
             int(line_cols[2].strip())
 
-        gt = np.zeros((height // cfg.pixel_size, width // cfg.pixel_size, 10))
+        gt = np.zeros((height // cfg.pixel_size, width // cfg.pixel_size, 15))
         #set background score as default 0
         #gt[:, :, 0:5] = 0
         #gt[:, :, 0:3] = 0
         train_label_dir = os.path.join(data_dir, cfg.train_label_dir_name)
-        xy_list_array = np.load(os.path.join(train_label_dir,
-                                             img_name[:-4] + '.npy'))
+
+
+
+        with open(os.path.join(train_label_dir, img_name[:-4] + '_label.json'), 'r') as json_fp:
+            xy_list_array = json.load(json_fp)
+
         train_image_dir = os.path.join(data_dir, cfg.train_image_dir_name)
         with Image.open(os.path.join(train_image_dir, img_name)) as im:
             draw = ImageDraw.Draw(im)
             for xy_list in xy_list_array:
-                xy_list_coords = xy_list[:4, :]
-                if (xy_list[4] == np.array([0.0, 1.0])).all():
+                #xy_list_coords = xy_list[:4, :]
+                xy_list_coords = xy_list['coords']
+                if  xy_list['category'] == 'nock':
+                    #(xy_list[4] == np.array([0.0, 1.0])).all():
                     # nock
-                    _, shrink_xy_list, _ = shrink(xy_list_coords, 0)
+                    shrink_xy_list = xy_list_coords
                     # shrink_1, _, long_edge = shrink(xy_list_coords,
                     #                                 0.5)
 
-                elif (xy_list[4] == np.array([1.0, 0.0])).all():
+                elif xy_list['category'] == 'arrow':
+                        #(xy_list[4] == np.array([1.0, 0.0])).all():
                    # arrow
-                    _, shrink_xy_list, _ = shrink(xy_list_coords,
-                                                  0)
+                    shrink_xy_list= xy_list_coords
                     # shrink_1, _, long_edge = shrink(xy_list_coords,
                     #                                 0.5)
-                elif (xy_list[4] == np.array([0.0, 0.0])).all():
+                elif xy_list['category'] == 'text':
+                        #(xy_list[4] == np.array([0.0, 0.0])).all():
                     # text
                     _, shrink_xy_list, _ = shrink(xy_list_coords,
                                                   cfg.shrink_ratio)
                     shrink_1, _, long_edge = shrink(xy_list_coords,
                                                     cfg.shrink_side_ratio)
+
+                if xy_list['category'] == 'relationship':
+                    # (xy_list[4] == np.array([1.0, 0.0])).all():
+                    # arrow
+                    relationship_xy_list = xy_list_coords
+
                 # else:
                 #     # predict label, no need to shrink
                 #     _, shrink_xy_list, _ = shrink(xy_list_coords, cfg.shrink_ratio)
                 #     shrink_1, _, long_edge = shrink(xy_list_coords,
                 #                                     cfg.shrink_side_ratio)
+
 
                 p_min = np.amin(shrink_xy_list, axis=0)
                 p_max = np.amax(shrink_xy_list, axis=0)
@@ -164,12 +178,13 @@ def process_label(data_dir=cfg.train_data_dir):
                         if point_inside_of_quad(px, py,
                                                 shrink_xy_list, p_min, p_max):
                             #set the class label, needed one-hot encoding
-                            if (xy_list[4] == np.array([0.0, 0.0])).all():
+                            if xy_list['category'] == 'text':
                                 #text
                                 gt[i, j, 0] = 1
                                 gt[i, j, 1] = 1
                                 gt[i, j, 2] = 0
                                 gt[i, j, 3] = 0
+
                                 line_width, line_color = 1, 'red'
                                 ith = point_inside_of_nth_quad(px, py,
                                                                xy_list_coords,
@@ -189,11 +204,12 @@ def process_label(data_dir=cfg.train_data_dir):
                                     gt[i, j, 6:8] = \
                                         xy_list_coords[vs[long_edge][ith][0]] - [px,
                                                                                  py]
-                                    gt[i, j, 8:] = \
+                                    gt[i, j, 8:10] = \
                                         xy_list_coords[vs[long_edge][ith][1]] - [px,
                                                                                  py]
+                                    gt[i, j, 10:] = 0
 
-                            elif (xy_list[4] == np.array([0.0, 1.0])).all():
+                            elif xy_list['category'] == 'arrow':
                                 # nock
                                 gt[i, j, 0] = 1
                                 gt[i, j, 1] = 0
@@ -206,10 +222,11 @@ def process_label(data_dir=cfg.train_data_dir):
 
                                 gt[i, j, 6:8] = \
                                     xy_list_coords[0] - [px,py]
-                                gt[i, j, 8:] = \
+                                gt[i, j, 8:10] = \
                                     xy_list_coords[2] - [px,py]
+                                gt[i, j, 10:] = 0
 
-                            elif (xy_list[4] == np.array([1.0, 0.0])).all():
+                            elif xy_list['category'] == 'nock':
                                 #arrow
                                 gt[i, j, 0] = 1
                                 gt[i, j, 1] = 0
@@ -221,8 +238,9 @@ def process_label(data_dir=cfg.train_data_dir):
                                 gt[i, j, 5] = 1
                                 gt[i, j, 6:8] = \
                                     xy_list_coords[0] - [px, py]
-                                gt[i, j, 8:] = \
+                                gt[i, j, 8:10] = \
                                     xy_list_coords[2] - [px, py]
+                                gt[i, j, 10:] = 0
 
                             draw.line([(px - 0.5 * cfg.pixel_size,
                                         py - 0.5 * cfg.pixel_size),
@@ -236,11 +254,38 @@ def process_label(data_dir=cfg.train_data_dir):
                                         py - 0.5 * cfg.pixel_size)],
                                       width=line_width, fill=line_color)
 
+                p_min = np.amin(relationship_xy_list, axis=0)
+                p_max = np.amax(relationship_xy_list, axis=0)
+                # floor of the float
+                ji_min = (p_min / cfg.pixel_size - 0.5).astype(int) - 1
+                # +1 for ceil of the float and +1 for include the end
+                ji_max = (p_max / cfg.pixel_size - 0.5).astype(int) + 3
+                imin = np.maximum(0, ji_min[1])
+                imax = np.minimum(height // cfg.pixel_size, ji_max[1])
+                jmin = np.maximum(0, ji_min[0])
+                jmax = np.minimum(width // cfg.pixel_size, ji_max[0])
+                for i in range(imin, imax):
+                    for j in range(jmin, jmax):
+                        px = (j + 0.5) * cfg.pixel_size
+                        py = (i + 0.5) * cfg.pixel_size
+                        if point_inside_of_quad(px, py,
+                                                relationship_xy_list, p_min, p_max):
+                            # relationship
+                            gt[i, j, 0:9] = 0
+                            gt[i, j, 10] = 1
+
+                            gt[i, j, 11:13] = \
+                                xy_list_coords[0] - [px, py]
+                            gt[i, j, 13:] = \
+                                xy_list_coords[2] - [px, py]
+
+
             act_image_dir = os.path.join(cfg.train_data_dir,
                                          cfg.show_act_image_dir_name)
             if cfg.DEBUG:
                 im.save(os.path.join(act_image_dir, img_name))
         train_label_dir = os.path.join(data_dir, cfg.train_label_dir_name)
+
         np.save(os.path.join(train_label_dir,
                              img_name[:-4] + '_gt.npy'), gt)
 

@@ -78,12 +78,12 @@ def predict(east_detect,
     y = np.squeeze(y, axis=0)
     y[:, :, :1] = sigmoid(y[:, :, :1])
     y[:, :, 1:4] = softmax(y[:, :, 1:4])
-    y[:, :, 4:6] = sigmoid(y[:, :, 4:6])
+
     #y[:, :, :5] = sigmoid(y[:, :, :5])
     txt_items = []
     with Image.open(img_path) as im:
         im_array = image.img_to_array(im.convert('RGB'))
-        d_wight, d_height = resize_image(im, cfg.max_predict_img_size)
+        d_wight, d_heig y[:, :, 4:6] = sigmoid(y[:, :, 4:6])ht = resize_image(im, cfg.max_predict_img_size)
         scale_ratio_w = d_wight / im.width
         scale_ratio_h = d_height / im.height
         im = im.resize((d_wight, d_height), Image.NEAREST).convert('RGB')

@@ -241,7 +241,7 @@ def graph_similarity(label_gt,label_pd):
 
     return graph_edit_distance
 
-def calculate_all_metrics_by_json(detection_threshold):
+def calculate_all_metrics_by_json(detection_threshold, segmentation_threshold):
 
     # declaim some variances for computing final assessment
     pos_genebox_correct_detect_total = 0
@@ -261,7 +261,7 @@ def calculate_all_metrics_by_json(detection_threshold):
     pos_inhibit_correct_total = 0
 
     # load ground truth labels
-    with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(int(detection_threshold * 100)) + ".txt"),
+    with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(segmentation_threshold) + '_' + str(int(detection_threshold * 100)) + ".txt"),
               'w') as result_fp:
         result_fp.write(
             str.format(
@@ -286,14 +286,14 @@ def calculate_all_metrics_by_json(detection_threshold):
             continue
 
         try:
-            label_pd = LabelFile(os.path.join(cfg.predict_folder, image_name + '.json'))
+            label_pd = LabelFile(os.path.join(cfg.predict_folder, image_name +'_' + str(segmentation_threshold) + '.json'))
         except():
             print('we cannot open current predicted json file')
             continue
 
 
         # calculate graph_edit_diatance
-        graph_edit_diatance=graph_similarity(label_gt,label_pd)
+        #graph_edit_diatance=graph_similarity(label_gt,label_pd)
 
 
         pos_genebox_correct_detect, pos_arrowbox_correct_detect, \
@@ -329,7 +329,7 @@ def calculate_all_metrics_by_json(detection_threshold):
         precision_inhibit = pos_correct_inhibit / current_pd_inhibit_num
 
         # save assessment of current prediction to file
-        with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(int(detection_threshold * 100)) + ".txt"),
+        with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(segmentation_threshold) + '_' + str(int(detection_threshold * 100)) + ".txt"),
                   'a') as result_fp:
             result_fp.write(
                 str.format(
@@ -369,7 +369,7 @@ def calculate_all_metrics_by_json(detection_threshold):
         pos_inhibit_correct_total += pos_correct_inhibit
 
         # graph_edit_diatance
-        graph_edit_diatance += graph_edit_diatance
+        #graph_edit_diatance += graph_edit_diatance
 
         del label_gt, label_pd, current_gt_text_num, current_gt_arrow_num, \
             current_gt_inhibit_num, current_gt_gene_num, current_pd_text_num, \
@@ -393,7 +393,7 @@ def calculate_all_metrics_by_json(detection_threshold):
     overall_precision_inhibit = pos_inhibit_correct_total / num_inhibitbox_pd_detect_total
     overall_recall_inhibit = pos_inhibit_correct_total / num_inhibitbox_gt_detect_total
 
-    with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(int(detection_threshold * 100)) + ".txt"),
+    with open(os.path.join(cfg.predict_folder, 'evaluate_' + str(segmentation_threshold) + '_' + str(int(detection_threshold * 100)) + ".txt"),
               'a') as result_fp:
         result_fp.write(
             str.format(
@@ -412,7 +412,181 @@ def calculate_all_metrics_by_json(detection_threshold):
                overall_precision_arrow,
                overall_recall_inhibit,
                overall_precision_inhibit,
-               graph_edit_diatance))
+               0))
+
+
+def calculate_all_metrics_best_candidate_by_json(detection_threshold, image_best_threshold_dict):
+
+    # declaim some variances for computing final assessment
+    pos_genebox_correct_detect_total = 0
+    num_genebox_pd_detect_total = cfg.epsilon
+    num_genebox_gt_detect_total = cfg.epsilon
+    pos_correct_gene_total = 0
+    neg_correct_gene_total = 0
+    num_pd_gene_total = cfg.epsilon
+    num_gt_gene_total = cfg.epsilon
+    pos_arrowbox_correct_detect_total = 0
+    num_arrowbox_pd_detect_total = cfg.epsilon
+    num_arrowbox_gt_detect_total = cfg.epsilon
+    pos_inhibitbox_correct_detect_total = 0
+    num_inhibitbox_pd_detect_total = cfg.epsilon
+    num_inhibitbox_gt_detect_total = cfg.epsilon
+    pos_activate_correct_total = 0
+    pos_inhibit_correct_total = 0
+
+    # load ground truth labels
+    with open(os.path.join(cfg.predict_folder, 'evaluate_best_' + str(int(detection_threshold * 100)) + ".txt"),
+              'w') as result_fp:
+        result_fp.write(
+            str.format(
+                '%s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \t %s \n')
+            % ('imagename', 'genebox_recall', 'genebox_precision',
+               'arrowbox_recall', 'arrowbox_precision', 'inhibitbox_recall',
+               'inhibitbox_precision', 'gene_recall', 'gene_precision', 'gene_ocr_accuracy',
+               'arrow_recall', 'arrow_precision', 'inhibit_recall',
+               'inhibit_precision'))
+
+    for image_file in os.listdir(cfg.image_folder):
+        # label = LabelFile(os.path.join(path + r'\gt', image_file[:-4] + '.json'))
+        image_name, image_ext = os.path.splitext(image_file)
+        if image_ext != ".json":
+            continue
+        print(image_file)
+        try:
+            label_gt = LabelFile(
+                os.path.join(cfg.ground_truth_folder, image_name + '.json'))
+        except():
+            print('we do not have ground truth for this input yet')
+            continue
+
+        try:
+            label_pd = LabelFile(os.path.join(cfg.predict_folder, image_name +'_' + str(image_best_threshold_dict[image_name]) + '.json'))
+        except():
+            print('we cannot open current predicted json file')
+            continue
+
+
+        # calculate graph_edit_diatance
+        #graph_edit_diatance=graph_similarity(label_gt,label_pd)
+
+
+        pos_genebox_correct_detect, pos_arrowbox_correct_detect, \
+            pos_inhibitbox_correct_detect, pos_correct_gene, pos_correct_arrow, \
+            pos_correct_inhibit, neg_correct_gene = calculate_correction_number_by_json(label_gt.shapes,
+                                                                                        label_pd.shapes,
+                                                                                        detection_threshold)
+
+        # these variants might be divided, so they cannot be zero
+        current_gt_text_num = label_gt.text_num + cfg.epsilon
+        current_gt_arrow_num = label_gt.arrow_num + cfg.epsilon
+        current_gt_inhibit_num = label_gt.inhibit_num + cfg.epsilon
+        current_gt_gene_num = len(label_gt.get_all_genes()) + cfg.epsilon
+
+        current_pd_text_num = label_pd.text_num + cfg.epsilon
+        current_pd_arrow_num = label_pd.arrow_num + cfg.epsilon
+        current_pd_inhibit_num = label_pd.inhibit_num + cfg.epsilon
+        current_pd_gene_num = len(label_pd.get_all_genes()) + cfg.epsilon
+
+        # calculate the metrics
+        recall_genebox_detect = pos_genebox_correct_detect / current_gt_text_num
+        precision_genebox_detect = pos_genebox_correct_detect / current_pd_text_num
+        recall_arrowbox_detect = pos_arrowbox_correct_detect / current_gt_arrow_num
+        precision_arrowbox_detect = pos_arrowbox_correct_detect / current_pd_arrow_num
+        recall_inhibitbox_detect = pos_inhibitbox_correct_detect / current_gt_inhibit_num
+        precision_inhibitbox_detect = pos_inhibitbox_correct_detect / current_pd_inhibit_num
+        recall_gene = pos_correct_gene / current_gt_gene_num
+        precision_gene = pos_correct_gene / current_pd_gene_num
+        accuracy_gene = (pos_correct_gene + neg_correct_gene) / current_pd_gene_num
+        recall_arrow = pos_correct_arrow / current_gt_arrow_num
+        precision_arrow = pos_correct_arrow / current_pd_arrow_num
+        recall_inhibit = pos_correct_inhibit / current_gt_inhibit_num
+        precision_inhibit = pos_correct_inhibit / current_pd_inhibit_num
+
+        # save assessment of current prediction to file
+        with open(os.path.join(cfg.predict_folder, 'evaluate_best_' + str(int(detection_threshold * 100)) + ".txt"),
+                  'a') as result_fp:
+            result_fp.write(
+                str.format(
+                    '%s \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f\t %f \t %f \n')
+                % (label_pd.filename, recall_genebox_detect, precision_genebox_detect,
+                   recall_arrowbox_detect, precision_arrowbox_detect,
+                   recall_inhibitbox_detect, precision_inhibitbox_detect,
+                   recall_gene, precision_gene, accuracy_gene, recall_arrow, precision_arrow,
+                   recall_inhibit, precision_inhibit))
+
+        # accumulate
+        # gene box
+        pos_genebox_correct_detect_total += pos_genebox_correct_detect
+        num_genebox_pd_detect_total += current_pd_text_num
+        num_genebox_gt_detect_total += current_gt_text_num
+
+        # gene names
+        pos_correct_gene_total += pos_correct_gene
+        neg_correct_gene_total += neg_correct_gene
+        num_pd_gene_total += current_pd_gene_num
+        num_gt_gene_total += current_gt_gene_num
+
+        # arrow
+        pos_arrowbox_correct_detect_total += pos_arrowbox_correct_detect
+        num_arrowbox_pd_detect_total += current_pd_arrow_num
+        num_arrowbox_gt_detect_total += current_gt_arrow_num
+
+        # inhibit
+        pos_inhibitbox_correct_detect_total += pos_inhibitbox_correct_detect
+        num_inhibitbox_pd_detect_total += current_pd_inhibit_num
+        num_inhibitbox_gt_detect_total += current_gt_inhibit_num
+
+        # activate recognition
+        pos_activate_correct_total += pos_correct_arrow
+
+        # inhibit recognition
+        pos_inhibit_correct_total += pos_correct_inhibit
+
+        # graph_edit_diatance
+        #graph_edit_diatance += graph_edit_diatance
+
+        del label_gt, label_pd, current_gt_text_num, current_gt_arrow_num, \
+            current_gt_inhibit_num, current_gt_gene_num, current_pd_text_num, \
+            current_pd_arrow_num, current_pd_inhibit_num, current_pd_gene_num, \
+            pos_genebox_correct_detect, pos_arrowbox_correct_detect, \
+            pos_inhibitbox_correct_detect, pos_correct_gene, pos_correct_arrow, \
+            pos_correct_inhibit
+
+    # calculate the overall metrics
+    overall_genebox_precision_detect = pos_genebox_correct_detect_total / num_genebox_pd_detect_total
+    overall_genebox_recall_detect = pos_genebox_correct_detect_total / num_genebox_gt_detect_total
+    overall_precision_gene = pos_correct_gene_total / num_pd_gene_total
+    overall_recall_gene = pos_correct_gene_total / num_gt_gene_total
+    overall_accuracy_gene = (pos_correct_gene_total + neg_correct_gene_total) / num_pd_gene_total
+    overall_arrowbox_precision_detect = pos_arrowbox_correct_detect_total / num_arrowbox_pd_detect_total
+    overall_arrowbox_recall_detect = pos_arrowbox_correct_detect_total / num_arrowbox_gt_detect_total
+    overall_inhibitbox_precision_detect = pos_inhibitbox_correct_detect_total / num_inhibitbox_pd_detect_total
+    overall_inhibitbox_recall_detect = pos_inhibitbox_correct_detect_total / num_inhibitbox_gt_detect_total
+    overall_precision_arrow = pos_activate_correct_total / num_arrowbox_pd_detect_total
+    overall_recall_arrow = pos_activate_correct_total / num_arrowbox_gt_detect_total
+    overall_precision_inhibit = pos_inhibit_correct_total / num_inhibitbox_pd_detect_total
+    overall_recall_inhibit = pos_inhibit_correct_total / num_inhibitbox_gt_detect_total
+
+    with open(os.path.join(cfg.predict_folder, 'evaluate_best_' + str(int(detection_threshold * 100)) + ".txt"),
+              'a') as result_fp:
+        result_fp.write(
+            str.format(
+                '%s \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f\t %f \t %f \t %f \n')
+            % ('total evaluation',
+               overall_genebox_recall_detect,
+               overall_genebox_precision_detect,
+               overall_arrowbox_recall_detect,
+               overall_arrowbox_precision_detect,
+               overall_inhibitbox_recall_detect,
+               overall_inhibitbox_precision_detect,
+               overall_recall_gene,
+               overall_precision_gene,
+               overall_accuracy_gene,
+               overall_recall_arrow,
+               overall_precision_arrow,
+               overall_recall_inhibit,
+               overall_precision_inhibit,
+               0))
 
 
 def draw_curve(gene_list, arrow_list, inhibit_list):
@@ -455,9 +629,16 @@ if __name__ == '__main__':
     # img_folder = r'C:\Users\LSC-110\Desktop\Images'
     # predict_folder = r'C:\Users\LSC-110\Desktop\results'
     # ground_truth_folder = r'C:\Users\hefe\Desktop\history\ground_truth'
+    if cfg.ground_truth_folder and os.path.exists(cfg.ground_truth_folder):
+        # evaluate all threshold results
+        for threshold in np.arange(cfg.threshold_start_point, cfg.threshold_end_point, cfg.threshold_step):
+            for value in cfg.detection_IoU_thresholds:
+                calculate_all_metrics_by_json(value, threshold)
 
-    if cfg.ground_truth_folder and os.path.exists(cfg.ground_truth_folder):  # evaluate
-        for value in cfg.detection_IoU_thresholds:
-            calculate_all_metrics_by_json(value)
+        # evaluate best prediction
+        # for value in cfg.detection_IoU_thresholds:
+        #     calculate_all_metrics_best_candidate_by_json(value, image_best_threshold_dict)
+
+
 
 # end of file

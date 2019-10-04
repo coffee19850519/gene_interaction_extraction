@@ -1,12 +1,12 @@
 import glob
+import cfg
 
-main_pdf_directory = r'C:\Users\hefe\Desktop\other\pdfs'
 def pdf_from_image_name(image_name):
     splitname = image_name.split('_');
     subid = splitname[1]
     firstword = splitname[2] + ' '
     pdfs = []
-    for folder in glob.glob(main_pdf_directory + '/*'):
+    for folder in glob.glob(cfg.pdf_directory + '/*'):
         found = False
         for pdf in glob.glob(folder + '/{}*_{}_.pdf'.format(firstword, subid)):
             pdfs = [pdf]
@@ -20,8 +20,8 @@ def pdf_from_image_name(image_name):
 
 
 if __name__ == "__main__":
-    image_directory = r'C:\Users\hefe\Desktop\use case\images'
-    for image in glob.glob(image_directory + r'\*.png'):
+    #image_directory = r'C:\Users\hefe\Desktop\use case\images'
+    for image in glob.glob(cfg.image_folder + r'\*.png'):
         imagename = image.split('\\')[-1]
         possible_pdfs = pdf_from_image_name(imagename)
         if len(possible_pdfs) > 1:
