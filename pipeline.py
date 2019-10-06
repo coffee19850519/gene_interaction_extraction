@@ -166,7 +166,7 @@ if __name__ == '__main__':
                 activator_list, activator_neighbor_list, receptor_list, receptor_neighbor_list, text_shapes, arrow_boxes = find_all_arrows(
                     image_path, label)
 
-                arrow_relationship_pairs, arrow_descriptions, arrow_relationship_boxes = pair_gene(activator_list, activator_neighbor_list, receptor_list,
+                arrow_relationship_pairs, arrow_descriptions, arrow_relationship_boxes =                                                                                                                                                                                                        pair_gene(activator_list, activator_neighbor_list, receptor_list,
                                                 receptor_neighbor_list, text_shapes, arrow_boxes, cfg.predict_folder,cfg.image_folder,image_path)
                 for arrow_description in arrow_descriptions:
                     arrow_description = 'activate:' + arrow_description

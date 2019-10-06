@@ -53,10 +53,13 @@ def generate_relation_box_per_gene_pair(entity1_box, entity2_box, relation_box, 
         return left_top_y, left_top_x, right_bottom_y, right_bottom_x
 
 
-def generate_relation_boxes(image_path, label_path, new_label_path):
+def generate_relation_boxes(image_path, label_path):
     current_label_file = LabelFile(label_path)
     activator_list, activator_neighbor_list, receptor_list, receptor_neighbor_list, text_shapes, arrow_boxes = \
         find_all_arrows(image_path, current_label_file)
+
+    origin_img = cv2.imread(image_path)
+
 
     arrow_relationship_pairs, arrow_descriptions, arrow_relationship_boxes = pair_gene(activator_list,
                                                                                        activator_neighbor_list,
@@ -67,6 +70,11 @@ def generate_relation_boxes(image_path, label_path, new_label_path):
                                                                                        image_path)
 
     for arrow_description, arrow_relationship_box in zip(arrow_descriptions, arrow_relationship_boxes):
+
+        cv2.fillPoly(origin_img, np.array([arrow_relationship_box['entity1_bounding_box']], np.int32), (0,0,255))
+        cv2.fillPoly(origin_img, np.array([arrow_relationship_box['entity2_bounding_box']], np.int32), (0, 0, 255))
+        cv2.fillPoly(origin_img, np.array([arrow_relationship_box['relationship_bounding_box']], np.int32), (0, 0, 255))
+
         left_top_y, left_top_x, right_bottom_y, right_bottom_x = \
             generate_relation_box_per_gene_pair(arrow_relationship_box['entity1_bounding_box'],
                                                 arrow_relationship_box['entity2_bounding_box'],
@@ -74,9 +82,11 @@ def generate_relation_boxes(image_path, label_path, new_label_path):
                                                 current_label_file.imageWidth,
                                                 current_label_file.imageHeight,
                                                 offset= 5)
+        cv2.rectangle(origin_img, (left_top_x, left_top_y), (right_bottom_x, right_bottom_y), color=(0, 255, 0), thickness=4)
+
         tempDict = {}
-        tempDict['label'] = arrow_description
-        tempDict['line_color'] = [0, 255, 0, 255]
+        tempDict['label'] = 'relationship:'#arrow_description
+        tempDict['line_color'] = [0, 0, 255, 255]
         tempDict['fill_color'] = None
         tempDict['points'] = [[left_top_x, left_top_y],[right_bottom_x, right_bottom_y]]
         tempDict['shape_type'] = 'rectangle'
@@ -91,6 +101,7 @@ def generate_relation_boxes(image_path, label_path, new_label_path):
                                                                                              receptor_neighbor_list,
                                                                                              text_shapes, inhibit_boxes,
                                                                                              image_path)
+
     for inhibit_description, inhibit_relationship_box in zip(inhibit_descriptions, inhibit_relationship_boxes):
         left_top_y, left_top_x, right_bottom_y, right_bottom_x = generate_relation_box_per_gene_pair(
                                                 inhibit_relationship_box['entity1_bounding_box'],
@@ -99,16 +110,23 @@ def generate_relation_boxes(image_path, label_path, new_label_path):
                                                 current_label_file.imageWidth,
                                                 current_label_file.imageHeight,
                                                 offset=5)
+        # cv2.fillPoly(origin_img, np.array([inhibit_relationship_box['entity1_bounding_box']], np.int32), (0, 0, 255))
+        # cv2.fillPoly(origin_img, np.array([inhibit_relationship_box['entity2_bounding_box']], np.int32), (0, 0, 255))
+        # cv2.fillPoly(origin_img, np.array([inhibit_relationship_box['relationship_bounding_box']], np.int32), (0, 0, 255))
+        # cv2.rectangle(origin_img, (left_top_x, left_top_y), (right_bottom_x, right_bottom_y), color=(0, 255, 0), thickness=4)
+
         tempDict = {}
-        tempDict['label'] = inhibit_description
-        tempDict['line_color'] = [0, 255, 0, 255]
+        tempDict['label'] = 'relationship:'#inhibit_description
+        tempDict['line_color'] = [0, 0, 255, 255]
         tempDict['fill_color'] = None
         tempDict['points'] = [[left_top_x, left_top_y], [right_bottom_x, right_bottom_y]]
         tempDict['shape_type'] = 'rectangle'
         tempDict['alias'] = 'name'
         current_label_file.shapes.append(tempDict)
 
-    current_label_file.save(new_label_path,
+    # cv2.imwrite(image_path[:-4]+'_detected.png', origin_img)
+    os.remove(label_path)
+    current_label_file.save(label_path,
                             current_label_file.shapes,
                             current_label_file.imagePath,
                             current_label_file.imageHeight,
@@ -124,5 +142,4 @@ if __name__ == '__main__':
             continue
         else:
             generate_relation_boxes(os.path.join(img_fold, image_file),
-                                    os.path.join(img_fold,image_name + '.json'),
-                                    os.path.join(img_fold,image_name + '_new.json'))
+                                    os.path.join(img_fold,image_name + '.json'))
